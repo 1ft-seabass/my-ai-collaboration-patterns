@@ -13,6 +13,9 @@ degit とは何か、どう使うべきか。ファイルコピーツールと�
 ### 03. [ドッグフーディング実践](./03_repository-dogfooding.md)
 このリポジトリ自身に docs/ を作成し、AI協働開発ガイドに従う実践記録。
 
+### 04. [パターン抽出プロセス](./04_pattern-extraction-process.md)
+docs/ 構造を patterns/docs-structure/ として抽出・パッケージ化する過程の記録。
+
 ## 📝 テンプレート
 
 [TEMPLATE.md](./TEMPLATE.md) を使用してください。
