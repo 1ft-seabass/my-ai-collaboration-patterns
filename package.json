@@ -1,0 +1,16 @@
+{
+  "name": "my-ai-collaboration-patterns",
+  "version": "1.0.0",
+  "description": "AIと効率的に協働開発するための**実践的パターン集**",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "claude": "claude --dangerously-skip-permissions",
+    "claude:keep_session": "claude --dangerously-skip-permissions -c"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
