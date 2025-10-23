@@ -5,15 +5,11 @@ AIと効率的に協働開発するための**実践的パターン集**
 ## 🚀 5秒で使う
 
 ```bash
-# ドキュメント構造
+# ドキュメント構造（✅ 利用可能）
 npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
-
-# サーバー管理（Native環境 - Docker なし）
-npx degit <username>/my-ai-collaboration-patterns/patterns/server-management/variants/native/templates ./scripts
-
-# サーバー管理（Docker環境）
-npx degit <username>/my-ai-collaboration-patterns/patterns/server-management/variants/docker/templates ./scripts
 ```
+
+**Note**: `<username>` は実際のGitHubユーザー名に置き換えてください。
 
 ## 📦 パターン一覧
 
@@ -32,22 +28,9 @@ AIが理解しやすいドキュメント管理
 - README駆動のナビゲーション
 
 ### [server-management](./patterns/server-management/) - サーバー管理
-確実なサーバー起動・停止スクリプト
+**Coming Soon**
 
-**バリエーション**:
-- [Native版](./patterns/server-management/variants/native/) - Docker なし（Raspberry Pi、開発環境向け）
-- [Docker版](./patterns/server-management/variants/docker/) - Docker Compose 管理
-
-**使用例**:
-- 複数サーバーの統一的な管理
-- Raspberry Pi での運用
-- 開発・本番環境のサーバー制御
-
-**主な機能**:
-- ポート管理・プロセス管理
-- ヘルスチェック
-- 一括起動・停止
-- ログ管理
+確実なサーバー起動・停止スクリプト（今後実装予定）
 
 ### [prompt-engineering](./patterns/prompt-engineering/) - プロンプト設計
 **Coming Soon**
@@ -65,34 +48,36 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/<pattern-name>/templa
 
 # 例: ドキュメント構造
 npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
-
-# 例: サーバー管理（Native）
-npx degit <username>/my-ai-collaboration-patterns/patterns/server-management/variants/native/templates ./scripts
 ```
 
 ### Git Clone
 
 ```bash
 git clone https://github.com/<username>/my-ai-collaboration-patterns.git
-cp -r my-ai-collaboration-patterns/patterns/<pattern>/templates/* ./
+cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
 ```
 
 ### 詳細ガイド
-[docs/usage-guide.md](./docs/usage-guide.md)
+
+各パターンの詳細は、パターンディレクトリ内の `README.md` と `GUIDE.md` を参照してください。
+
+- [docs-structure パターン](./patterns/docs-structure/README.md)
 
 ## 🎯 特徴
 
 - **すぐ使える**: GitHub URL 指定だけで取得
-- **バリエーション対応**: Docker/Native などの環境差に対応
-- **関連記事充実**: ワンショットGUIDE.md + 詳細なcore/*.md
-- **実証済み**: 実プロジェクトで使用されているパターン
+- **ワンショット指示**: GUIDE.md でAIが即座に構造を構築
+- **実証済み**: このリポジトリ自身で使用（ドッグフーディング）
 - **AI最適化**: AIアシスタントが理解しやすい構造
+- **具体例付き**: examples/ に実際の使用例を収録
 
 ## 📖 ドキュメント
 
-- [使い方ガイド](./docs/usage-guide.md)
-- [パターンの作り方](./docs/pattern-creation-guide.md)
-- [コントリビューションガイド](./docs/contributing.md)
+このリポジトリは `docs/` ディレクトリで自身のパターンを使用しています：
+
+- [AI協働開発ガイド](./docs/ai-collaboration/AI_COLLABORATION_GUIDE.md)
+- [開発ノート](./docs/notes/)
+- [申し送り](./docs/letter/)
 
 ## 🤝 コントリビューション
 
@@ -100,11 +85,10 @@ cp -r my-ai-collaboration-patterns/patterns/<pattern>/templates/* ./
 
 ### パターン追加の流れ
 1. `patterns/your-pattern/` を作成
-2. README.md, GUIDE.md (または variants/), core/, templates/ を配置
-3. examples/ に実例を追加
-4. プルリクエスト
+2. README.md, GUIDE.md, templates/, examples/ を配置
+3. プルリクエストを作成
 
-詳細: [contributing.md](./docs/contributing.md)
+参考例: [docs-structure パターン](./patterns/docs-structure/)
 
 ## 📄 ライセンス
 
@@ -116,4 +100,4 @@ MIT License - 自由に使用・改変・配布できます
 
 ---
 
-**Quick Start**: [docs-structure](./patterns/docs-structure/) → [server-management](./patterns/server-management/)
+**Quick Start**: [docs-structure パターンを見る](./patterns/docs-structure/)
