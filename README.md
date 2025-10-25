@@ -7,6 +7,9 @@ AIと効率的に協働開発するための**実践的パターン集**
 ```bash
 # ドキュメント構造（✅ 利用可能）
 npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
+
+# アクションパターン（✅ 利用可能）
+npx degit <username>/my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./actions
 ```
 
 **Note**: `<username>` は実際のGitHubユーザー名に置き換えてください。
@@ -26,6 +29,23 @@ AIが理解しやすいドキュメント管理
 - 申し送りテンプレート
 - 開発ノート・ADRテンプレート
 - README駆動のナビゲーション
+
+### [actions-pattern](./patterns/actions-pattern/) - アクションパターン
+繰り返しタスクを効率化し、トークン消費を約70%削減
+
+**使用例**:
+- Git操作の自動化（コミット・プッシュ）
+- 知見のまとめ作成
+- セッション開始時の定型作業
+
+**主な機能**:
+- 明確な指示書による一貫した実行
+- トークン消費の大幅削減（約70%）
+- 会話の往復を削減
+- `@actions/タスク名.md` で即座に実行
+
+**効果**:
+- 会話ベース: 8,667トークン → actionsパターン: 2,667トークン
 
 ### [server-management](./patterns/server-management/) - サーバー管理
 **Coming Soon**
@@ -48,6 +68,9 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/<pattern-name>/templa
 
 # 例: ドキュメント構造
 npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
+
+# 例: アクションパターン
+npx degit <username>/my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./actions
 ```
 
 ### Git Clone
@@ -55,6 +78,7 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templa
 ```bash
 git clone https://github.com/<username>/my-ai-collaboration-patterns.git
 cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
+cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./
 ```
 
 ### 詳細ガイド
@@ -62,6 +86,7 @@ cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
 各パターンの詳細は、パターンディレクトリ内の `README.md` と `GUIDE.md` を参照してください。
 
 - [docs-structure パターン](./patterns/docs-structure/README.md)
+- [actions-pattern パターン](./patterns/actions-pattern/README.md)
 
 ## 🎯 特徴
 
@@ -88,7 +113,9 @@ cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
 2. README.md, GUIDE.md, templates/, examples/ を配置
 3. プルリクエストを作成
 
-参考例: [docs-structure パターン](./patterns/docs-structure/)
+参考例:
+- [docs-structure パターン](./patterns/docs-structure/)
+- [actions-pattern パターン](./patterns/actions-pattern/)
 
 ## 📄 ライセンス
 
@@ -100,4 +127,6 @@ MIT License - 自由に使用・改変・配布できます
 
 ---
 
-**Quick Start**: [docs-structure パターンを見る](./patterns/docs-structure/)
+**Quick Start**:
+- [docs-structure パターンを見る](./patterns/docs-structure/)
+- [actions-pattern パターンを見る](./patterns/actions-pattern/)
