@@ -140,3 +140,7 @@ vite.config.ts.timestamp-*
 
 # Added
 prompt.md
+
+# Core dumps
+core
+core.*
