@@ -35,6 +35,16 @@ AIアシスタントと効率的に協働開発するための汎用ルール・
 ### [spec/](./spec/) - 仕様書
 機能仕様、API仕様などを格納しています。
 
+### [actions/](./actions/) - タスク自動化指示書
+繰り返し実行するタスクの明確な指示書を格納しています。
+
+- **使い方**: `@actions/ファイル名.md` でAIに読み込ませる
+- **効果**: トークン消費を約70%削減
+- **例**:
+  - `git_commit_and_push.md` - 段階的なコミット・プッシュ
+  - `current_create_knowledge.md` - 知見のまとめ作成
+  - `simple_start_from_latest_letter.md` - 申し送りからセッション開始
+
 ## 🤖 AIへの指示例
 
 ### セッション開始時
@@ -51,6 +61,18 @@ AIアシスタントと効率的に協働開発するための汎用ルール・
 ### 申し送り作成
 ```
 「今日の作業内容を docs/letter/ に申し送りとして記録してください」
+```
+
+### actionsの活用（推奨）
+```
+# セッション開始時
+@actions/simple_start_from_latest_letter.md
+
+# 知見をまとめたいとき
+@actions/current_create_knowledge.md
+
+# 作業完了時
+@actions/git_commit_and_push.md
 ```
 
 ## 📝 ドキュメント管理の原則
