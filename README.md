@@ -10,6 +10,10 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templa
 
 # アクションパターン（✅ 利用可能）
 npx degit <username>/my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./actions
+
+# ブランチ専用ワークスペース（✅ 利用可能）
+git checkout -b feature/your-feature
+npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
 ```
 
 **Note**: `<username>` は実際のGitHubユーザー名に置き換えてください。
@@ -47,6 +51,25 @@ AIが理解しやすいドキュメント管理
 **効果**:
 - 会話ベース: 8,667トークン → actionsパターン: 2,667トークン
 
+### [docs-structure-for-target-branch-only](./patterns/docs-structure-for-target-branch-only/) - ブランチ専用ワークスペース
+ブランチ開発に特化した封じ込め型のドキュメント・スクリプト管理
+
+**使用例**:
+- 機能ブランチでの開発
+- 実験的な機能の開発
+- 長期ブランチでの開発
+
+**主な機能**:
+- ブランチ専用のdocs/（ドキュメント）
+- ブランチ専用のscripts/（テスト・起動・ビルド）
+- ブランチ専用のactions/（タスク自動化）
+- Node.js優先のスクリプト（プラットフォーム非依存）
+- ブランチ削除で全て消える
+
+**効果**:
+- mainブランチの汚染: 100% → 0%（完全分離）
+- ブランチ削除の手間: 手動クリーンアップ → 自動削除
+
 ### [server-management](./patterns/server-management/) - サーバー管理
 **Coming Soon**
 
@@ -71,6 +94,10 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templa
 
 # 例: アクションパターン
 npx degit <username>/my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./actions
+
+# 例: ブランチ専用ワークスペース
+git checkout -b feature/my-feature
+npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
 ```
 
 ### Git Clone
@@ -87,6 +114,7 @@ cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./
 
 - [docs-structure パターン](./patterns/docs-structure/README.md)
 - [actions-pattern パターン](./patterns/actions-pattern/README.md)
+- [docs-structure-for-target-branch-only パターン](./patterns/docs-structure-for-target-branch-only/README.md)
 
 ## 🎯 特徴
 
@@ -130,3 +158,4 @@ MIT License - 自由に使用・改変・配布できます
 **Quick Start**:
 - [docs-structure パターンを見る](./patterns/docs-structure/)
 - [actions-pattern パターンを見る](./patterns/actions-pattern/)
+- [docs-structure-for-target-branch-only パターンを見る](./patterns/docs-structure-for-target-branch-only/)
