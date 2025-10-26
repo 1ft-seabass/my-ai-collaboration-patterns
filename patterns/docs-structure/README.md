@@ -1,5 +1,14 @@
 # docs-structure パターン
 
+> **🤖 AIへのワンショット指示（コピペ用）**
+>
+> ```
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/docs-structure
+> この仕組みを導入したいです。degit で構造をそのまま持ってきましょう。
+> degit するのは配下の templates フォルダの中身です。
+> また、中の各 README や TEMPLATE を案件固有のものに合わせてください。
+> ```
+
 AIが理解しやすいドキュメント管理構造
 
 ## 📦 このパターンについて
@@ -26,13 +35,13 @@ AI協働開発において、AIアシスタントが効率的に情報を探索�
 **重要**: `templates` ディレクトリを指定してください。パターン直下ではなく、`templates` 以下がプロジェクトで使用するドキュメント構造です。
 
 ```bash
-npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
 ```
 
 ### Git Clone
 
 ```bash
-git clone https://github.com/<username>/my-ai-collaboration-patterns.git
+git clone https://github.com/1ft-seabass/my-ai-collaboration-patterns.git
 cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
 ```
 
@@ -167,7 +176,7 @@ docs/
 ## 📚 詳細ドキュメント
 
 詳細な使い方やカスタマイズ方法は以下を参照：
-- [GUIDE.md](./GUIDE.md) - ワンショット作成指示
+- [GUIDE.md](./GUIDE.md) - AI向け補足ガイド（degit後に読む）
 - [examples/](./examples/) - 具体的な使用例
 
 ## 🛠️ カスタマイズ
