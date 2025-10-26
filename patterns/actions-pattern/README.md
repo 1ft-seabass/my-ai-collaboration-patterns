@@ -1,5 +1,14 @@
 # actions パターン
 
+> **🤖 AIへのワンショット指示（コピペ用）**
+>
+> ```
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/actions-pattern
+> この仕組みを導入したいです。degit で構造をそのまま持ってきましょう。
+> degit するのは配下の templates フォルダの中身です。
+> また、中の各 README や TEMPLATE を案件固有のものに合わせてください。
+> ```
+
 繰り返しタスクを効率化し、トークン消費を約70%削減
 
 ## 📦 このパターンについて
@@ -25,15 +34,17 @@ Claude Code などの AI 協調開発で、繰り返し実行するタスクを�
 
 ### degit で取得（推奨）
 
+**重要**: `templates` ディレクトリを指定してください。パターン直下ではなく、`templates` 以下がプロジェクトで使用するactionsディレクトリです。
+
 ```bash
-npx degit <username>/my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./actions
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/actions-pattern/templates ./actions
 ```
 
 ### Git Clone
 
 ```bash
-git clone https://github.com/<username>/my-ai-collaboration-patterns.git
-cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./
+git clone https://github.com/1ft-seabass/my-ai-collaboration-patterns.git
+cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/* ./actions/
 ```
 
 ### AIに読ませる
