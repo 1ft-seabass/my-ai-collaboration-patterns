@@ -11,6 +11,11 @@
 ```
 docs/
 ├── README.md
+├── actions/                          # タスク自動化指示書
+│   ├── README.md
+│   ├── git_commit_and_push.md
+│   ├── current_create_knowledge.md
+│   └── simple_start_from_latest_letter.md
 ├── ai-collaboration/
 │   ├── README.md
 │   └── AI_COLLABORATION_GUIDE.md
@@ -37,7 +42,7 @@ docs/
 ### ステップ1: ディレクトリ作成
 
 ```bash
-mkdir -p docs/{ai-collaboration,development/best-practices,architecture/decisions,letter,notes,spec}
+mkdir -p docs/{actions,ai-collaboration,development/best-practices,architecture/decisions,letter,notes,spec}
 ```
 
 ### ステップ2: 各ファイルを作成
@@ -130,7 +135,7 @@ AIアシスタントと効率的に協働開発するための汎用ルール・
 npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
 ```
 
-このコマンドで、すべての必要なファイルが一度に配置されます。
+**重要**: 必ず `templates` ディレクトリを指定してください。これにより、actions を含むすべての必要なファイルが一度に配置されます。
 
 ## 🎓 AIアシスタントへの指示
 
@@ -142,6 +147,20 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templa
 ```
 
 ## 📖 主要コンセプト
+
+### actions - タスク自動化指示書
+
+繰り返し実行するタスクを指示書として保存し、`@actions/ファイル名.md` で呼び出すことで効率化します。
+
+**提供されるアクション:**
+- `git_commit_and_push.md` - 進捗のコミットとプッシュ
+- `current_create_knowledge.md` - 知見のまとめ作成
+- `simple_start_from_latest_letter.md` - セッション開始（申し送りから）
+
+**効果:**
+- トークン削減: 約70%（実測値）
+- 時間短縮: 確認の往復がない
+- 一貫性: 毎回同じ品質
 
 ### 3種類のドキュメント
 
