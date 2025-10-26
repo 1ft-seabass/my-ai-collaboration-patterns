@@ -16,6 +16,7 @@ AIが指示書を読み込み、定義されたタスクを実行します。
 
 - `git_commit_and_push.md` - 進捗のコミットとプッシュ
 - `current_create_knowledge.md` - 知見のまとめ作成
+- `current_create_letter.md` - 申し送りの作成（セッション終了時）
 - `simple_start_from_latest_letter.md` - セッション開始（申し送りから）
 
 ## 新しいアクションの追加
