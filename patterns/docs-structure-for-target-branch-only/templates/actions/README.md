@@ -18,6 +18,7 @@ AIが指示書を読み込み、定義されたタスクを実行します。
 
 - `git_commit_and_push.md` - ブランチの進捗をコミット・プッシュ
 - `current_create_knowledge.md` - ブランチでの知見をまとめる
+- `current_create_letter.md` - 申し送りの作成（セッション終了時）
 - `simple_start_from_latest_letter.md` - ブランチセッション開始（申し送りから）
 
 ## ブランチ専用アクションの例
