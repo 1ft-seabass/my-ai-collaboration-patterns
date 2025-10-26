@@ -4,6 +4,12 @@
 
 ## 📂 ディレクトリ構成
 
+### [actions/](./actions/) - タスク自動化指示書
+繰り返し実行するタスクの指示書を格納しています。
+
+- `@actions/ファイル名.md` で呼び出すことで、AIが自動的にタスクを実行
+- 提供アクション: git_commit_and_push, current_create_knowledge, simple_start_from_latest_letter
+
 ### [ai-collaboration/](./ai-collaboration/) - AI協働開発ガイド
 AIアシスタントと効率的に協働開発するための汎用ルール・ガイドラインを格納しています。
 
@@ -37,7 +43,12 @@ AIアシスタントと効率的に協働開発するための汎用ルール・
 
 ## 🤖 AIへの指示例
 
-### セッション開始時
+### セッション開始時（actionsを使用）
+```
+@actions/simple_start_from_latest_letter.md
+```
+
+### セッション開始時（手動）
 ```
 「docs/README.md を読んで、最新の申し送りを確認してください」
 ```
@@ -48,9 +59,19 @@ AIアシスタントと効率的に協働開発するための汎用ルール・
 このプロジェクトの開発スタイルを理解してください」
 ```
 
-### 申し送り作成
+### 申し送り作成（actionsを使用）
+```
+@actions/current_create_knowledge.md
+```
+
+### 申し送り作成（手動）
 ```
 「今日の作業内容を docs/letter/ に申し送りとして記録してください」
+```
+
+### コミット&プッシュ（actionsを使用）
+```
+@actions/git_commit_and_push.md
 ```
 
 ## 📝 ドキュメント管理の原則
