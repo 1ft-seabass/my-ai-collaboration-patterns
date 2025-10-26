@@ -1,5 +1,14 @@
 # docs-structure-for-target-branch-only パターン
 
+> **🤖 AIへのワンショット指示（コピペ用）**
+>
+> ```
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/docs-structure-for-target-branch-only
+> この仕組みを導入したいです。degit で構造をそのまま持ってきましょう。
+> degit するのは配下の templates フォルダの中身です。
+> また、中の各 README や TEMPLATE を案件固有のものに合わせてください。
+> ```
+
 ブランチ開発に特化した、封じ込め型のドキュメント・スクリプト管理構造
 
 ## 📦 このパターンについて
@@ -25,12 +34,14 @@
 
 ### ブランチ作成時にセットアップ
 
+**重要**: `templates` ディレクトリを指定してください。パターン直下ではなく、`templates` 以下がプロジェクトで使用する構造です。
+
 ```bash
 # ブランチを作成
 git checkout -b feature/sample-001
 
 # パターンを取得（degit推奨）
-npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
 
 # ディレクトリ構造を確認
 ls -la
@@ -43,7 +54,7 @@ ls -la
 
 ```bash
 git checkout -b feature/sample-001
-git clone https://github.com/<username>/my-ai-collaboration-patterns.git
+git clone https://github.com/1ft-seabass/my-ai-collaboration-patterns.git
 cp -r my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates/* .
 ```
 
@@ -83,7 +94,7 @@ feature/sample-001/              # ブランチルート
 git checkout -b feature/user-auth
 
 # パターンをセットアップ
-npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
 
 # AIに伝える
 「docs/README.md を読んで、このブランチ開発を開始してください」
@@ -271,5 +282,5 @@ MIT License - 自由に使用・改変・配布できます
 **Quick Start**:
 ```bash
 git checkout -b feature/my-feature
-npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
 ```
