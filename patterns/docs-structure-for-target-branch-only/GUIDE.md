@@ -1,180 +1,237 @@
-# docs-structure-for-target-branch-only セットアップガイド
+# docs-structure-for-target-branch-only - 補足ガイド
 
-AIアシスタントにこのファイルを読ませて、ブランチ専用のワークスペースを自動構築できます。
+> **対象**: AIアシスタント（degit後に読む）
+> **目的**: 配置されたブランチ専用構造の意図を理解する
 
----
+## 📖 このガイドについて
 
-## 指示: ブランチ専用ワークスペースの構築
+このガイドは、degit でブランチ専用のワークスペースを配置した後に読むべき補足資料です。
+構造の哲学と意図を理解することで、より効果的に活用できます。
 
-以下の手順でブランチ専用のドキュメント・スクリプト・actions構造を構築してください。
-
-### 前提条件
-
-- 現在のブランチ名を確認する（`git branch --show-current`）
-- ブランチルート（リポジトリルート）に配置する
-
-### 構築手順
-
-#### 1. ディレクトリ構造の作成
-
-以下のディレクトリ構造を作成してください：
+## 🏗️ 配置された構造
 
 ```
 <ブランチルート>/
-├── docs/
+├── docs/                        # ブランチ専用ドキュメント
 │   ├── README.md
-│   ├── ai-collaboration/
-│   ├── development/
-│   │   └── best-practices/
-│   ├── architecture/
-│   │   └── decisions/
-│   ├── letter/
-│   ├── notes/
-│   └── spec/
-├── scripts/
+│   ├── ai-collaboration/       # AI協働開発ガイド
+│   ├── development/            # 開発ガイド
+│   ├── architecture/           # アーキテクチャ設計（ブランチ専用）
+│   ├── letter/                 # 申し送り（ブランチ専用）
+│   ├── notes/                  # 開発ノート（ブランチ専用）
+│   └── spec/                   # 仕様書（ブランチ専用）
+├── scripts/                     # ブランチ専用スクリプト
 │   ├── README.md
-│   ├── test/
-│   ├── start/
-│   └── build/
-└── actions/
-    └── README.md
+│   ├── test/                   # テストスクリプト（Node.js/Shell）
+│   ├── start/                  # 起動スクリプト（Node.js/Shell）
+│   └── build/                  # ビルドスクリプト（Node.js/Shell）
+└── actions/                     # ブランチ専用actions
+    ├── README.md
+    ├── git_commit_and_push.md
+    ├── current_create_knowledge.md
+    └── simple_start_from_latest_letter.md
 ```
 
-#### 2. docs/ の構築
+## 🎯 コアコンセプト
 
-`docs-structure` パターンをベースに、ブランチ専用版として構築：
+### ブランチ封じ込め型
 
-1. `docs/README.md` を作成（ブランチ専用ドキュメントのインデックス）
-2. 以下のサブディレクトリを作成し、各README.mdを配置：
-   - `ai-collaboration/` - AI協働開発ガイド
-   - `development/best-practices/` - ベストプラクティス
-   - `architecture/decisions/` - ADR
-   - `letter/` - 申し送り（テンプレート含む）
-   - `notes/` - 開発ノート（テンプレート含む）
-   - `spec/` - 仕様書
+このパターンの核心は「ブランチ内に完全封じ込め」です。
 
-**重要**: すべてのREADME.mdに「このブランチ専用」であることを明記してください。
+| 項目 | 従来の方法 | このパターン |
+|------|-----------|-------------|
+| ドキュメント | `docs/` (main) | `feature/xxx/docs/` |
+| スクリプト | `scripts/` (main) | `feature/xxx/scripts/` |
+| actions | `actions/` (main) | `feature/xxx/actions/` |
+| ブランチ削除後 | ファイルが残る | 完全に削除される |
+| mainへの影響 | 実験的変更が残る | 完全に分離 |
 
-#### 3. scripts/ の構築
+### 3つのディレクトリ
 
-Node.js/シェルスクリプトを配置するディレクトリ構造を作成：
+| ディレクトリ | 目的 | 技術スタック |
+|------------|------|------------|
+| **docs/** | ブランチ専用ドキュメント | Markdown（docs-structureベース） |
+| **scripts/** | テスト・起動・ビルド | Node.js/Shell |
+| **actions/** | タスク自動化 | Markdown（actionsパターン） |
 
-1. `scripts/README.md` を作成（スクリプト全体の説明）
-2. 以下のサブディレクトリを作成し、各README.mdを配置：
-   - `test/` - テストスクリプト（Jest, Mochaなど）
-   - `start/` - 起動スクリプト（dev-server, prod-serverなど）
-   - `build/` - ビルドスクリプト（prod, devなど）
+### Node.js優先のスクリプト
 
-各README.mdには、スクリプトの例とNode.jsでの実装方法を記載してください。
+- **プラットフォーム非依存**: Windows/Mac/Linux対応
+- **npm/yarnとの連携**: package.jsonで管理可能
+- **シェルも可**: OS固有操作に対応
 
-#### 4. actions/ の構築
+## 🚀 運用開始
 
-ブランチ専用のタスク自動化指示書を配置：
+### ブランチ開発の開始
 
-1. `actions/README.md` を作成（ブランチ専用actionsの説明）
-2. 以下のactionsをコピー（必要に応じてカスタマイズ）：
-   - `git_commit_and_push.md`
-   - `current_create_knowledge.md`
-   - `simple_start_from_latest_letter.md`
+```bash
+# ブランチ作成
+git checkout -b feature/user-auth
 
-**重要**: README.mdに「ブランチ専用」であることと、`scripts/` のスクリプトと連携することを明記してください。
+# パターンをセットアップ
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
 
-#### 5. package.json の作成（オプション）
+# AIに伝える
+「docs/README.md を読んで、このブランチ開発を開始してください」
+```
 
-ブランチルートに`package.json`を作成し、scripts/のスクリプトを呼び出せるようにしてください：
+### セッション開始時
+
+```
+「docs/README.md を読んで、最新の申し送りを確認してください」
+```
+
+または actions を使用：
+
+```
+@actions/simple_start_from_latest_letter.md
+```
+
+### スクリプト実行
+
+```
+「scripts/test/run-all.js でテストを実行してください」
+「scripts/start/dev-server.js で開発サーバーを起動してください」
+```
+
+### actionsの活用
+
+```
+@actions/git_commit_and_push.md
+@actions/current_create_knowledge.md
+```
+
+### ブランチ削除時
+
+```bash
+# ブランチを削除すると、すべて消える
+git checkout main
+git branch -D feature/user-auth
+
+# mainブランチはクリーンなまま！
+```
+
+## 🔧 カスタマイズ
+
+### README・TEMPLATE のカスタマイズ
+
+各 README.md や TEMPLATE.md をこのブランチ固有の内容に書き換えてください：
+
+- `docs/README.md` - ブランチ名、実装内容を調整
+- `docs/spec/README.md` - このブランチで実装する仕様を記述
+- `letter/TEMPLATE.md` - ブランチ固有のセクション追加
+- `notes/TEMPLATE.md` - ブランチ固有のフォーマット調整
+- 各ディレクトリの `README.md` - ブランチ固有の説明に更新
+
+### package.jsonとの連携
+
+ブランチルートに`package.json`を配置（推奨）：
 
 ```json
 {
-  "name": "branch-<ブランチ名>",
+  "name": "feature-user-auth",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "test": "node scripts/test/run-all.js",
     "dev": "node scripts/start/dev-server.js",
     "build": "node scripts/build/prod.js"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "express": "^4.18.0"
   }
 }
 ```
 
-### 完了確認
+これにより、`npm test`, `npm run dev`で実行可能になります。
 
-構築完了後、以下を確認してください：
+### ディレクトリの追加
 
-1. ✅ `docs/`, `scripts/`, `actions/` ディレクトリが存在する
-2. ✅ 各ディレクトリにREADME.mdが配置されている
-3. ✅ すべてのREADME.mdに「ブランチ専用」であることが明記されている
-4. ✅ `package.json` が作成されている（オプション）
-
-### 報告形式
-
-構築完了後、以下の形式で報告してください：
-
+```bash
+# 例: データベースマイグレーションスクリプトを追加
+mkdir -p scripts/migrate
+echo "# マイグレーションスクリプト" > scripts/migrate/README.md
 ```
-✅ ブランチ専用ワークスペースを構築しました
 
-📂 作成されたディレクトリ:
-- docs/ (ブランチ専用ドキュメント)
-- scripts/ (テスト・起動・ビルドスクリプト)
-- actions/ (タスク自動化指示書)
+### 不要なディレクトリの削除
 
-📝 次のステップ:
-1. docs/spec/ にこのブランチで実装する仕様を記述してください
-2. scripts/test/ にテストスクリプトを追加してください
-3. scripts/start/ に起動スクリプトを追加してください
-
-🤖 AIへの指示例:
-「docs/README.md を読んで、このブランチ開発を開始してください」
+```bash
+# 例: ビルドが不要な場合
+rm -rf scripts/build
 ```
+
+## 💡 運用のコツ
+
+### ブランチ開始時の習慣
+
+1. パターンをセットアップ
+2. `docs/spec/` にブランチで実装する仕様を記述
+3. AIに `docs/README.md` を読ませる
+
+### 開発中の習慣
+
+1. セッション開始時: `docs/letter/` の最新申し送りを確認
+2. スクリプト実行: `scripts/` 配下のスクリプトで自動化
+3. セッション終了時: `docs/letter/` に申し送り作成
+
+### マージ前の習慣
+
+1. ブランチ固有のドキュメントを確認
+2. 必要に応じてmainに反映すべき知見を抽出
+3. PRマージ後、ブランチ削除で全て削除
+
+## 🎯 期待される効果
+
+このパターンを導入することで：
+
+- ✅ mainブランチの汚染がゼロに（完全分離）
+- ✅ ブランチ削除で関連ファイルが自動削除
+- ✅ 文脈が明確に分離（他ブランチと混ざらない）
+- ✅ mainブランチがクリーンに保たれる
+- ✅ スクリプトがブランチ内で完結
+
+## 🙋 よくある質問
+
+**Q: mainブランチにもdocs/やscripts/がある場合は？**
+
+A: 共存可能です。mainはリポジトリ全体の情報、ブランチはブランチ固有の情報として分けてください。
+
+**Q: ブランチごとにpackage.jsonを持つべき？**
+
+A: 推奨です。ブランチ固有の依存関係を管理でき、クリーンに削除できます。
+
+**Q: マージ時にdocs/やscripts/もマージされる？**
+
+A: はい。必要に応じて`.gitignore`にブランチ固有のディレクトリを追加するか、マージ前に削除してください。
+
+**Q: 小規模な機能ブランチでも有効？**
+
+A: 規模に応じて使い分けてください。大きな機能や長期ブランチで特に効果的です。
+
+**Q: シェルスクリプトとNode.jsどちらを使うべき？**
+
+A: Node.js優先を推奨（プラットフォーム非依存）。OS固有の操作が必要な場合のみシェルスクリプトを使用してください。
+
+## ✅ 確認チェックリスト
+
+配置後、以下を確認してください：
+
+- [ ] `docs/`, `scripts/`, `actions/` ディレクトリが作成された
+- [ ] すべてのサブディレクトリに `README.md` が存在する
+- [ ] すべてのREADME.mdに「ブランチ専用」であることが明記されている
+- [ ] `actions/` に3つのアクションファイルが存在する
+- [ ] `letter/TEMPLATE.md` と `notes/TEMPLATE.md` が存在する
+- [ ] 各 README.md をブランチ固有の内容に更新した
+- [ ] `package.json` が作成された（オプション）
+
+## 📚 さらに詳しく
+
+- [README.md](./README.md) - このパターンの詳細説明（人間向け）
+- [examples/](./examples/) - 具体的な使用例
+- [docs-structure](../docs-structure/) - ベースとなったドキュメント構造
+- [actions-pattern](../actions-pattern/) - タスク自動化パターン
 
 ---
 
-## カスタマイズ例
-
-### テストフレームワークを指定
-
-```
-「JestをテストフレームワークとしてGUIDE.mdに従ってワークスペースを構築してください。
-scripts/test/run-all.js にJestを実行するスクリプトを追加してください」
-```
-
-### サーバーフレームワークを指定
-
-```
-「Expressを使った開発サーバーとしてGUIDE.mdに従ってワークスペースを構築してください。
-scripts/start/dev-server.js にExpressサーバーの起動スクリプトを追加してください」
-```
-
-### 最小構成
-
-```
-「GUIDE.mdに従ってワークスペースを構築してください。
-ただし、scripts/build/ は不要なので省略してください」
-```
-
----
-
-## トラブルシューティング
-
-### Q: すでにdocs/やscripts/が存在する場合は？
-
-A: 既存のディレクトリを確認し、競合を避けるために以下のいずれかを選択してください：
-1. 既存のディレクトリを別名にリネーム（例: `docs-old/`）
-2. 既存のディレクトリをバックアップして削除
-3. このパターンの適用を中止
-
-### Q: ブランチ名にスラッシュが含まれる場合（例: feature/user-auth）は？
-
-A: package.jsonのnameフィールドでは、スラッシュをハイフンに置き換えてください：
-```json
-{
-  "name": "branch-feature-user-auth"
-}
-```
-
-### Q: mainブランチのdocs/と競合する場合は？
-
-A: ブランチ専用のdocs/はブランチ固有の情報のみを記録してください。リポジトリ全体の情報はmainブランチのdocs/に記録します。
-
----
-
-**使い方**: このファイルをAIアシスタントに読ませて、「GUIDE.mdに従ってワークスペースを構築してください」と指示してください。
+**次のステップ**: `docs/spec/` にこのブランチで実装する仕様を記述し、開発を開始してください
