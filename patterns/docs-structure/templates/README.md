@@ -26,11 +26,11 @@ AIアシスタントと効率的に協働開発するための汎用ルール・
 
 - [decisions/](./architecture/decisions/) - ADR（Architecture Decision Records）
 
-### [letter/](./letter/) - 申し送り
+### [letters/](./letters/) - 申し送り
 セッション間の引き継ぎ、作業状況の記録を時系列で格納しています。
 
 - **命名規則**: `YYYY-MM-DD-HH-MM-SS.md`
-- **テンプレート**: [TEMPLATE.md](./letter/TEMPLATE.md)
+- **テンプレート**: [TEMPLATE.md](./letters/TEMPLATE.md)
 
 ### [tasks/](./tasks/) - タスク管理
 セッション跨ぎのタスクを管理しています。申し送りのサブツールです。
@@ -42,7 +42,7 @@ AIアシスタントと効率的に協働開発するための汎用ルール・
 ### [notes/](./notes/) - 開発ノート
 技術的な試行錯誤、問題解決の記録を格納しています。
 
-- **命名規則**: `XX_タイトル.md`（連番付き）
+- **命名規則**: `XXXX_タイトル.md`（4桁連番付き）
 - **テンプレート**: [TEMPLATE.md](./notes/TEMPLATE.md)
 
 ### [spec/](./spec/) - 仕様書
@@ -73,7 +73,7 @@ AIアシスタントと効率的に協働開発するための汎用ルール・
 
 ### 申し送り作成（手動）
 ```
-「今日の作業内容を docs/letter/ に申し送りとして記録してください」
+「今日の作業内容を docs/letters/ に申し送りとして記録してください」
 ```
 
 ### コミット&プッシュ（actionsを使用）

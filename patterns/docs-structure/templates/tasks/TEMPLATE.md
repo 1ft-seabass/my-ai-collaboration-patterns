@@ -24,16 +24,16 @@
 <!-- タスクの生まれた経緯に応じて記載 -->
 
 <!-- パターン1: 申し送りから -->
-- [申し送り（YYYY-MM-DD HH:MM:SS）](../letter/YYYY-MM-DD-HH-MM-SS.md) - このタスクが作られた経緯
+- [申し送り（YYYY-MM-DD HH:MM:SS）](../letters/YYYY-MM-DD-HH-MM-SS.md) - このタスクが作られた経緯
 
 <!-- パターン2: ノートから -->
-- [Note XX](../notes/XX_title.md) - このタスクのアイデア元
+- [Note XXXX](../notes/XXXX_title.md) - このタスクのアイデア元
 
 <!-- パターン3: 思いついた -->
 - 特になし（思いついたアイデア）
 
 <!-- パターン4: 関連する技術ノート -->
-- [Note XX](../notes/XX_title.md) - 関連する技術情報
+- [Note XXXX](../notes/XXXX_title.md) - 関連する技術情報
 
 ## 作業ログ
 

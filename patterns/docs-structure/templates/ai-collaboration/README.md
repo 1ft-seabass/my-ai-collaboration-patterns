@@ -38,5 +38,5 @@ AIと効率的に協働開発するための最小限のルールをまとめた
 
 - [ドキュメント目次](../README.md)
 - [開発ガイド](../development/)
-- [申し送りテンプレート](../letter/TEMPLATE.md)
+- [申し送りテンプレート](../letters/TEMPLATE.md)
 - [開発ノートテンプレート](../notes/TEMPLATE.md)
