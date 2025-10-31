@@ -67,7 +67,7 @@ feature/sample-001/              # ブランチルート
 │   ├── ai-collaboration/       # AI協働開発ガイド
 │   ├── development/            # 開発ガイド
 │   ├── architecture/           # アーキテクチャ設計（ブランチ専用）
-│   ├── letter/                 # 申し送り（ブランチ専用）
+│   ├── letters/                # 申し送り（ブランチ専用）
 │   ├── notes/                  # 開発ノート（ブランチ専用）
 │   └── spec/                   # 仕様書（ブランチ専用）
 ├── scripts/                     # ブランチ専用スクリプト
@@ -171,9 +171,9 @@ git branch -D feature/user-auth
 
 ### 開発中の習慣
 
-1. セッション開始時: `docs/letter/` の最新申し送りを確認
+1. セッション開始時: `docs/letters/` の最新申し送りを確認
 2. スクリプト実行: `scripts/` 配下のスクリプトで自動化
-3. セッション終了時: `docs/letter/` に申し送り作成
+3. セッション終了時: `docs/letters/` に申し送り作成
 
 ### マージ前の習慣
 

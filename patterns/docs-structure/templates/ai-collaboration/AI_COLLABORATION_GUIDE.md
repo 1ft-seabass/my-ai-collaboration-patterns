@@ -106,7 +106,7 @@ best-practices/
 
 ### 配置場所
 ```
-docs/letter/
+docs/letters/
 └── YYYY-MM-DD-HH-MM-SS.md
 ```
 
@@ -178,9 +178,9 @@ docs/development/
 
 | 種類 | 目的 | いつ使う | 配置 |
 |------|------|----------|------|
-| **開発ノート** | 試行錯誤の記録 | 難しい問題を解決した、技術的発見があった | `docs/notes/XX_タイトル.md` |
+| **開発ノート** | 試行錯誤の記録 | 難しい問題を解決した、技術的発見があった | `docs/notes/XXXX_タイトル.md` |
 | **ADR** | 意思決定記録 | 重要なアーキテクチャ選択をした | `docs/architecture/decisions/XXXX-タイトル.md` |
-| **申し送り** | セッション引き継ぎ | セッション終了時 | `docs/letter/YYYY-MM-DD-HH-MM-SS.md` |
+| **申し送り** | セッション引き継ぎ | セッション終了時 | `docs/letters/YYYY-MM-DD-HH-MM-SS.md` |
 
 ### 開発ノート（試行錯誤の記録）
 
@@ -303,7 +303,7 @@ project-root/
 │   │   └── decisions/             # ADR（意思決定記録）
 │   ├── notes/                     # 開発ノート（試行錯誤の記録）
 │   ├── spec/                      # 仕様書
-│   └── letter/                    # 申し送り（時系列）
+│   └── letters/                   # 申し送り（時系列）
 ├── src/                           # ソースコード
 └── tests/                         # テストコード
 ```
@@ -316,7 +316,7 @@ project-root/
 
 1. **ディレクトリ作成**
 ```bash
-mkdir -p docs/{development/best-practices,ai-collaboration,letter,architecture/decisions,notes,spec}
+mkdir -p docs/{development/best-practices,ai-collaboration,letters,architecture/decisions,notes,spec}
 ```
 
 2. **このファイルを配置**

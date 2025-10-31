@@ -58,9 +58,9 @@
 - 改善案2
 
 ## 関連ドキュメント
-- [関連する開発ノート](./XX_related.md)
+- [関連する開発ノート](./XXXX_related.md)
 - [関連するADR](../architecture/decisions/XXXX-related.md)
-- [関連する申し送り](../letter/YYYY-MM-DD-HH-MM-SS.md)
+- [関連する申し送り](../letters/YYYY-MM-DD-HH-MM-SS.md)
 
 ---
 
