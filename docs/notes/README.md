@@ -31,6 +31,9 @@ AI向けガイドを簡潔に保つための原則。本質だけを残し、実
 ### 09. [notes 4桁連番への変更](./09_notes-4digit-numbering-change.md)
 開発ノートの連番を2桁から4桁に変更。スケーラビリティ向上とtasksとの一貫性確保。
 
+### 10. [writing-collaborate パターンの作成](./10_writing-collaborate-pattern-creation.md)
+執筆作業に特化した軽量版パターンの作成。docs-structure をベースに、フォルダ名変更と3フォルダ構成へ簡素化。
+
 ## 📝 テンプレート
 
 [TEMPLATE.md](./TEMPLATE.md) を使用してください。
