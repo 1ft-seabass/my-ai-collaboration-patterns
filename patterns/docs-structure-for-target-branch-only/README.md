@@ -4,9 +4,28 @@
 >
 > ```
 > https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/docs-structure-for-target-branch-only
-> この仕組みを導入したいです。degit で構造をそのまま持ってきましょう。
-> degit するのは配下の templates フォルダの中身です。
-> また、中の各 README や TEMPLATE を案件固有のものに合わせてください。
+> この仕組みを導入したいです。npx degit で構造を持ってきましょう。
+>
+> npx degit で取得した templates/ 配下のファイル群を、
+> templates/ というフォルダ名ではなく、ブランチルート直下に配置してください。
+>
+> 期待する結果：
+>   (ブランチルート)/
+>     ├── docs/
+>     │   ├── README.md
+>     │   ├── actions/
+>     │   └── ... (その他docsの中身)
+>     ├── scripts/
+>     │   └── ...
+>     └── actions/
+>         └── ...
+>
+> NG例（これは避ける）：
+>   templates/          ← templatesフォルダを作らない
+>   docs/templates/     ← 各フォルダ内にtemplatesを作らない
+>
+> プロジェクトが成熟し、要件が明確になった段階でカスタマイズしてください。
+> 初期段階では一般化されたテンプレートのまま使用することを推奨します。
 > ```
 
 ブランチ開発に特化した、封じ込め型のドキュメント・スクリプト管理構造
