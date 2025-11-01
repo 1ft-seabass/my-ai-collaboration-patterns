@@ -14,6 +14,9 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/actions-pattern/templ
 # ブランチ専用ワークスペース（✅ 利用可能）
 git checkout -b feature/your-feature
 npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
+
+# 執筆作業向け（✅ 利用可能）
+npx degit <username>/my-ai-collaboration-patterns/patterns/writing-collaborate/templates ./collaborate
 ```
 
 **Note**: `<username>` は実際のGitHubユーザー名に置き換えてください。
@@ -70,6 +73,25 @@ AIが理解しやすいドキュメント管理
 - mainブランチの汚染: 100% → 0%（完全分離）
 - ブランチ削除の手間: 手動クリーンアップ → 自動削除
 
+### [writing-collaborate](./patterns/writing-collaborate/) - 執筆作業向けAI協働
+執筆作業（ブログ、ハンズオン、ドキュメント）に特化した軽量AI協働構造
+
+**使用例**:
+- ブログ記事の執筆
+- ハンズオン資料の作成
+- Zenn books、Honkit、mdBook などの執筆
+- docs/ フォルダを静的サイトジェネレーターで使用するプロジェクト
+
+**主な機能**:
+- collaborate/ フォルダ（docs/ と衝突しない）
+- 3フォルダ構成（notes・letters・tasks のみ）
+- 執筆作業に最適化された軽量構造
+- README駆動のナビゲーション
+
+**効果**:
+- セッション開始時間: 10分 → 2分（80%削減）
+- 文脈説明の質問: 5-10回 → 0-1回（90%削減）
+
 ### [server-management](./patterns/server-management/) - サーバー管理
 **Coming Soon**
 
@@ -115,6 +137,7 @@ cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./
 - [docs-structure パターン](./patterns/docs-structure/README.md)
 - [actions-pattern パターン](./patterns/actions-pattern/README.md)
 - [docs-structure-for-target-branch-only パターン](./patterns/docs-structure-for-target-branch-only/README.md)
+- [writing-collaborate パターン](./patterns/writing-collaborate/README.md)
 
 ## 🎯 特徴
 
@@ -159,3 +182,4 @@ MIT License - 自由に使用・改変・配布できます
 - [docs-structure パターンを見る](./patterns/docs-structure/)
 - [actions-pattern パターンを見る](./patterns/actions-pattern/)
 - [docs-structure-for-target-branch-only パターンを見る](./patterns/docs-structure-for-target-branch-only/)
+- [writing-collaborate パターンを見る](./patterns/writing-collaborate/)
