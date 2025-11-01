@@ -4,9 +4,24 @@
 >
 > ```
 > https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/writing-collaborate
-> この仕組みを導入したいです。degit で構造をそのまま持ってきましょう。
-> degit するのは配下の templates フォルダの中身です。
-> また、中の各 README や TEMPLATE を案件固有のものに合わせてください。
+> この仕組みを導入したいです。npx degit で構造を持ってきましょう。
+>
+> npx degit で取得した templates/ 配下のファイル群を、
+> templates/ というフォルダ名ではなく、collaborate/ 直下に配置してください。
+>
+> 期待する結果：
+>   collaborate/
+>     ├── README.md
+>     ├── notes/
+>     ├── letters/
+>     └── tasks/
+>
+> NG例（これは避ける）：
+>   collaborate/templates/  ← templatesフォルダを作らない
+>   templates/              ← templatesという名前で配置しない
+>
+> プロジェクトが成熟し、要件が明確になった段階でカスタマイズしてください。
+> 初期段階では一般化されたテンプレートのまま使用することを推奨します。
 > ```
 
 執筆作業に特化したAI協働構造
