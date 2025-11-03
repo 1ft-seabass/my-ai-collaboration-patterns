@@ -6,7 +6,13 @@
 
 ## 📂 ディレクトリ構成
 
-アジャイル的な開発の初期段階で効果的な、**最小限の3つのフォルダ**で構成されています。
+アジャイル的な開発の初期段階で効果的な、**最小限の4つのフォルダ**で構成されています。
+
+### [actions/](./actions/) - タスク自動化指示書
+繰り返し実行するタスクの指示書を格納しています。
+
+- `@docs/actions/ファイル名.md` で呼び出すことで、AIが自動的にタスクを実行
+- 提供アクション: git_commit_and_push, current_create_knowledge, simple_start_from_latest_letter
 
 ### [letters/](./letters/) - 申し送り
 **このブランチ開発**のセッション間引き継ぎ、作業状況の記録を時系列で格納しています。
@@ -58,7 +64,8 @@
 
 ### アクションの活用
 ```
-「../actions/branch_commit_and_push.md でコミット・プッシュしてください」
+@docs/actions/git_commit_and_push.md
+@docs/actions/current_create_knowledge.md
 ```
 
 ## 📝 ドキュメント管理の原則
@@ -72,4 +79,3 @@
 ## 🔗 関連リンク
 
 - [../scripts/](../scripts/) - ブランチ専用スクリプト
-- [../actions/](../actions/) - ブランチ専用アクション

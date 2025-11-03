@@ -13,12 +13,11 @@
 >   (ブランチルート)/
 >     ├── docs/
 >     │   ├── README.md
+>     │   ├── actions/
 >     │   ├── letters/
 >     │   ├── notes/
 >     │   └── tasks/
->     ├── scripts/
->     │   └── ...
->     └── actions/
+>     └── scripts/
 >         └── ...
 >
 > NG例（これは避ける）：
@@ -67,7 +66,6 @@ npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-for-t
 ls -la
 # docs/
 # scripts/
-# actions/
 ```
 
 ### Git Clone
@@ -86,22 +84,22 @@ cp -r my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-onl
 feature/sample-001/              # ブランチルート
 ├── docs/                        # ブランチ専用ドキュメント（最小限）
 │   ├── README.md
+│   ├── actions/                # タスク自動化指示書（ブランチ専用）
+│   │   ├── README.md
+│   │   ├── git_commit_and_push.md
+│   │   ├── current_create_knowledge.md
+│   │   └── simple_start_from_latest_letter.md
 │   ├── letters/                # 申し送り（ブランチ専用）
 │   ├── notes/                  # 開発ノート（ブランチ専用）
 │   └── tasks/                  # タスク管理（ブランチ専用）
-├── scripts/                     # ブランチ専用スクリプト
-│   ├── README.md
-│   ├── test/                   # テストスクリプト（Node.js/Shell）
-│   │   └── README.md
-│   ├── start/                  # 起動スクリプト（Node.js/Shell）
-│   │   └── README.md
-│   └── build/                  # ビルドスクリプト（Node.js/Shell）
-│       └── README.md
-└── actions/                     # ブランチ専用actions
+└── scripts/                     # ブランチ専用スクリプト
     ├── README.md
-    ├── git_commit_and_push.md
-    ├── current_create_knowledge.md
-    └── simple_start_from_latest_letter.md
+    ├── test/                   # テストスクリプト（Node.js/Shell）
+    │   └── README.md
+    ├── start/                  # 起動スクリプト（Node.js/Shell）
+    │   └── README.md
+    └── build/                  # ビルドスクリプト（Node.js/Shell）
+        └── README.md
 ```
 
 ### 必要に応じて追加できるフォルダ
@@ -151,8 +149,8 @@ npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-for-t
 ### actionsの活用
 
 ```
-@actions/simple_start_from_latest_letter.md
-@actions/git_commit_and_push.md
+@docs/actions/simple_start_from_latest_letter.md
+@docs/actions/git_commit_and_push.md
 ```
 
 ### ブランチ削除時
@@ -173,17 +171,16 @@ git branch -D feature/user-auth
 |------|-----------|-------------|
 | ドキュメント | `docs/` (main) | `feature/xxx/docs/` |
 | スクリプト | `scripts/` (main) | `feature/xxx/scripts/` |
-| actions | `actions/` (main) | `feature/xxx/actions/` |
+| actions | `docs/actions/` (main) | `feature/xxx/docs/actions/` |
 | ブランチ削除後 | ファイルが残る | 完全に削除される |
 | mainへの影響 | 実験的変更が残る | 完全に分離 |
 
-### 3つのディレクトリ
+### 2つのディレクトリ
 
 | ディレクトリ | 目的 | 技術スタック |
 |------------|------|------------|
-| **docs/** | ブランチ専用ドキュメント | Markdown（docs-structureベース） |
+| **docs/** | ブランチ専用ドキュメント（actions含む） | Markdown（docs-structureベース） |
 | **scripts/** | テスト・起動・ビルド | Node.js/Shell |
-| **actions/** | タスク自動化 | Markdown（actionsパターン） |
 
 ### Node.js優先のスクリプト
 
