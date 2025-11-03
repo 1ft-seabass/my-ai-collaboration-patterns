@@ -13,8 +13,9 @@
 >   (ブランチルート)/
 >     ├── docs/
 >     │   ├── README.md
->     │   ├── actions/
->     │   └── ... (その他docsの中身)
+>     │   ├── letters/
+>     │   ├── notes/
+>     │   └── tasks/
 >     ├── scripts/
 >     │   └── ...
 >     └── actions/
@@ -79,16 +80,15 @@ cp -r my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-onl
 
 ## 📂 作成される構造
 
+アジャイル開発の初期段階で効果的な**最小限の構造**で構成されています。
+
 ```
 feature/sample-001/              # ブランチルート
-├── docs/                        # ブランチ専用ドキュメント
+├── docs/                        # ブランチ専用ドキュメント（最小限）
 │   ├── README.md
-│   ├── ai-collaboration/       # AI協働開発ガイド
-│   ├── development/            # 開発ガイド
-│   ├── architecture/           # アーキテクチャ設計（ブランチ専用）
 │   ├── letters/                # 申し送り（ブランチ専用）
 │   ├── notes/                  # 開発ノート（ブランチ専用）
-│   └── spec/                   # 仕様書（ブランチ専用）
+│   └── tasks/                  # タスク管理（ブランチ専用）
 ├── scripts/                     # ブランチ専用スクリプト
 │   ├── README.md
 │   ├── test/                   # テストスクリプト（Node.js/Shell）
@@ -103,6 +103,17 @@ feature/sample-001/              # ブランチルート
     ├── current_create_knowledge.md
     └── simple_start_from_latest_letter.md
 ```
+
+### 必要に応じて追加できるフォルダ
+
+プロジェクトが成熟し、letters や notes がたまってきたら追加できます：
+
+- `docs/ai-collaboration/` - AI協働開発ガイド
+- `docs/architecture/` - アーキテクチャ設計・ADR
+- `docs/development/` - 開発ガイド・ベストプラクティス
+- `docs/spec/` - 仕様書（ブランチで実装する機能仕様など）
+
+**重要**: 使っていないフォルダがあると、AIも人間も混乱します。
 
 ## 🎯 使用例
 
@@ -185,7 +196,7 @@ git branch -D feature/user-auth
 ### ブランチ開始時の習慣
 
 1. パターンをセットアップ
-2. `docs/spec/` にブランチで実装する仕様を記述
+2. 必要に応じて `docs/spec/` を追加してブランチで実装する仕様を記述
 3. AIに `docs/README.md` を読ませる
 
 ### 開発中の習慣

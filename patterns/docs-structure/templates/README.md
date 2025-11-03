@@ -1,30 +1,16 @@
 # ドキュメント目次
 
-このディレクトリには、`my-ai-collaboration-patterns` リポジトリの開発・運用に関するドキュメントが整理されています。
+このディレクトリには、AI協働開発に必要なドキュメントが整理されています。
 
 ## 📂 ディレクトリ構成
+
+アジャイル的な開発の初期段階で効果的な、**最小限の4つのフォルダ**で構成されています。
 
 ### [actions/](./actions/) - タスク自動化指示書
 繰り返し実行するタスクの指示書を格納しています。
 
 - `@actions/ファイル名.md` で呼び出すことで、AIが自動的にタスクを実行
 - 提供アクション: git_commit_and_push, current_create_knowledge, simple_start_from_latest_letter
-
-### [ai-collaboration/](./ai-collaboration/) - AI協働開発ガイド
-AIアシスタントと効率的に協働開発するための汎用ルール・ガイドラインを格納しています。
-
-- AI協働開発ガイド（ワンショット版）v1.3.0
-- 基本原則、ドキュメント戦略、申し送りメカニズム等
-
-### [development/](./development/) - 開発ガイド
-このプロジェクト固有の開発手順、ベストプラクティスを格納しています。
-
-- [best-practices/](./development/best-practices/) - ベストプラクティス集
-
-### [architecture/](./architecture/) - アーキテクチャ設計
-システムアーキテクチャに関するドキュメントを格納しています。
-
-- [decisions/](./architecture/decisions/) - ADR（Architecture Decision Records）
 
 ### [letters/](./letters/) - 申し送り
 セッション間の引き継ぎ、作業状況の記録を時系列で格納しています。
@@ -45,8 +31,16 @@ AIアシスタントと効率的に協働開発するための汎用ルール・
 - **命名規則**: `XXXX_タイトル.md`（4桁連番付き）
 - **テンプレート**: [TEMPLATE.md](./notes/TEMPLATE.md)
 
-### [spec/](./spec/) - 仕様書
-機能仕様、API仕様などを格納しています。
+## 📁 必要に応じて追加できるフォルダ
+
+プロジェクトが成熟し、letters や notes がたまってきたら、以下のようなフォルダを追加できます：
+
+- `ai-collaboration/` - AI協働開発ガイド
+- `architecture/` - アーキテクチャ設計・ADR
+- `development/` - 開発ガイド・ベストプラクティス
+- `spec/` - 仕様書
+
+**重要**: 使っていないフォルダがあると、AIも人間も混乱します。必要になったタイミングで追加してください。
 
 ## 🤖 AIへの指示例
 
@@ -60,11 +54,6 @@ AIアシスタントと効率的に協働開発するための汎用ルール・
 「docs/README.md を読んで、最新の申し送りを確認してください」
 ```
 
-### AI協働開発ガイドを読ませる
-```
-「docs/ai-collaboration/ のガイドを読んで、
-このプロジェクトの開発スタイルを理解してください」
-```
 
 ### 申し送り作成（actionsを使用）
 ```
