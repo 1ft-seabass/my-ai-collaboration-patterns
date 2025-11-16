@@ -89,9 +89,9 @@
 docs/letters/YYYY-MM-DD-HH-MM-SS.md を日本語で。
 
 このプロジェクトの運用ルール:
-- 知見は docs/notes/ (命名: 連番-{title}.md、作成時 README/TEMPLATE参照)
-- 申し送りは docs/letters/ (このファイル、作成時 README/TEMPLATE参照)
-- コミット: このリポジトリが公開の場合はClaude痕跡（署名・絵文字）なしで、プライベートの場合はClaude痕跡ありでOK
+・知見は docs/notes/ (命名: 連番-{title}.md、作成時 README/TEMPLATE参照) ※注意: ノート作成はセッション終了時の申し送りフロー内でのみ実行すること
+・申し送りは docs/letters/ (このファイル、作成時 README/TEMPLATE参照) ※注意: 申し送り作成はユーザーが明示的に指示したときのみ実行すること
+・コミット: このリポジトリが公開の場合はClaude痕跡（署名・絵文字）なしで、プライベートの場合はClaude痕跡ありでOK
 ---
 ```
 
