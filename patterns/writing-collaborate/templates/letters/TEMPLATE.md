@@ -22,6 +22,37 @@
 
 ---
 
+## 🔧 コマンド実行ルール
+
+**次のAIへ: コマンド実行前に必ず確認すること**
+
+### 原則：プロジェクトの標準実行方法を探す
+実行前に以下を**順番に確認**してから判断：
+
+1. **package.json** の `scripts` セクション（Node.js系）
+2. **Makefile** の targets（`make dev`, `make start` など）
+3. **docker-compose.yml** の存在（Docker系）
+4. **README.md** の Getting Started / Development セクション
+5. **pyproject.toml** / **Cargo.toml** など（他言語）
+
+### 禁止事項
+- ❌ 確認なしで勝手にサーバー起動
+- ❌ `node src/index.js` のような直接実行（scriptsがある場合）
+- ❌ ビルド・DB操作を無断実行
+
+### 推奨手順
+```bash
+# 1. 利用可能な起動方法を調査
+ls package.json Makefile docker-compose.yml 2>/dev/null
+
+# 2. 見つかったファイルの内容確認
+# 3. 人間に「npm run dev を実行しますか？」と提案
+```
+
+**理由**: プロジェクトごとに標準的な起動方法が異なるため
+
+---
+
 ## 現在の状況
 - 完了: [✓] 第1章執筆（500文字）
 - 進行中: [ ] 第2章執筆（どこまで完了したか具体的に）
