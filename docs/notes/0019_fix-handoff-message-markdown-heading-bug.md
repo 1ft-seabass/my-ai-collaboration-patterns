@@ -13,7 +13,7 @@
 ```markdown
 このプロジェクトの運用ルール:
 ・知見は docs/notes/ ...
-・申し送りは docs/letter/ ...
+・申し送りは docs/letters/ ...
 ```
 
 2. **AIが出力する際の変換**:
@@ -22,7 +22,7 @@
 ```markdown
 このプロジェクトの運用ルール:
 - 知見は docs/notes/ ...
-- 申し送りは docs/letter/ ...
+- 申し送りは docs/letters/ ...
 ```
 
 3. **Markdownの誤認識**:
@@ -68,7 +68,7 @@
 - `patterns/writing-collaborate/templates/actions/current_create_letter.md`
 
 **TEMPLATE.md（4ファイル）**:
-- `docs/letter/TEMPLATE.md`
+- `docs/letters/TEMPLATE.md`
 - `patterns/docs-structure/templates/letters/TEMPLATE.md`
 - `patterns/docs-structure-for-target-branch-only/templates/docs/letters/TEMPLATE.md`
 - `patterns/writing-collaborate/templates/letters/TEMPLATE.md`

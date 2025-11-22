@@ -1,5 +1,14 @@
 # 申し送り（YYYY-MM-DD HH:MM:SS）
 
+> **⚠️ 機密情報保護ルール**
+>
+> この申し送りに記載する情報について:
+> - API キー・パスワード・トークンは必ずプレースホルダー(`YOUR_API_KEY`等)で記載
+> - 実際の機密情報は絶対に含めない
+> - .env や設定ファイルの内容をそのまま転記しない
+> - コミット前に git diff で内容を確認
+> - プッシュはせずコミットのみ(人間がレビュー後にプッシュ)
+
 ## 🔔 Compact前チェックリスト
 
 ### トークン使用量の目安
@@ -36,6 +45,37 @@
 ### 3. 実態ベースで進める
 - 申し送りの「完了」は参考程度
 - 検証結果が真実
+
+---
+
+## 🔧 コマンド実行ルール
+
+**次のAIへ: コマンド実行前に必ず確認すること**
+
+### 原則：プロジェクトの標準実行方法を探す
+実行前に以下を**順番に確認**してから判断：
+
+1. **package.json** の `scripts` セクション（Node.js系）
+2. **Makefile** の targets（`make dev`, `make start` など）
+3. **docker-compose.yml** の存在（Docker系）
+4. **README.md** の Getting Started / Development セクション
+5. **pyproject.toml** / **Cargo.toml** など（他言語）
+
+### 禁止事項
+- ❌ 確認なしで勝手にサーバー起動
+- ❌ `node src/index.js` のような直接実行（scriptsがある場合）
+- ❌ ビルド・DB操作を無断実行
+
+### 推奨手順
+```bash
+# 1. 利用可能な起動方法を調査
+ls package.json Makefile docker-compose.yml 2>/dev/null
+
+# 2. 見つかったファイルの内容確認
+# 3. 人間に「npm run dev を実行しますか？」と提案
+```
+
+**理由**: プロジェクトごとに標準的な起動方法が異なるため
 
 ---
 
@@ -124,18 +164,26 @@ npm test -- test-name
 申し送りを作成したら、ユーザーに以下の形式で通知してください：
 
 ```
-申し送りファイルを作成しました: docs/letter/YYYY-MM-DD-HH-MM-SS.md
+申し送りファイルを作成しました: docs/letters/YYYY-MM-DD-HH-MM-SS.md
 
 次のClaudeセッションでは、以下のメッセージで開始してください：
 
 ---
-docs/letter/YYYY-MM-DD-HH-MM-SS.md を日本語で。
+docs/letters/YYYY-MM-DD-HH-MM-SS.md を日本語で。
 
 このプロジェクトの運用ルール
 
 ・知見は docs/notes/ (命名: 連番-{title}.md、作成時 README/TEMPLATE参照) ※注意: ノート作成はセッション終了時の申し送りフロー内でのみ実行すること
-・申し送りは docs/letter/ (このファイル、作成時 README/TEMPLATE参照) ※注意: 申し送り作成はユーザーが明示的に指示したときのみ実行すること
+・申し送りは docs/letters/ (このファイル、作成時 README/TEMPLATE参照) ※注意: 申し送り作成はユーザーが明示的に指示したときのみ実行すること
 ・コミット: このリポジトリが公開の場合はClaude痕跡（署名・絵文字）なしで、プライベートの場合はClaude痕跡ありでOK
+
+このプロジェクトの起動・再起動・停止・ステータス確認方法
+
+・（起動）
+・（再起動）
+・（停止）
+・（ステータス確認方法）
+
 ---
 ```
 

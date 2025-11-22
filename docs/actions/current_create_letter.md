@@ -35,8 +35,8 @@
    - 公開リポジトリの場合はClaude痕跡（署名・絵文字）なし
 
 9. 申し送りの作成
-   - letter/README.md をみて申し送りルールを把握
-   - letter/TEMPLATE.md をベースに新しい申し送りを作成
+   - letters/README.md をみて申し送りルールを把握
+   - letters/TEMPLATE.md をベースに新しい申し送りを作成
    - ファイル名: `YYYY-MM-DD-HH-MM-SS.md`（現在時刻）
    - 前回の未着手・残件を「現在の状況」に反映
    - 起動方法・テスト手法が見つかれば「技術的な文脈」に記載
@@ -52,17 +52,17 @@
 12. 申し送り作成完了の通知
     - 申し送り作成完了後、必ず以下の完全な形式で通知してください：
     ```
-    申し送りファイルを作成しました: docs/letter/YYYY-MM-DD-HH-MM-SS.md
+    申し送りファイルを作成しました: docs/letters/YYYY-MM-DD-HH-MM-SS.md
 
     次のClaudeセッションでは、以下のメッセージで開始してください：
 
     ---
-    docs/letter/YYYY-MM-DD-HH-MM-SS.md を日本語で。
+    docs/letters/YYYY-MM-DD-HH-MM-SS.md を日本語で。
 
     このプロジェクトの運用ルール
 
     ・知見は docs/notes/ (命名: 連番-{title}.md、作成時 README/TEMPLATE参照) ※注意: ノート作成はセッション終了時の申し送りフロー内でのみ実行すること
-    ・申し送りは docs/letter/ (このファイル、作成時 README/TEMPLATE参照) ※注意: 申し送り作成はユーザーが明示的に指示したときのみ実行すること
+    ・申し送りは docs/letters/ (このファイル、作成時 README/TEMPLATE参照) ※注意: 申し送り作成はユーザーが明示的に指示したときのみ実行すること
     ・コミット: このリポジトリが公開の場合はClaude痕跡（署名・絵文字）なしで、プライベートの場合はClaude痕跡ありでOK
     ---
     ```

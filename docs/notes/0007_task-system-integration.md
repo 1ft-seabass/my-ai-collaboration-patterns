@@ -104,7 +104,7 @@ mkdir -p patterns/docs-structure-for-target-branch-only/templates/docs/tasks
 - docs/tasks/TEMPLATE.md
 
 # 既存ファイル更新
-- docs/letter/README.md（目的セクションに追記）
+- docs/letters/README.md（目的セクションに追記）
 - docs/README.md（ディレクトリ構成に追加）
 ```
 
@@ -140,7 +140,7 @@ patterns/docs-structure-for-target-branch-only/templates/docs/
 
 - `patterns/docs-structure/templates/letter/README.md` ✅
 - `patterns/docs-structure/templates/README.md` ✅
-- `patterns/docs-structure-for-target-branch-only/templates/docs/letter/README.md` ✅
+- `patterns/docs-structure-for-target-branch-only/templates/docs/letters/README.md` ✅
 - `patterns/docs-structure-for-target-branch-only/templates/docs/README.md` ✅
 
 ## 特徴

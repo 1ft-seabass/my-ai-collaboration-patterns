@@ -6,7 +6,7 @@
 
 ## 実行タスク
 
-現在作業中のプロジェクトにある申し送りテンプレート（`docs/letter/TEMPLATE.md` または類似パス）を、文脈保持機能を強化した**フルスペック版**に更新してください。
+現在作業中のプロジェクトにある申し送りテンプレート（`docs/letters/TEMPLATE.md` または類似パス）を、文脈保持機能を強化した**フルスペック版**に更新してください。
 
 ---
 
@@ -16,7 +16,7 @@
 
 以下の優先順位で申し送りテンプレートを探してください：
 
-1. `docs/letter/TEMPLATE.md`
+1. `docs/letters/TEMPLATE.md`
 2. `docs/letters/TEMPLATE.md`
 3. `templates/letter/TEMPLATE.md`
 4. その他の `**/letter*/TEMPLATE.md` パターン
@@ -180,7 +180,7 @@ Globツールを使用: pattern: "**/letter*/TEMPLATE.md"
 
 **対処**:
 1. ユーザーに確認「申し送りテンプレートが見つかりませんでした。作成しますか？」
-2. 承認されたら、`docs/letter/TEMPLATE.md` に新規作成
+2. 承認されたら、`docs/letters/TEMPLATE.md` に新規作成
 
 ### ケース3: 既にフルスペック版が適用済み
 
@@ -242,7 +242,7 @@ Globツールを使用: pattern: "**/letter*/TEMPLATE.md"
 申し送りテンプレートをフルスペック版に更新しました。
 
 更新ファイル:
-- docs/letter/TEMPLATE.md
+- docs/letters/TEMPLATE.md
 
 追加されたセクション:
 - 🔔 Compact前チェックリスト（トークン使用量の目安、記録内容の確認）
@@ -258,7 +258,7 @@ Globツールを使用: pattern: "**/letter*/TEMPLATE.md"
 ```
 以下の申し送りテンプレートをフルスペック版に更新しました：
 
-1. docs/letter/TEMPLATE.md
+1. docs/letters/TEMPLATE.md
 2. patterns/docs-structure/templates/letters/TEMPLATE.md
 3. patterns/writing-collaborate/templates/letters/TEMPLATE.md
 

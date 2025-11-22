@@ -54,16 +54,16 @@
 申し送りを作成したら、ユーザーに以下の形式で通知してください：
 
 ```
-申し送りファイルを作成しました: docs/letter/YYYY-MM-DD-HH-MM-SS.md
+申し送りファイルを作成しました: docs/letters/YYYY-MM-DD-HH-MM-SS.md
 
 次のClaudeセッションでは、以下のメッセージで開始してください：
 
 ---
-docs/letter/YYYY-MM-DD-HH-MM-SS.md を日本語で。
+docs/letters/YYYY-MM-DD-HH-MM-SS.md を日本語で。
 
 このプロジェクトの運用ルール:
 - 知見は docs/notes/ (命名: 連番-{title}.md、作成時 README/TEMPLATE参照)
-- 申し送りは docs/letter/ (このファイル、作成時 README/TEMPLATE参照)
+- 申し送りは docs/letters/ (このファイル、作成時 README/TEMPLATE参照)
 - コミット: このリポジトリが公開の場合はClaude痕跡（署名・絵文字）なしで、プライベートの場合はClaude痕跡ありでOK
 ---
 ```
@@ -74,7 +74,7 @@ docs/letter/YYYY-MM-DD-HH-MM-SS.md を日本語で。
 ### 1. TEMPLATE.md への通知例追加
 
 **実装場所**:
-- `docs/letter/TEMPLATE.md`
+- `docs/letters/TEMPLATE.md`
 - `patterns/docs-structure/templates/letters/TEMPLATE.md`
 - `patterns/docs-structure-for-target-branch-only/templates/docs/letters/TEMPLATE.md`
 - `patterns/writing-collaborate/templates/letters/TEMPLATE.md`

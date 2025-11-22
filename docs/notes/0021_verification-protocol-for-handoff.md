@@ -39,7 +39,7 @@ AI-to-AI間の申し送りにおいて、以下の問題が発生していた:
 
 以下の3ファイルに適用:
 
-- `docs/letter/TEMPLATE.md` - このリポジトリ
+- `docs/letters/TEMPLATE.md` - このリポジトリ
 - `patterns/docs-structure/templates/letters/TEMPLATE.md` - 標準開発パターン
 - `patterns/docs-structure-for-target-branch-only/templates/docs/letters/TEMPLATE.md` - ブランチ特化パターン
 

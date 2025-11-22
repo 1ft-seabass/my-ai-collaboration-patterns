@@ -31,7 +31,7 @@
 
 **注意**:
 - プロジェクトで `docs/letters/` 以外のパスを使っている場合は、そのパスに合わせてください
-- 例: `docs/letter/`, `collaborate/letters/` など
+- 例: `docs/letters/`, `collaborate/letters/` など
 
 ### 2. 申し送りREADME（存在する場合）の更新
 
