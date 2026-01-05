@@ -1,274 +1,380 @@
-# Webpack バンドルサイズ最適化 - 開発記録
+# Express での REST API 実装パターン - 開発記録
 
-**作成日**: 2025-10-20
-**関連タスク**: パフォーマンス改善
-**ステータス**: 解決済み
+> **⚠️ 機密情報保護ルール**
+>
+> このノートに記載する情報について:
+> - API キー・パスワード・トークンは必ずプレースホルダー(`YOUR_API_KEY`等)で記載
+> - 実際の機密情報は絶対に含めない
+> - .env や設定ファイルの内容をそのまま転記しない
+
+**作成日**: 2025-01-04
+**関連タスク**: ユーザー管理 API の実装
 
 ---
 
 ## 問題
 
-本番ビルド後のJSバンドルサイズが 2.8MB と大きく、初回ロードが遅い（約8秒）。
+Express でバックエンド API を実装する際、エラーハンドリング、CORS 設定、ミドルウェアの順序など、初心者がつまずきやすいポイントが多い。
 
 ### 背景
 
-- ユーザーからのフィードバックで初回ロード時間が長いとの指摘
-- Lighthouse スコア: Performance 42/100
-- 目標: バンドルサイズ 1MB 以下、初回ロード 3秒以内
+- フロントエンド（React）から fetch で API を呼び出す際に CORS エラーが発生
+- エラーレスポンスの形式が統一されていない
+- ミドルウェアの順序によって想定外の動作が発生
 
-### 環境
+### 要件
 
-- Webpack v5.88
-- React v18.2
-- Node.js v20.5
+- フロントエンド（localhost:3000）からのリクエストを受け付ける
+- 統一されたエラーレスポンス形式
+- JSON リクエスト/レスポンスの処理
+- 開発時のログ出力
 
 ---
 
 ## 試行錯誤
 
-### アプローチA: Moment.js の削除
+### アプローチA: CORS を後から追加
 
 **試したこと**:
-```bash
-npm uninstall moment
-npm install date-fns
-```
+```javascript
+// server/index.js
+const express = require('express');
+const app = express();
 
-全ての日付処理を date-fns に置き換え。
+// ルート定義
+app.get('/api/users', (req, res) => {
+  res.json([{ id: 1, name: 'Alice' }]);
+});
+
+// CORS を最後に追加
+const cors = require('cors');
+app.use(cors());
+
+app.listen(3001);
+```
 
 **結果**: 失敗
 
-- バンドルサイズ: 2.8MB → 2.6MB（7%減少）
-- 期待していたほど減らなかった
-- Moment.js のロケールデータが問題だったが、他の大きな依存関係が残っていた
+**理由**:
+- ミドルウェアは上から順に実行される
+- ルート定義より後に `cors()` を追加しても、すでにルートが処理されているため効果がない
+- フロントエンドから `Access-Control-Allow-Origin` ヘッダーがないエラーが発生
 
 **学び**:
-- Moment.js は確かに大きいが、他にも問題がある
-- webpack-bundle-analyzer で分析が必要
+- Express のミドルウェアは**定義順序が重要**
+- CORS ミドルウェアはルート定義より**前**に配置する必要がある
 
 ---
 
-### アプローチB: Code Splitting の追加
+### アプローチB: エラーハンドリングを各ルートに記述
 
 **試したこと**:
 ```javascript
-// Before
-import Dashboard from './Dashboard';
+// server/routes/users.js
+router.get('/:id', async (req, res) => {
+  try {
+    const user = await findUser(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
-// After
-const Dashboard = React.lazy(() => import('./Dashboard'));
+router.post('/', async (req, res) => {
+  try {
+    const user = await createUser(req.body);
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// 他のルートも同様に try-catch を記述...
 ```
 
-主要なルートコンポーネントを動的インポートに変更。
-
-**結果**: 部分的成功
-
-- 初期バンドル: 2.6MB → 1.2MB（54%減少）
-- 初回ロード時間: 8秒 → 5秒
-- しかし、ページ遷移時に遅延が発生（UX悪化）
+**結果**: 部分的に成功
 
 **問題点**:
-- Dashboard への遷移で 2秒の待ち時間
-- ユーザーから「遷移が遅い」とのフィードバック
-- ローディングスピナーが頻繁に表示されUXが悪化
+- すべてのルートに同じ try-catch を書く必要がある（DRY 原則に違反）
+- エラーレスポンスの形式を統一するのが困難（各ルートで微妙に違うレスポンスになる）
+- コードが冗長で読みにくい
 
 **学び**:
-- Code Splitting は有効だが、粒度が重要
-- 頻繁にアクセスするページは分割すべきでない
-- Prefetch/Preload の検討が必要
+- エラーハンドリングは共通化すべき
+- Express の**エラーハンドリングミドルウェア**を使うべき
 
 ---
 
-### アプローチC: Tree Shaking + 選択的 Code Splitting（成功）
+### アプローチC: ミドルウェアを正しい順序で配置（成功）
 
 **試したこと**:
 
-1. **Tree Shaking の最適化**:
+**1. ミドルウェアの配置順序を整理**:
 ```javascript
-// webpack.config.js
-module.exports = {
-  mode: 'production',
-  optimization: {
-    usedExports: true,
-    sideEffects: false,
-  },
-};
+// server/index.js
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
 
-// package.json
-{
-  "sideEffects": false
-}
+const app = express();
+
+// 1. CORS（最初に配置）
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
+
+// 2. ロギング（開発時のデバッグ用）
+app.use(morgan('dev'));
+
+// 3. JSON パーサー（req.body を使う前に必須）
+app.use(express.json());
+
+// 4. ルート定義
+app.use('/api/users', require('./routes/users'));
+
+// 5. 404 ハンドラー（ルート定義の後）
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not Found' });
+});
+
+// 6. エラーハンドリングミドルウェア（最後に配置）
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error'
+  });
+});
+
+app.listen(3001, () => {
+  console.log('Server running on http://localhost:3001');
+});
 ```
 
-2. **lodash の最適化**:
+**2. ルートをシンプルに**:
 ```javascript
-// Before
-import _ from 'lodash';
-_.debounce(fn, 300);
+// server/routes/users.js
+const express = require('express');
+const router = express.Router();
 
-// After
-import debounce from 'lodash/debounce';
-debounce(fn, 300);
+// モックデータ（後でデータベースに置き換え）
+const users = [
+  { id: 1, name: 'Alice', email: 'alice@example.com' },
+  { id: 2, name: 'Bob', email: 'bob@example.com' }
+];
+
+// GET /api/users - 全ユーザー取得
+router.get('/', (req, res) => {
+  res.json(users);
+});
+
+// GET /api/users/:id - 特定ユーザー取得
+router.get('/:id', (req, res, next) => {
+  const user = users.find(u => u.id === parseInt(req.params.id));
+
+  if (!user) {
+    const error = new Error('User not found');
+    error.status = 404;
+    return next(error);  // エラーハンドリングミドルウェアに渡す
+  }
+
+  res.json(user);
+});
+
+// POST /api/users - ユーザー作成
+router.post('/', (req, res, next) => {
+  const { name, email } = req.body;
+
+  // バリデーション
+  if (!name || !email) {
+    const error = new Error('Name and email are required');
+    error.status = 400;
+    return next(error);
+  }
+
+  const newUser = {
+    id: users.length + 1,
+    name,
+    email
+  };
+
+  users.push(newUser);
+  res.status(201).json(newUser);
+});
+
+module.exports = router;
 ```
 
-3. **選択的 Code Splitting**:
-```javascript
-// 頻繁にアクセスするページ: 通常のインポート
-import Dashboard from './Dashboard';
-import Profile from './Profile';
+**結果**: 成功
 
-// 管理者ページなど: 動的インポート
-const AdminPanel = React.lazy(() => import('./AdminPanel'));
-const Reports = React.lazy(() => import('./Reports'));
-
-// Prefetch で UX 改善
-<link rel="prefetch" href="/admin-panel.chunk.js" />
-```
-
-**結果**: 成功 🎉
-
-- 初期バンドル: 2.6MB → **850KB**（67%減少）
-- 初回ロード時間: 8秒 → **2.8秒**（65%改善）
-- Lighthouse スコア: 42 → **78**
-- ページ遷移: スムーズ（頻繁なページは分割せず）
-
-**数値詳細**:
-```
-Before:
-- main.js: 2.6MB
-- vendors.js: 含まれていない
-
-After:
-- main.js: 450KB
-- vendors.js: 400KB
-- admin.chunk.js: 280KB (lazy)
-- reports.chunk.js: 320KB (lazy)
-```
+**メリット**:
+- CORS エラーが解消
+- エラーハンドリングが統一され、コードがシンプルに
+- JSON のパース処理が自動で行われる
+- 開発時のログが見やすい
 
 ---
 
 ## 解決策
 
-### 最終実装
+### 最終実装パターン
 
-#### 1. Tree Shaking の有効化
-
-```javascript
-// webpack.config.js
-module.exports = {
-  mode: 'production',
-  optimization: {
-    usedExports: true,
-    sideEffects: false,
-    splitChunks: {
-      chunks: 'all',
-      cacheGroups: {
-        vendors: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          priority: 10,
-        },
-      },
-    },
-  },
-};
-```
-
-#### 2. 依存関係の最適化
-
-- Moment.js → date-fns に置き換え
-- lodash の使用を個別インポートに変更
-- 未使用の依存関係を削除（react-transition-group など）
-
-#### 3. 選択的 Code Splitting
+#### 1. ミドルウェアの正しい配置順序
 
 ```javascript
-// src/routes.tsx
-import { lazy } from 'react';
+// server/index.js
+const express = require('express');
+const app = express();
 
-// 頻繁にアクセス（通常インポート）
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
+// ① CORS（最初）
+app.use(cors({ origin: 'http://localhost:3000' }));
 
-// 管理者機能（動的インポート）
-const AdminPanel = lazy(() => import('./pages/AdminPanel'));
-const Reports = lazy(() => import('./pages/Reports'));
-const Settings = lazy(() => import('./pages/Settings'));
+// ② ロギング
+app.use(morgan('dev'));
+
+// ③ JSON パーサー
+app.use(express.json());
+
+// ④ ルート定義
+app.use('/api/users', require('./routes/users'));
+
+// ⑤ 404 ハンドラー
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not Found' });
+});
+
+// ⑥ エラーハンドリング（最後）
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error'
+  });
+});
 ```
 
-#### 4. Prefetch の追加
+#### 2. ルートでのエラー処理
 
-```html
-<!-- public/index.html -->
-<link rel="prefetch" href="/admin-panel.chunk.js" />
-<link rel="prefetch" href="/reports.chunk.js" />
+```javascript
+// エラーを next() に渡す
+router.get('/:id', (req, res, next) => {
+  const user = findUser(req.params.id);
+
+  if (!user) {
+    const error = new Error('User not found');
+    error.status = 404;
+    return next(error);  // ← エラーハンドリングミドルウェアに任せる
+  }
+
+  res.json(user);
+});
+```
+
+#### 3. 統一されたエラーレスポンス形式
+
+```json
+{
+  "error": "エラーメッセージ"
+}
 ```
 
 ---
 
 ## 学び
 
-### 1. webpack-bundle-analyzer は必須
+### 1. Express ミドルウェアの順序は重要
 
-問題の原因を正確に把握できる。思い込みで対策すると無駄な作業になる。
+**正しい順序**:
+1. **CORS** - 最初に配置（すべてのリクエストに適用）
+2. **ロギング** - リクエストの詳細を記録
+3. **JSON パーサー** - `req.body` を使う前に必須
+4. **ルート定義** - 実際の API エンドポイント
+5. **404 ハンドラー** - どのルートにもマッチしなかった場合
+6. **エラーハンドリング** - 最後に配置（すべてのエラーをキャッチ）
 
-```bash
-npm install --save-dev webpack-bundle-analyzer
-```
-
-### 2. Code Splitting の粒度が重要
-
-- **頻繁にアクセス**: 通常インポート（初期バンドルに含める）
-- **たまにアクセス**: 動的インポート（遅延ロード）
-- **Prefetch**: ユーザーがアクセスしそうなページを事前読み込み
-
-### 3. lodash は個別インポート
+### 2. エラーハンドリングミドルウェアの使い方
 
 ```javascript
-// ❌ Bad: lodash 全体をインポート（540KB）
-import _ from 'lodash';
-
-// ✅ Good: 必要な関数だけ（15KB）
-import debounce from 'lodash/debounce';
+// エラーハンドリングミドルウェアは4つの引数が必須
+app.use((err, req, res, next) => {
+  // ^^^^^^^^^ 4つの引数
+  res.status(err.status || 500).json({
+    error: err.message
+  });
+});
 ```
 
-### 4. Tree Shaking の前提条件
+**ポイント**:
+- 4つの引数 `(err, req, res, next)` が必須
+- 3つの引数だと通常のミドルウェアとして扱われる
+- `next(error)` でエラーを渡すと、このミドルウェアが呼ばれる
 
-- ES6 モジュール（import/export）を使用
-- `sideEffects: false` を package.json に追加
-- production モードでビルド
+### 3. CORS の設定
 
-### 5. パフォーマンス計測は必須
+```javascript
+// 開発時: すべてのオリジンを許可（簡単だが本番非推奨）
+app.use(cors());
 
-- Lighthouse で定期的に計測
-- 改善前後の数値を記録
-- ユーザー体感も重要（数値だけでなく）
+// 本番: 特定のオリジンのみ許可（推奨）
+app.use(cors({
+  origin: 'https://example.com',
+  credentials: true  // Cookie を使う場合
+}));
+```
+
+### 4. モックデータから始める
+
+```javascript
+// 最初は配列でモックデータ
+const users = [
+  { id: 1, name: 'Alice' }
+];
+
+// 後でデータベースに置き換え
+const users = await db.query('SELECT * FROM users');
+```
+
+**メリット**:
+- フロントエンド開発を先行できる
+- API の形式を早期に確定できる
+- 後からデータベースに置き換えが容易
+
+### 5. ステータスコードの使い分け
+
+| ステータス | 用途 | 例 |
+|-----------|------|-----|
+| 200 | 成功（GET, PUT） | ユーザー取得成功 |
+| 201 | 作成成功（POST） | ユーザー作成成功 |
+| 400 | リクエストエラー | バリデーションエラー |
+| 404 | 見つからない | ユーザーが存在しない |
+| 500 | サーバーエラー | 予期しないエラー |
 
 ---
 
-## 今後の課題
+## 今後の改善案
 
 ### 短期
-
-- [ ] 画像の最適化（WebP 変換、lazy loading）
-- [ ] CSS の最適化（未使用スタイルの削除）
+- [ ] バリデーションライブラリの導入（Joi or Zod）
+- [ ] データベース接続（SQLite or PostgreSQL）
+- [ ] 認証機能の追加（JWT）
 
 ### 長期
-
-- [ ] SSR/SSG の検討（Next.js への移行？）
-- [ ] CDN の活用
-- [ ] HTTP/2 Server Push
+- [ ] レート制限（express-rate-limit）
+- [ ] API ドキュメント自動生成（Swagger）
+- [ ] テストの追加（Jest + Supertest）
 
 ---
 
 ## 関連ドキュメント
 
-- [Webpack Bundle Analyzer レポート](./assets/bundle-report.html)
-- [Lighthouse レポート Before](./assets/lighthouse-before.html)
-- [Lighthouse レポート After](./assets/lighthouse-after.html)
-- [ADR-0003: Code Splitting 戦略](../architecture/decisions/0003-code-splitting-strategy.md)
+- [Express 公式ドキュメント - エラーハンドリング](https://expressjs.com/en/guide/error-handling.html)
+- [Express 公式ドキュメント - ミドルウェア](https://expressjs.com/en/guide/using-middleware.html)
+- [CORS パッケージ](https://www.npmjs.com/package/cors)
+- 関連する申し送り: `docs/letters/2025-01-05-18-30-00.md` - ユーザー管理機能の実装状況
 
 ---
 
-**最終更新**: 2025-10-20
+**最終更新**: 2025-01-04
 **作成者**: Claude Code + User
