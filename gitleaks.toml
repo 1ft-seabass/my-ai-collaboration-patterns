@@ -1,0 +1,14 @@
+title = "Gitleaks config"
+
+[allowlist]
+paths = [
+  '''node_modules/.*''',
+  '''dist/.*''',
+]
+
+regexes = [
+  '''YOUR_TOKEN_HERE''',
+  '''your_api_key_here''',
+  '''YOUR_API_KEY''',
+  '''XXXXXXXX''',
+]

@@ -8,9 +8,22 @@
   },
   "scripts": {
     "claude": "claude --dangerously-skip-permissions",
-    "claude:keep_session": "claude --dangerously-skip-permissions -c"
+    "claude:keep_session": "claude --dangerously-skip-permissions -c",
+    "gitleaks:install": "bash scripts/install-gitleaks.sh",
+    "secret-scan": "secretlint \"**/*\"",
+    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . -v",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@secretlint/secretlint-rule-preset-recommend": "^11.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "secretlint": "^11.3.0"
+  },
+  "lint-staged": {
+    "*": ["secretlint"]
+  }
 }

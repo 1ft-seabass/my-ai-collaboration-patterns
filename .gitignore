@@ -144,3 +144,6 @@ prompt.md
 # Core dumps
 core
 core.*
+
+# gitleaks binary (large binary file)
+bin/gitleaks
