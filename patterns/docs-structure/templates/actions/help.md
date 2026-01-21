@@ -37,6 +37,34 @@
 
 ---
 
+## 🔧 開発品質系（実験的）
+
+**`@actions/dev_review.md`**
+開発レビュー（診断）
+- 全体構造を俯瞰して気になる点をリスト化
+- 深刻度と理由を添えて指摘
+- コードは修正しない
+
+**`@actions/dev_refactoring.md`**
+リファクタリング（治療）
+- 指定範囲のコードを改善
+- 機能は変更せず挙動を維持
+- テストがある場合は必ず通す
+
+**`@actions/dev_security.md`**
+セキュリティチェック
+- シークレット、入力検証、DB、認証・認可などをチェック
+- 危険箇所を洗い出して対処の方向性を提示
+- コードは修正しない
+
+**`@actions/dev_testing.md`**
+テスト作成（ガードレール）
+- リファクタ前の安全網として作成
+- 主要なパス（正常系）を優先
+- 必要最小限で効果的に
+
+---
+
 ## 🔒 セキュリティ・セットアップ系
 
 **`@actions/check_my_security_prepare_level.md`**
@@ -57,6 +85,10 @@
 | 作業中のコミット | `@actions/git_commit.md` |
 | ノートだけ作りたい | `@actions/doc_note.md` |
 | 申し送りだけ作りたい | `@actions/doc_letter.md` |
+| コード全体をレビュー | `@actions/dev_review.md` |
+| 局所的にリファクタ | `@actions/dev_refactoring.md` |
+| セキュリティチェック | `@actions/dev_security.md` |
+| テストを作成 | `@actions/dev_testing.md` |
 
 ---
 
