@@ -246,33 +246,37 @@ A: 実測で約70%のトークン削減。繰り返しタスクが多いほど�
 **Q: AIが指示書を無視する場合は？**
 A: 指示をより具体的に、明確に記述してください。期待する結果を明記すると効果的です。
 
-## 🔄 既存プロジェクトの更新
+## 🔄 既存の docs-structure に actions/ を導入・更新する場合
 
-既に actions/ フォルダを導入済みで、最新の構成に更新したい場合:
+既に docs-structure パターンを導入済みで、docs/actions/ を最新化したい場合:
 
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
 > ```
 > https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/actions-pattern
-> 既存の actions/ フォルダを最新化したいです。
+> 既存の docs/ フォルダに最新の actions/ を導入したいです。
+>
+> 配置先: docs/actions/
 >
 > 手順:
-> 1. 現在の actions/ フォルダの内容を確認
-> 2. npx degit で templates/actions/ を取得
-> 3. 既存の actions/ 内のファイルを最新版で上書き
+> 1. まず導入計画を教えてください（既存の docs/actions/ の状況確認）
+> 2. 私が承認します
+> 3. 既存の docs/actions/ 内のファイルをすべて削除
+> 4. npx degit で templates/actions/ を取得
+> 5. docs/actions/ に配置（完全上書き）
 >
 > 期待する結果:
->   actions/
+>   docs/actions/
 >     ├── README.md（最新版）
 >     └── （最新のアクションファイル群.md）
 >
-> 注意: プロジェクト固有にカスタマイズしたアクションファイルは上書きされます。
+> 注意: 既存のファイルはすべて削除されます。
 > カスタムファイルがある場合は、事前にバックアップを推奨します。
 > ```
 
 **更新後の確認:**
-- `actions/README.md` を読んで、最新の構成を確認
-- `actions/help.md` で使い方をクイックチェック
+- `docs/actions/README.md` を読んで、最新の構成を確認
+- `docs/actions/help.md` で使い方をクイックチェック
 
 ## 📝 ライセンス
 
