@@ -1,5 +1,7 @@
 # actions パターン
 
+## 新規に導入する場合
+
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
 > ```
@@ -27,7 +29,38 @@
 > 初期段階では一般化されたテンプレートのまま使用することを推奨します。
 > ```
 
-繰り返しタスクを効率化し、トークン消費を約70%削減
+
+## 🔄 既存の docs-structure に actions/ を導入・更新する場合
+
+既に docs-structure パターンを導入済みで、docs/actions/ を最新化したい場合:
+
+> **🤖 AIへのワンショット指示（コピペ用）**
+>
+> ```
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/actions-pattern
+> 既存の docs/ フォルダに最新の actions/ を導入したいです。
+>
+> 配置先: docs/actions/
+>
+> 手順:
+> 1. まず導入計画を教えてください（既存の docs/actions/ の状況確認）
+> 2. 私が承認します
+> 3. 既存の docs/actions/ 内のファイルをすべて削除
+> 4. npx degit で templates/actions/ を取得
+> 5. docs/actions/ に配置（完全上書き）
+>
+> 期待する結果:
+>   docs/actions/
+>     ├── README.md（最新版）
+>     └── （最新のアクションファイル群.md）
+>
+> 注意: 既存のファイルはすべて削除されます。
+> カスタムファイルがある場合は、事前にバックアップを推奨します。
+> ```
+
+**更新後の確認:**
+- `docs/actions/README.md` を読んで、最新の構成を確認
+- `docs/actions/help.md` で使い方をクイックチェック
 
 ## 📦 このパターンについて
 
@@ -245,38 +278,6 @@ A: 実測で約70%のトークン削減。繰り返しタスクが多いほど�
 
 **Q: AIが指示書を無視する場合は？**
 A: 指示をより具体的に、明確に記述してください。期待する結果を明記すると効果的です。
-
-## 🔄 既存の docs-structure に actions/ を導入・更新する場合
-
-既に docs-structure パターンを導入済みで、docs/actions/ を最新化したい場合:
-
-> **🤖 AIへのワンショット指示（コピペ用）**
->
-> ```
-> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/actions-pattern
-> 既存の docs/ フォルダに最新の actions/ を導入したいです。
->
-> 配置先: docs/actions/
->
-> 手順:
-> 1. まず導入計画を教えてください（既存の docs/actions/ の状況確認）
-> 2. 私が承認します
-> 3. 既存の docs/actions/ 内のファイルをすべて削除
-> 4. npx degit で templates/actions/ を取得
-> 5. docs/actions/ に配置（完全上書き）
->
-> 期待する結果:
->   docs/actions/
->     ├── README.md（最新版）
->     └── （最新のアクションファイル群.md）
->
-> 注意: 既存のファイルはすべて削除されます。
-> カスタムファイルがある場合は、事前にバックアップを推奨します。
-> ```
-
-**更新後の確認:**
-- `docs/actions/README.md` を読んで、最新の構成を確認
-- `docs/actions/help.md` で使い方をクイックチェック
 
 ## 📝 ライセンス
 
