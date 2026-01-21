@@ -17,8 +17,8 @@
    - ユーザーの承認を得る
 
 2. ノートの作成
-   - notes/README.md をみてノート作成ルールを把握
-   - notes/TEMPLATE.md をベースにノートを作成
+   - docs/notes/README.md をみてノート作成ルールを把握
+   - docs/notes/TEMPLATE.md をベースにノートを作成
    - 承認された方針に従って作成
    - 機密情報は必ずプレースホルダーで記載
 
