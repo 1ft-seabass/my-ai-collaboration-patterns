@@ -4,7 +4,7 @@
 
 ## 使い方
 
-Claude Codeなどで以下のように呼び出します：
+Claude Code、Cursor、Windsurf、Gemini CLI など、`@` 参照をサポートする AI ツールで以下のように呼び出します：
 
 ```
 @actions/ファイル名.md
@@ -14,10 +14,24 @@ AIが指示書を読み込み、定義されたタスクを実行します。
 
 ## 利用可能なアクション
 
-- `git_commit_and_push.md` - 進捗のコミットとプッシュ
-- `current_create_knowledge.md` - 知見のまとめ作成
-- `current_create_letter.md` - 申し送りの作成（セッション終了時）
-- `simple_start_from_latest_letter.md` - セッション開始（申し送りから）
+### よく使うアクション（連番付き）
+
+- `00_session_end.md` - セッション終了（ノート作成→コミット→申し送り作成）
+- `01_git_push.md` - 厳格なプッシュチェック（機密情報スキャン）
+
+### 個別タスク用アクション
+
+- `git_commit.md` - 段階的コミットのみ
+- `doc_note.md` - ノート作成のみ
+- `doc_letter.md` - 申し送り作成のみ
+
+### セキュリティ・セットアップ系
+
+- `check_my_security_prepare_level.md` - セキュリティ準備レベル診断
+
+### ヘルプ
+
+- `help.md` - 各アクションの使い分けガイド（`@actions/help.md` で表示）
 
 ## 新しいアクションの追加
 
