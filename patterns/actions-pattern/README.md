@@ -43,11 +43,15 @@
 > 配置先: docs/actions/
 >
 > 手順:
-> 1. まず導入計画を教えてください（既存の docs/actions/ の状況確認）
-> 2. 私が承認します
-> 3. 既存の docs/actions/ 内のファイルをすべて削除
-> 4. npx degit で templates/actions/ を取得
-> 5. docs/actions/ に配置（完全上書き）
+> 1. このプロジェクトが docs-structure を使っているか確認してください
+>    - docs/notes/ ディレクトリが存在するか
+>    - docs/letters/ ディレクトリが存在するか
+>    - 存在しない場合はエラーを報告して停止（mkdir は絶対にしない）
+> 2. 導入計画を教えてください（既存の docs/actions/ の状況確認）
+> 3. 私が承認します
+> 4. 既存の docs/actions/ 内のファイルをすべて削除
+> 5. npx degit で templates/actions/ を取得
+> 6. docs/actions/ に配置（完全上書き）
 >
 > 期待する結果:
 >   docs/actions/
