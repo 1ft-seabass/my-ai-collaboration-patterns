@@ -78,9 +78,7 @@ docs/
 ├── README.md                           # ドキュメント目次
 ├── actions/                            # タスク自動化指示書
 │   ├── README.md
-│   ├── git_commit_and_push.md         # コミット&プッシュ
-│   ├── current_create_knowledge.md    # 知見まとめ作成
-│   └── simple_start_from_latest_letter.md  # セッション開始
+│   └── （複数のアクションファイル.md） # タスク別の指示書
 ├── letters/                           # 申し送り（時系列）
 │   ├── README.md
 │   └── TEMPLATE.md                    # 申し送りテンプレート
@@ -130,9 +128,8 @@ docs/
 繰り返し実行するタスクを指示書として保存し、`@actions/ファイル名.md` で呼び出すことで、AIが自動的にタスクを実行します。
 
 **提供されるアクション:**
-- `git_commit_and_push.md` - 進捗のコミットとプッシュ
-- `current_create_knowledge.md` - 知見のまとめ作成
-- `simple_start_from_latest_letter.md` - セッション開始（申し送りから）
+- Git操作、知見まとめ、セッション開始などの各種タスクファイル
+- 詳細は `actions/README.md` を参照
 
 **効果:**
 - **トークン削減**: 約70%（実測値）

@@ -20,6 +20,9 @@
 >   actions/templates/  ← templatesフォルダを作らない
 >   templates/          ← templatesという名前で配置しない
 >
+> 注: 本リポジトリの最新構成が含まれます。
+> 具体的なファイルは actions/README.md を参照してください。
+>
 > プロジェクトが成熟し、要件が明確になった段階でカスタマイズしてください。
 > 初期段階では一般化されたテンプレートのまま使用することを推奨します。
 > ```
@@ -67,7 +70,7 @@ cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/* ./action
 プロジェクトに配置後、Claude Code などで以下のように呼び出し：
 
 ```
-@actions/git_commit_and_push.md
+@actions/ファイル名.md
 ```
 
 AIが指示書を読み込み、定義されたタスクを自動実行します。
@@ -77,9 +80,7 @@ AIが指示書を読み込み、定義されたタスクを自動実行します
 ```
 actions/
 ├── README.md                          # actionsディレクトリの説明
-├── git_commit_and_push.md             # 例1: Git操作
-├── current_create_knowledge.md        # 例2: 知見まとめ
-└── simple_start_from_latest_letter.md # 例3: セッション開始
+└── （複数のアクションファイル.md）   # タスク別の指示書
 ```
 
 新しいタスクは `actions/新しいタスク名.md` として追加できます。
@@ -101,9 +102,9 @@ AI: "分かりました。段階的にコミットしますか？"  ← また�
 ### actionsパターン（効率的）
 
 ```
-User: "@actions/git_commit_and_push.md"
+User: "@actions/ファイル名.md"
 [ファイル読み込み: 500トークン]
-→ 指示書に「段階的にコミット」と明記済み
+→ 指示書に手順が明記済み
 → 確認不要で即実行
 → 合計: 1500トークン（75%削減）
 ```
@@ -244,6 +245,34 @@ A: 実測で約70%のトークン削減。繰り返しタスクが多いほど�
 
 **Q: AIが指示書を無視する場合は？**
 A: 指示をより具体的に、明確に記述してください。期待する結果を明記すると効果的です。
+
+## 🔄 既存プロジェクトの更新
+
+既に actions/ フォルダを導入済みで、最新の構成に更新したい場合:
+
+> **🤖 AIへのワンショット指示（コピペ用）**
+>
+> ```
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/actions-pattern
+> 既存の actions/ フォルダを最新化したいです。
+>
+> 手順:
+> 1. 現在の actions/ フォルダの内容を確認
+> 2. npx degit で templates/actions/ を取得
+> 3. 既存の actions/ 内のファイルを最新版で上書き
+>
+> 期待する結果:
+>   actions/
+>     ├── README.md（最新版）
+>     └── （最新のアクションファイル群.md）
+>
+> 注意: プロジェクト固有にカスタマイズしたアクションファイルは上書きされます。
+> カスタムファイルがある場合は、事前にバックアップを推奨します。
+> ```
+
+**更新後の確認:**
+- `actions/README.md` を読んで、最新の構成を確認
+- `actions/help.md` で使い方をクイックチェック
 
 ## 📝 ライセンス
 
