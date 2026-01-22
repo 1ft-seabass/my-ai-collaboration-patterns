@@ -19,7 +19,7 @@ templates/
 
 ```bash
 # 例: セキュリティチェックセットアップのみ取得
-npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
 ```
 
 ## 利用可能なセットアップガイド

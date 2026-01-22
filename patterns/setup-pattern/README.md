@@ -3,10 +3,10 @@
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
 > ```
-> https://github.com/<username>/my-ai-collaboration-patterns/tree/main/patterns/setup-pattern
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/setup-pattern
 > このパターンを使ってセキュリティチェック（secretlint + gitleaks）を導入したいです。
 >
-> npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
+> npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
 >
 > setup_securecheck.md を読んで、段階的に導入してください。
 > Phase 1 から順に進め、各 Phase で判断が必要な場合は確認してください。
@@ -44,13 +44,13 @@ AI 協働開発において、技術導入を段階的に進めるためのワ�
 
 ```bash
 # セキュリティチェック（secretlint + gitleaks）
-npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
 ```
 
 ### Git Clone
 
 ```bash
-git clone https://github.com/<username>/my-ai-collaboration-patterns.git
+git clone https://github.com/1ft-seabass/my-ai-collaboration-patterns.git
 cp -r my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
 ```
 
@@ -123,7 +123,7 @@ Phase 1 から順に進めて、各 Phase で判断が必要な場合は確認�
 
 ```bash
 # 1. セットアップガイド一式を取得
-npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
 
 # 2. 手順書を読む
 cat setup_securecheck.md
