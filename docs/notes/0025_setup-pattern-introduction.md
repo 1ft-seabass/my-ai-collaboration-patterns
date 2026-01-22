@@ -61,17 +61,36 @@ session_end.md を AI に渡しても、初手から無視する AI が存在す
 - `setup_securecheck` の方が「セキュリティチェック全般」を表現
 - 将来的に他のセキュリティツール（Trivy, Snyk など）を追加しても違和感がない
 
+---
+
+### アプローチD: ディレクトリ構造の再編成（成功）
+**試したこと**: 今後の拡張性を考慮した構造に変更
+
+**結果**: 成功
+
+**変更内容**:
+- `templates/setup_securecheck/` → `setup_securecheck/templates/`
+- `templates/setup_securecheck.md` → `setup_securecheck/setup_securecheck.md`
+- README を分離：
+  - `patterns/setup-pattern/README.md`: setup-pattern 全体の説明
+  - `patterns/setup-pattern/setup_securecheck/README.md`: setup_securecheck のワンショット指示
+
+**理由**:
+- 今後 `setup_prettier/`, `setup_eslint/` などが増える
+- 各セットアップガイドが独立したディレクトリになる
+- templates/ は各セットアップガイドの配下に配置する方が自然
+
 ## 解決策
 
 ### 最終的な構成
 
 ```
 patterns/setup-pattern/
-├── README.md                                   # パターン説明（docs-structure レベル）
-└── templates/
-    ├── README.md                               # templates 説明
+├── README.md                                   # setup-pattern 全体の説明
+└── setup_securecheck/                          # セキュリティチェック導入ガイド
+    ├── README.md                               # ワンショット指示（コピペ用）
     ├── setup_securecheck.md                    # 手順書（AI が読むメイン文書）
-    └── setup_securecheck/                      # サンプルファイル集（コピペ元）
+    └── templates/                              # サンプルファイル集（コピペ元）
         ├── .secretlintrc.json
         ├── .gitleaksignore
         ├── gitleaks.toml
@@ -88,8 +107,9 @@ patterns/setup-pattern/
 
 | ファイル | 役割 |
 |---------|------|
+| **README.md** | ワンショット指示（npx degit のパスを含む） |
 | **setup_securecheck.md** | AI が読む手順書（メイン） |
-| **setup_securecheck/** | サンプルファイル集（補助・コピペ元） |
+| **templates/** | サンプルファイル集（補助・コピペ元） |
 
 ### 段階的導入の設計
 
@@ -136,6 +156,7 @@ docs-structure パターンと同じレベルの README を実装:
 
 ### 3. 手順書とサンプルファイルの役割分担
 
+- **README.md**: ワンショット指示（npx degit のパスを含む）
 - **手順書**: AI が読んで段階的に作業する（メイン）
 - **サンプルファイル**: コピペ元として参照（補助）
 - 手順書内にコード例も含まれているため、サンプルファイルなしでも導入可能
@@ -145,6 +166,12 @@ docs-structure パターンと同じレベルの README を実装:
 - いきなり自動化せず、Phase 1 で現状把握してから方針決定
 - ユーザーの状況（チーム vs 個人、Docker vs ローカルなど）に応じて選択できる
 - AI が判断すべきポイントを明記することで、質問攻めを防ぐ
+
+### 5. ディレクトリ構造の拡張性
+
+- 各セットアップガイドが `setup_xxxx/` として独立
+- templates/ は各セットアップガイドの配下に配置
+- 今後 `setup_prettier/`, `setup_eslint/` などを追加しやすい構造
 
 ## 今後の改善案
 

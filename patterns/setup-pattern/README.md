@@ -1,22 +1,5 @@
 # setup-pattern - セットアップパターン
 
-> **🤖 AIへのワンショット指示（コピペ用）**
->
-> ```
-> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/setup-pattern
-> このパターンを使ってセキュリティチェック（secretlint + gitleaks）を導入したいです。
->
-> npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
->
-> setup_securecheck.md を読んで、段階的に導入してください。
-> Phase 1 から順に進め、各 Phase で判断が必要な場合は確認してください。
->
-> 期待する結果：
-> - Phase 1: 初動スキャン（現状把握）
-> - Phase 2: 手動運用（npm scripts）
-> - Phase 3 または 4: pre-commit 自動化（ユーザーに確認）
-> ```
-
 よく使われる技術スタックやツールの段階的導入ガイド集
 
 ## 📦 このパターンについて
@@ -36,60 +19,9 @@ AI 協働開発において、技術導入を段階的に進めるためのワ�
 - **サンプルファイル完備**: すぐにコピペできる設定ファイル・スクリプト
 - **環境別対応**: Docker, Windows など環境ごとの手順を記載
 
-## 🚀 使い方
-
-### degit で取得（推奨）
-
-**重要**: `templates/setup_xxxx` ディレクトリを指定してください。手順書とサンプルファイルがセットで取得されます。
-
-```bash
-# セキュリティチェック（secretlint + gitleaks）
-npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
-```
-
-### Git Clone
-
-```bash
-git clone https://github.com/1ft-seabass/my-ai-collaboration-patterns.git
-cp -r my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
-```
-
-### AIに読ませる
-
-プロジェクトに配置後、AIアシスタントに以下を指示：
-
-```
-「setup_securecheck.md を読んで、段階的にセキュリティチェックを導入してください」
-```
-
-## 📂 作成される構造
-
-```
-setup_securecheck/
-├── setup_securecheck.md              # 手順書（AI が読むメイン文書）
-└── setup_securecheck/                # サンプルファイル集（コピペ元）
-    ├── .secretlintrc.json            # secretlint 設定
-    ├── .gitleaksignore               # gitleaks ignore 設定
-    ├── gitleaks.toml                 # gitleaks 設定
-    ├── .husky/pre-commit             # pre-commit フック
-    ├── package.json.example          # package.json サンプル
-    ├── gitignore.example             # .gitignore サンプル
-    └── scripts/
-        ├── secret-scan.sh            # 手動スキャンスクリプト
-        ├── install-gitleaks.sh       # gitleaks インストール
-        └── pre-commit.js             # Node.js 版 pre-commit
-```
-
-### 役割
-
-| ファイル | 役割 |
-|---------|------|
-| **setup_securecheck.md** | AI が読む手順書（メイン） |
-| **setup_securecheck/** | サンプルファイル集（補助・コピペ元） |
-
 ## 🎯 利用可能なセットアップガイド
 
-### [setup_securecheck](./templates/setup_securecheck.md)
+### [setup_securecheck](./setup_securecheck/) - セキュリティチェック
 secretlint + gitleaks によるシークレットスキャン導入
 
 **対象プロジェクト**:
@@ -97,8 +29,12 @@ secretlint + gitleaks によるシークレットスキャン導入
 - 認証情報が混入するリスクがあるプロジェクト
 - プライベートリポジトリでもセキュリティを確保したい
 
-**段階的導入の流れ**:
+**ワンショット取得**:
+```bash
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/setup_securecheck ./setup_securecheck
+```
 
+**段階的導入の流れ**:
 | Phase | 内容 | いつ止めるか |
 |-------|------|------------|
 | Phase 1 | 初動スキャン（現状把握） | 問題なし → Phase 2 へ |
@@ -106,32 +42,63 @@ secretlint + gitleaks によるシークレットスキャン導入
 | Phase 3 | pre-commit 強制（全員） | チーム全員で使う場合 |
 | Phase 4 | pre-commit 強制（個人用） | 自分だけ使いたい場合 |
 
-**環境別対応**:
-- Docker / Dev Container 対応（gitleaks バイナリ配置）
-- Windows 環境対応（Node.js 版 pre-commit）
-
-## 💡 使用例
-
-### AI に導入を依頼する
+## 📂 ディレクトリ構成
 
 ```
-「setup_securecheck.md を読んで、シークレットスキャンを導入してください。
-Phase 1 から順に進めて、各 Phase で判断が必要な場合は確認してください。」
+patterns/setup-pattern/
+├── README.md                           # このファイル（setup-pattern 全体の説明）
+└── setup_securecheck/                  # セキュリティチェック導入ガイド
+    ├── README.md                       # ワンショット指示
+    ├── setup_securecheck.md            # 手順書
+    └── templates/                      # サンプルファイル集
+        ├── .secretlintrc.json
+        ├── .gitleaksignore
+        ├── gitleaks.toml
+        ├── .husky/pre-commit
+        ├── package.json.example
+        ├── gitignore.example
+        └── scripts/
 ```
 
-### 手動で導入する
+### 構成の原則
+
+各セットアップガイド（`setup_xxxx/`）は以下の構成を取ります:
+
+```
+setup_xxxx/
+├── README.md                # ワンショット指示（コピペ用）
+├── setup_xxxx.md            # 手順書（AI が読むメイン文書）
+└── templates/               # サンプルファイル集（コピペ元）
+```
+
+| ファイル | 役割 |
+|---------|------|
+| **README.md** | ワンショット指示（npx degit のパスを含む） |
+| **setup_xxxx.md** | AI が読む手順書（メイン） |
+| **templates/** | サンプルファイル集（補助・コピペ元） |
+
+## 🚀 使い方
+
+### degit で取得（推奨）
 
 ```bash
-# 1. セットアップガイド一式を取得
-npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
+# セキュリティチェック（secretlint + gitleaks）
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/setup_securecheck ./setup_securecheck
+```
 
-# 2. 手順書を読む
-cat setup_securecheck.md
+### Git Clone
 
-# 3. Phase 1 から順に実行
-npm install -D secretlint @secretlint/secretlint-rule-preset-recommend
-npx secretlint "**/*"
-# ...
+```bash
+git clone https://github.com/1ft-seabass/my-ai-collaboration-patterns.git
+cp -r my-ai-collaboration-patterns/patterns/setup-pattern/setup_securecheck ./setup_securecheck
+```
+
+### AIに読ませる
+
+プロジェクトに配置後、AIアシスタントに以下を指示:
+
+```
+「setup_securecheck.md を読んで、段階的にセキュリティチェックを導入してください」
 ```
 
 ## 📖 コアコンセプト
@@ -158,20 +125,20 @@ npx secretlint "**/*"
 - サンプルファイルは「コピペ元」として参照
 - 手順書内にコード例も含まれているため、サンプルファイルなしでも導入可能
 
+## 📚 今後の追加候補
+
+プロジェクトの成熟度に応じて追加予定:
+
+- `setup_prettier/` - コードフォーマッター導入
+- `setup_eslint/` - ESLint + TypeScript 環境構築
+- `setup_testing/` - Jest / Vitest テスト環境
+- `setup_docker_devcontainer/` - Dev Container 環境構築
+- `setup_ci_github_actions/` - GitHub Actions CI/CD
+
 ## 🔗 関連パターン
 
 - [actions-pattern](../actions-pattern/) - AI への指示テンプレート
 - [docs-structure](../docs-structure/) - ドキュメント構造の説明
-
-## 📚 今後の追加候補
-
-プロジェクトの成熟度に応じて追加予定：
-
-- `setup_prettier.md` - コードフォーマッター導入
-- `setup_eslint.md` - ESLint + TypeScript 環境構築
-- `setup_testing.md` - Jest / Vitest テスト環境
-- `setup_docker_devcontainer.md` - Dev Container 環境構築
-- `setup_ci_github_actions.md` - GitHub Actions CI/CD
 
 ## ⚡ 効果
 
@@ -193,11 +160,8 @@ A: 可能です。Phase 1 で現状スキャンしてから段階的に導入し
 **Q: チーム開発で使える？**
 A: はい。Phase 3（全員強制）または Phase 4（個人用）を選択できます。
 
-**Q: Docker 環境でも動く？**
-A: はい。gitleaks を bin/ に配置する手順が含まれています。
-
-**Q: サンプルファイルは必須？**
-A: いいえ。手順書内にコード例があるため、サンプルファイルなしでも導入可能です。
+**Q: 複数のセットアップガイドを組み合わせられる？**
+A: はい。各セットアップガイドは独立しているため、必要なものを組み合わせて使えます。
 
 ## 📝 ライセンス
 
