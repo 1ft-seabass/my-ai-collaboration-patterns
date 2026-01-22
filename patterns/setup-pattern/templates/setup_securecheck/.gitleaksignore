@@ -1,0 +1,5 @@
+# Gitleaks ignore file
+# Format: path/to/file:line_number
+
+# Example:
+# docs/actions/example_api_usage.md:3

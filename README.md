@@ -17,6 +17,9 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure-for-ta
 
 # 執筆作業向け（✅ 利用可能）
 npx degit <username>/my-ai-collaboration-patterns/patterns/writing-collaborate/templates ./collaborate
+
+# セットアップガイド（✅ 利用可能）
+npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
 ```
 
 **Note**: `<username>` は実際のGitHubユーザー名に置き換えてください。
@@ -103,6 +106,31 @@ AIが理解しやすいドキュメント管理
 ### [testing-workflow](./patterns/testing-workflow/) - テスト戦略
 **Coming Soon**
 
+## 📚 セットアップガイド
+
+プロジェクトに導入する技術スタックやツールのワンショットセットアップガイド集。
+
+### [setup-pattern](./patterns/setup-pattern/) - セットアップパターン
+よく使われる技術の段階的導入手順
+
+**現在利用可能**:
+- [setup_securecheck](./patterns/setup-pattern/templates/setup_securecheck.md) - シークレットスキャン（secretlint + gitleaks）
+
+**使用例**:
+```bash
+# セットアップガイド一式を取得
+npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/templates/setup_securecheck ./setup_securecheck
+
+# または手順書のみを AI に渡す
+# patterns/setup-pattern/templates/setup_securecheck.md を読ませて段階的に導入
+```
+
+**特徴**:
+- 段階的導入（Phase 1 → Phase 2 → Phase 3/4）
+- 現状把握から自動化まで
+- チーム開発 vs 個人開発の両対応
+- サンプルファイル完備
+
 ## 💡 使い方
 
 ### degit でパターン取得（推奨）
@@ -138,6 +166,7 @@ cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./
 - [actions-pattern パターン](./patterns/actions-pattern/README.md)
 - [docs-structure-for-target-branch-only パターン](./patterns/docs-structure-for-target-branch-only/README.md)
 - [writing-collaborate パターン](./patterns/writing-collaborate/README.md)
+- [setup-pattern セットアップガイド](./patterns/setup-pattern/README.md)
 
 ## 🎯 特徴
 
@@ -183,3 +212,4 @@ MIT License - 自由に使用・改変・配布できます
 - [actions-pattern パターンを見る](./patterns/actions-pattern/)
 - [docs-structure-for-target-branch-only パターンを見る](./patterns/docs-structure-for-target-branch-only/)
 - [writing-collaborate パターンを見る](./patterns/writing-collaborate/)
+- [setup-pattern セットアップガイドを見る](./patterns/setup-pattern/)

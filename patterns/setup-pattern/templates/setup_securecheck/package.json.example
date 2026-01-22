@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "secret-scan": "secretlint \"**/*\"",
+    "secret-scan:full": "secretlint \"**/*\" && gitleaks detect --source . -v",
+    "gitleaks:install": "bash scripts/install-gitleaks.sh",
+    "husky:install": "husky"
+  },
+  "lint-staged": {
+    "*": ["secretlint"]
+  },
+  "devDependencies": {
+    "secretlint": "^8.0.0",
+    "@secretlint/secretlint-rule-preset-recommend": "^8.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0"
+  }
+}

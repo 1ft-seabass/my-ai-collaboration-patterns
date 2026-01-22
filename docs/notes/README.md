@@ -67,6 +67,9 @@ degit 指示における混乱を回避するための改善策。
 ### 0021. [申し送り検証プロトコルの導入](./0021_verification-protocol-for-handoff.md)
 申し送りの完了状態を次セッションで自動検証するプロトコルの導入。
 
+### 0025. [setup-pattern の導入](./0025_setup-pattern-introduction.md)
+セキュリティチェックなど技術導入の段階的セットアップガイド集。session_end.md が無視される問題への対応。
+
 ## 📝 テンプレート
 
 [TEMPLATE.md](./TEMPLATE.md) を使用してください。

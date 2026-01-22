@@ -1,0 +1,5 @@
+# gitleaks binary (large binary file)
+bin/gitleaks
+
+# husky (if using Phase 4 - personal setup)
+.husky/
