@@ -1,0 +1,14 @@
+{
+  "name": "Claude Code + Cline",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "saoudrizwan.claude-dev"
+      ]
+    }
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh"
+}
