@@ -45,13 +45,60 @@ git log --format="%ai" --diff-filter=A -- docs/notes/NNNN_title.md | head -1
 **変換方法**: `yyyy-mm-dd-hh-mm-ss` 形式に変換
 - 例: `2025-10-23 14:32:10 +0900` → `2025-10-23-14-32-10`
 
-#### 1.1.2 既存タイトル
+#### 1.1.2 連番ファイルの時間ずらし処理
+
+**問題**: 同じ Git 作成日時のファイル群では、タイムスタンプが重複する
+
+**例**:
+```bash
+# Git ログの結果
+0001_degit-understanding.md         → 2025-11-17 23:47:27 +0900
+0002_pattern-structure-design.md    → 2025-11-17 23:47:27 +0900 (同じ！)
+0003_repository-dogfooding.md       → 2025-11-17 23:47:27 +0900 (同じ！)
+```
+
+このままだと、すべて `2025-11-17-23-47-27-` で始まるファイル名になり、時系列が失われる。
+
+**解決方法**: 連番順に1秒ずつ加算してファイル名の一意性を保証
+
+```bash
+# 時間調整後
+0001_degit-understanding.md         → 2025-11-17-23-47-27-degit-understanding.md      (+0秒)
+0002_pattern-structure-design.md    → 2025-11-17-23-47-28-pattern-structure-design.md (+1秒)
+0003_repository-dogfooding.md       → 2025-11-17-23-47-29-repository-dogfooding.md    (+2秒)
+```
+
+**実装方針**:
+1. 同じ Git 作成日時のファイルをグループ化
+2. グループ内で連番順にソート
+3. 基準時刻から順に +0秒、+1秒、+2秒... と加算
+
+**実装例**:
+```bash
+# 同一Git時刻のグループを処理
+base_timestamp="2025-11-17 23:47:27 +0900"
+offset=0
+
+for file in $(同じGit時刻のファイル群を連番順); do
+    # offset 秒を加算
+    adjusted_time=$(date -d "$base_timestamp + $offset seconds" +"%Y-%m-%d-%H-%M-%S")
+    echo "$file → $adjusted_time-title.md"
+    offset=$((offset + 1))
+done
+```
+
+**メリット**:
+- ファイル名の一意性が保証される
+- 連番の順序（作成順序）がタイムスタンプに反映される
+- `ls` でソートしても正しい順序になる
+
+#### 1.1.3 既存タイトル
 
 ファイル名から `NNNN_` を除いた部分（`.md` も除く）
 
 - 例: `0001_degit-understanding.md` → `degit-understanding`
 
-#### 1.1.3 tags の推測
+#### 1.1.4 tags の推測
 
 ファイル内容を読んで 3-5 個の tags を推測:
 - 技術キーワード（例: degit, npm, git）
@@ -111,14 +158,19 @@ find docs/letters -name '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[
 ### notes/ 移行対象（N件）
 
 - [ ] 0001_degit-understanding.md
-      → 2025-10-23-14-32-10-degit-understanding.md
+      → 2025-11-17-23-47-27-degit-understanding.md
       tags: [degit, npm, template]
-      (Git作成日時: 2025-10-23 14:32:10 +0900)
+      (Git作成日時: 2025-11-17 23:47:27 +0900 / 時間調整: +0秒)
 
-- [ ] 0002_actions-exploration.md
-      → 2025-10-24-09-15-22-actions-exploration.md
-      tags: [actions-pattern, exploration, ai-collaboration]
-      (Git作成日時: 2025-10-24 09:15:22 +0900)
+- [ ] 0002_pattern-structure-design.md
+      → 2025-11-17-23-47-28-pattern-structure-design.md
+      tags: [pattern, design, structure]
+      (Git作成日時: 2025-11-17 23:47:27 +0900 / 時間調整: +1秒)
+
+- [ ] 0003_repository-dogfooding.md
+      → 2025-11-17-23-47-29-repository-dogfooding.md
+      tags: [dogfooding, repository, best-practice]
+      (Git作成日時: 2025-11-17 23:47:27 +0900 / 時間調整: +2秒)
 
 （...全てのファイルをリスト...）
 
@@ -141,6 +193,7 @@ find docs/letters -name '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[
 - タイトルは適切ですか？
 - tags は内容を反映していますか？
 - タイムスタンプに誤りはありませんか？
+- 同一Git時刻のファイル群は連番順に時間調整されていますか？（+0秒、+1秒、+2秒...）
 
 この計画で移行を実行しますか？ [y/N]
 ```
