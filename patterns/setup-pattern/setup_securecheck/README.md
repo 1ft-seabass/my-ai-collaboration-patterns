@@ -3,7 +3,7 @@
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
 > ```
-> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/setup-pattern/setup_securecheck
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/setup_securecheck
 > このパターンを使ってセキュリティチェック（secretlint + gitleaks）を導入したいです。
 >
 > npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/setup_securecheck ./setup_securecheck

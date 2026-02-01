@@ -3,7 +3,7 @@
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
 > ```
-> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/docs-structure
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure
 > この仕組みを導入したいです。npx degit で構造を持ってきましょう。
 >
 > npx degit で取得した templates/ 配下のファイル群を、
@@ -24,6 +24,64 @@
 > プロジェクトが成熟し、要件が明確になった段階でカスタマイズしてください。
 > 初期段階では一般化されたテンプレートのまま使用することを推奨します。
 > ```
+
+## 🔄 既存の docs-structure を最新版に更新する場合
+
+既に docs-structure パターンを導入済みで、templates/ を最新版に更新したい場合:
+
+> **🤖 AIへのワンショット指示（コピペ用）**
+>
+> ```
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure
+> 既存の docs/ フォルダを最新版に更新したいです。
+>
+> 手順:
+> 1. このプロジェクトが docs-structure を使っているか確認してください
+>    - docs/notes/ ディレクトリが存在するか
+>    - docs/letters/ ディレクトリが存在するか
+>    - docs/actions/ ディレクトリが存在するか
+>    - 存在しない場合はエラーを報告して停止
+>
+> 2. 一時ディレクトリに最新版を取得
+>    - `npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure/templates /tmp/latest-docs-structure`
+>    - 取得成功を確認
+>
+> 3. templates/ 配下のファイルとの差分を確認
+>    - docs/README.md と /tmp/latest-docs-structure/README.md の diff
+>    - docs/actions/ 配下の各ファイルの diff
+>    - docs/notes/README.md, TEMPLATE.md の diff
+>    - docs/letters/README.md, TEMPLATE.md の diff
+>    - docs/tasks/README.md, TEMPLATE.md の diff
+>    - 差分がある場合は diff の出力を提示
+>    - 新規追加されるファイルをリストアップ
+>    - 削除されるファイルをリストアップ
+>
+> 4. 差分サマリーをユーザーに提示
+>    - 変更されるファイル数
+>    - 追加されるファイル数
+>    - 削除されるファイル数
+>    - 主要な変更点の要約
+>    - **「この差分で上書きしますか？」と確認**
+>
+> 5. 承認後に更新実行
+>    - 変更があるファイルのみ上書き
+>    - 新規ファイルを追加
+>    - 削除対象ファイルは**ユーザーに個別確認後**削除
+>    - /tmp/latest-docs-structure/ を削除
+>
+> 注意:
+> - 既存の notes/, letters/, tasks/ 内のドキュメントは保持されます
+> - TEMPLATE.md や README.md が上書きされます
+> - actions/ 配下のファイルも上書きされます
+> - カスタマイズしたファイルがある場合は事前にバックアップを推奨します
+> - **差分を確認することで、何が変わるかを理解した上で更新できます**
+> ```
+
+**更新後の確認:**
+- `docs/README.md` を読んで、最新の構成を確認
+- `docs/actions/help.md` で最新の使い方をクイックチェック
+
+---
 
 AIが理解しやすいドキュメント管理構造
 

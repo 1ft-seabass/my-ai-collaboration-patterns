@@ -3,7 +3,7 @@
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
 > ```
-> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/docs-structure-for-target-branch-only
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only
 > この仕組みを導入したいです。npx degit で構造を持ってきましょう。
 >
 > npx degit で取得した templates/ 配下のファイル群を、

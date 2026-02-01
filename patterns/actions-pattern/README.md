@@ -5,7 +5,7 @@
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
 > ```
-> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/actions-pattern
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/patterns/actions-pattern
 > この仕組みを導入したいです。npx degit で構造を持ってきましょう。
 >
 > npx degit で取得した templates/actions/ 配下のファイル群を、
@@ -37,7 +37,7 @@
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
 > ```
-> https://github.com/1ft-seabass/my-ai-collaboration-patterns/tree/main/patterns/actions-pattern
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/patterns/actions-pattern
 > 既存の docs/ フォルダに最新の actions/ を導入したいです。
 >
 > 配置先: docs/actions/
@@ -47,19 +47,38 @@
 >    - docs/notes/ ディレクトリが存在するか
 >    - docs/letters/ ディレクトリが存在するか
 >    - 存在しない場合はエラーを報告して停止（mkdir は絶対にしない）
-> 2. 導入計画を教えてください（既存の docs/actions/ の状況確認）
-> 3. 私が承認します
-> 4. 既存の docs/actions/ 内のファイルをすべて削除
-> 5. npx degit で templates/actions/ を取得
-> 6. docs/actions/ に配置（完全上書き）
+>
+> 2. 一時ディレクトリに最新版を取得
+>    - `npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions /tmp/latest-actions`
+>    - 取得成功を確認
+>
+> 3. 既存ファイルとの差分を確認
+>    - 各ファイルについて `diff -u docs/actions/ファイル名 /tmp/latest-actions/ファイル名` を実行
+>    - 差分がある場合は diff の出力を提示
+>    - 新規追加されるファイル（最新版にあるが既存にない）をリストアップ
+>    - 削除されるファイル（既存にあるが最新版にない）をリストアップ
+>
+> 4. 差分サマリーをユーザーに提示
+>    - 変更されるファイル数
+>    - 追加されるファイル数
+>    - 削除されるファイル数
+>    - 主要な変更点の要約
+>    - **「この差分で上書きしますか？」と確認**
+>
+> 5. 承認後に上書き実行
+>    - 既存の docs/actions/ 内のファイルをすべて削除
+>    - /tmp/latest-actions/ から docs/actions/ にコピー
+>    - /tmp/latest-actions/ を削除
 >
 > 期待する結果:
 >   docs/actions/
 >     ├── README.md（最新版）
 >     └── （最新のアクションファイル群.md）
 >
-> 注意: 既存のファイルはすべて削除されます。
-> カスタムファイルがある場合は、事前にバックアップを推奨します。
+> 注意:
+> - 既存のファイルはすべて削除されます
+> - カスタムファイルがある場合は、事前にバックアップを推奨します
+> - **差分を確認することで、何が変わるかを理解した上で更新できます**
 > ```
 
 **更新後の確認:**
