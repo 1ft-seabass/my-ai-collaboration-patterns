@@ -62,6 +62,5 @@ actionsパターンを使うことで：
 ## 詳細ドキュメント
 
 - [README.md](../../README.md) - パターンの概要
-- [WHY.md](../../WHY.md) - なぜこのパターンが効果的なのか
 - [GUIDE.md](../../GUIDE.md) - セットアップ手順
 - [examples/](../../examples/) - 具体的な使用例

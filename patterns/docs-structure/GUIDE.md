@@ -30,7 +30,7 @@ docs/
 │   ├── README.md
 │   └── decisions/                     # ADR
 │       └── README.md
-├── letter/                            # 申し送り
+├── letters/                           # 申し送り
 │   ├── README.md
 │   └── TEMPLATE.md
 ├── notes/                             # 開発ノート
@@ -96,7 +96,7 @@ docs/
 ### セッション終了時
 
 ```
-「今日の作業を docs/letter/ に申し送りとして記録してください」
+「今日の作業を docs/letters/ に申し送りとして記録してください」
 ```
 
 または actions を使用：
@@ -134,7 +134,7 @@ echo "# API ドキュメント" > docs/api/README.md
 各 README.md や TEMPLATE.md をこのプロジェクト固有の内容に書き換えてください：
 
 - `docs/README.md` - プロジェクト名、リンク先を調整
-- `letter/TEMPLATE.md` - プロジェクト固有のセクション追加
+- `letters/TEMPLATE.md` - プロジェクト固有のセクション追加
 - `notes/TEMPLATE.md` - プロジェクト固有のフォーマット調整
 - 各ディレクトリの `README.md` - プロジェクト固有の説明に更新
 
@@ -146,7 +146,7 @@ echo "# API ドキュメント" > docs/api/README.md
 - [ ] すべてのサブディレクトリに `README.md` が存在する
 - [ ] `ai-collaboration/AI_COLLABORATION_GUIDE.md` が存在する
 - [ ] `actions/` に4つのアクションファイルが存在する
-- [ ] `letter/TEMPLATE.md` と `notes/TEMPLATE.md` が存在する
+- [ ] `letters/TEMPLATE.md` と `notes/TEMPLATE.md` が存在する
 - [ ] 各 README.md をプロジェクト固有の内容に更新した
 
 ## 🎯 期待される効果
