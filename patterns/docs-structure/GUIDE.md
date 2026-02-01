@@ -61,9 +61,10 @@ docs/
 
 | 種類 | 目的 | 作成タイミング | 命名規則 |
 |------|------|----------------|----------|
-| **申し送り** (letter) | セッション引き継ぎ | セッション終了時 | `YYYY-MM-DD-HH-MM-SS.md` |
-| **開発ノート** (notes) | 試行錯誤の記録 | 難しい問題を解決した時 | `01_タイトル.md`（連番） |
-| **ADR** (decisions) | 意思決定記録 | 重要なアーキテクチャ選択時 | `XXXX-タイトル.md` |
+| **申し送り** (letters) | セッション引き継ぎ | セッション終了時 | `yyyy-mm-dd-hh-mm-ss-{title}.md` |
+| **開発ノート** (notes) | 試行錯誤の記録 | 難しい問題を解決した時 | `yyyy-mm-dd-hh-mm-ss-{title}.md` |
+| **タスク** (tasks) | タスク管理 | セッション跨ぎ | `yyyy-mm-dd-hh-mm-ss-{title}.md` |
+| **ADR** (decisions) | 意思決定記録 | 重要なアーキテクチャ選択時 | `yyyy-mm-dd-hh-mm-ss-{title}.md` |
 
 ### 3. README駆動のナビゲーション
 
