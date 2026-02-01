@@ -1,4 +1,4 @@
-# docs-structure v1.0.0 → v1.0.1 改修計画 - 開発記録
+# docs-structure v1.0.1 → v1.1.0 改修計画 - 開発記録
 
 **作成日**: 2026-01-31
 **関連タスク**: docs-structure 改修
@@ -430,40 +430,21 @@ priority: Medium
 
 ## Phase 3: 既存ファイル移行（稼働中改修）
 
-### 対象ファイル
+### 概要
 
-**このリポジトリ（docs/）**:
-- notes: 26ファイル（0001 〜 0027）
-- letters: 6ファイル
+**前提条件**: Phase 2 完了（templates/ が v1.1.0 仕様に更新済み）
 
-### 移行対応
-
-**notes**:
-```
-Before: 0001_degit-understanding.md
-After:  2025-10-23-xx-xx-xx-degit-understanding.md
-        ↑ Git ログから取得  ↑ 既存タイトル保持
-```
-
-**letters**:
-```
-Before: 2026-01-26-15-30-00.md
-After:  2026-01-26-15-30-00-session-handoff-refactoring.md
-        ↑ タイムスタンプ維持  ↑ AI が内容からタイトル生成
-```
+**対象**:
+- notes: 連番形式 `NNNN_*.md` → 日時+タイトル形式
+- letters: 日時のみ形式 → 日時+タイトル形式
 
 ### 移行方法
 
-**ワンショット AI 指示書**（推奨）
-
-別ファイルで作成: `patterns/docs-structure/migration/MIGRATION_GUIDE.md`
-
-**手順**:
-1. Git ログから各ファイルの作成日時を取得
-2. AI が内容を読んでタイトルを生成（letters のみ）
-3. 移行計画をチェックボックスでユーザーに提示
-4. ユーザー承認後、`git mv` で移行
-5. FrontMatter を追加
+**ワンショット AI 指示書**を別ノートで詳細設計:
+- `docs/notes/0028_docs-structure-v1.0.1-to-v1.1.0-migration-oneshot-design.md`
+- migration/ ディレクトリ構成の詳細設計
+- MIGRATION_GUIDE_v1.0.1_to_v1.1.0.md の完全な仕様
+- migration/README.md の完全な仕様
 
 **タイミング**: Phase 2 完成後、別セッションで実施
 
@@ -564,5 +545,5 @@ After:  2026-01-26-15-30-00-session-handoff-refactoring.md
 
 ---
 
-**最終更新**: 2026-01-31
+**最終更新**: 2026-02-01
 **作成者**: Claude Sonnet 4.5 (with 1ft-seabass)
