@@ -10,6 +10,8 @@
 - [ ] ユーザーに AI 署名・プレフィックス・言語を確認する
 - [ ] 段階的なコミット計画を提示し、承認を得る
 - [ ] docs/letters/TEMPLATE.md をベースに新しい申し送りを作成する
+- [ ] FrontMatter に tags を追加する
+- [ ] ファイル名は `yyyy-mm-dd-hh-mm-ss-{title}.md`（現在時刻+タイトル）
 - [ ] 機密情報は必ずプレースホルダーで記載する
 - [ ] 完了通知は指定フォーマットで行う
 
@@ -38,8 +40,9 @@
    - ユーザーの承認を得る
 
 3. ノートの作成
-   - docs/notes/README.md をみてノート作成ルールを把握
-   - docs/notes/TEMPLATE.md をベースにノートを作成
+   - docs/notes/TEMPLATE.md を読んで、構造とガイドを把握
+   - 命名規則: yyyy-mm-dd-hh-mm-ss-{title}.md
+   - FrontMatter に tags を追加（3-5個推奨）
    - 承認された方針に従って作成
 
 4. 従来のコミットログを参考にスタイルを把握
@@ -71,9 +74,10 @@
    - 見つかった場合は申し送りに記載予定としてメモ
 
 10. 申し送りの作成
-    - docs/letters/README.md をみて申し送りルールを把握
-    - docs/letters/TEMPLATE.md をベースに新しい申し送りを作成
-    - ファイル名: `YYYY-MM-DD-HH-MM-SS.md`（現在時刻）
+    - docs/letters/TEMPLATE.md を読んで、構造とガイドを把握
+    - 命名規則: yyyy-mm-dd-hh-mm-ss-{title}.md
+    - タイトル: セッションの主要テーマ（ケバブケース推奨、30文字以内目安）
+    - FrontMatter に tags を追加（3-5個推奨）
     - 前回の未着手・残件を「現在の状況」に反映
     - 起動方法・テスト手法が見つかれば「技術的な文脈」に記載
     - 次セッションで必要な情報を明確に記述
@@ -86,16 +90,16 @@
     - 申し送り作成完了後、必ず以下の完全な形式で通知してください：
 
 ```
-申し送りファイルを作成しました: docs/letters/YYYY-MM-DD-HH-MM-SS.md
+申し送りファイルを作成しました: docs/letters/yyyy-mm-dd-hh-mm-ss-title.md
 
 次のClaudeセッションでは、以下のメッセージで開始してください：
 
 ---
-docs/letters/YYYY-MM-DD-HH-MM-SS.md を日本語で。
+docs/letters/yyyy-mm-dd-hh-mm-ss-title.md を日本語で。
 
 このプロジェクトの運用ルール
 
-・知見は docs/notes/ (命名: 連番-{title}.md、作成時 README/TEMPLATE参照) ※注意: ノート作成はセッション終了時の申し送りフロー内でのみ実行すること
+・知見は docs/notes/ (命名: yyyy-mm-dd-hh-mm-ss-{title}.md、作成時 README/TEMPLATE参照) ※注意: ノート作成はセッション終了時の申し送りフロー内でのみ実行すること
 ・申し送りは docs/letters/ (このファイル、作成時 README/TEMPLATE参照) ※注意: 申し送り作成はユーザーが明示的に指示したときのみ実行すること
 ・コミット: 従来のコミットログ（git log）を参考に、AI 署名の有無・プレフィックス（feat:/fix:/docs:など）・言語を統一すること
 ・不用意なコミットはせず作業を進めましょう。それでもコミットせざるえない場合は必ずユーザーにコミット予定を伝え承諾をとってください。
