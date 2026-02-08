@@ -1,8 +1,10 @@
 {
   "scripts": {
+    "security:verify": "node scripts/security-verify.js",
+    "security:verify:testrun": "node scripts/security-verify.js --test-run",
+    "security:install-gitleaks": "node scripts/install-gitleaks.js",
     "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && gitleaks detect --source . -v",
-    "gitleaks:install": "bash scripts/install-gitleaks.sh",
+    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . -v",
     "husky:install": "husky"
   },
   "lint-staged": {
