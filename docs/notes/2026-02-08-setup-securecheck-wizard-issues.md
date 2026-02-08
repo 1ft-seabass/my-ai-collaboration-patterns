@@ -234,6 +234,83 @@
 
 ---
 
-## 元の状態に戻す計画
+## 🔴 最重要な問題: security-verify.js の判定ロジックが誤っている
 
-次のセクションで詳細を記載。
+**発見日時**: 2026-02-08（原状復帰時）
+
+### 症状
+
+Phase 0 のヘルスチェックで `9/10 passed` (gitleaks のみ ❌) と表示されたが、実際には：
+- **`bin/gitleaks` は最初から存在していた**（じゃないと pre-commit が通らない）
+- **Docker 環境ではグローバルインストールは消える**（だから bin/ にローカル配置する設計）
+- でも **verify は ✅ と判定していた**
+
+### 根本原因
+
+`security-verify.js` の gitleaks チェックロジック:
+
+```javascript
+const localBinary = path.join(process.cwd(), 'bin', binaryName);
+
+let gitleaksVersion = null;
+if (fs.existsSync(localBinary)) {
+  gitleaksVersion = execCommand(`"${localBinary}" version`);
+} else {
+  gitleaksVersion = execCommand('gitleaks version');  // ← グローバルをフォールバック
+}
+```
+
+**問題点**:
+1. `bin/gitleaks` が存在しなくても、グローバルの gitleaks をチェック
+2. グローバルで見つかれば ✅ と表示
+3. しかし **pre-commit は `bin/gitleaks` を要求**している
+4. Docker 環境ではグローバルは消えるため、verify は嘘をついている
+
+### 影響
+
+- verify で ✅ でも、実際にコミットすると pre-commit で失敗する
+- 特に Docker 環境で顕著（コンテナ再起動でグローバルが消える）
+- Phase 0 で「9/10 だから Phase 1.4 だけ実行すればいい」という判断が誤りになる
+
+### 正しい動作
+
+verify は **pre-commit と同じ条件でチェック**すべき：
+- `bin/gitleaks` の存在のみをチェック
+- グローバルへのフォールバックは**してはいけない**
+- 存在しない場合は ❌ と明確に表示
+
+### 改善案
+
+```javascript
+const localBinary = path.join(process.cwd(), 'bin', binaryName);
+
+if (fs.existsSync(localBinary)) {
+  const gitleaksVersion = execCommand(`"${localBinary}" version`);
+  if (gitleaksVersion) {
+    checkResult(true, `gitleaks ${gitleaksVersion}`);
+  } else {
+    checkResult(false, 'gitleaks — bin/gitleaks が実行できません');
+  }
+} else {
+  checkResult(false, 'gitleaks — bin/gitleaks が見つかりません（npm run gitleaks:install で導入してください）');
+}
+```
+
+**フォールバックを削除**し、`bin/gitleaks` のみをチェックする。
+
+---
+
+## bin/ ディレクトリの扱い
+
+**誤解**: 「bin/ は全部削除していい」
+**実態**: `bin/gitleaks` は元々存在していた（.gitignore で管理外だが必須）
+
+**`rm -rf bin/` の影響**:
+- pre-commit が動かなくなる
+- verify のチェックも不正確になる
+
+**正しい理解**:
+- `bin/gitleaks` は .gitignore に含まれているが、**ローカルに必須**
+- 削除したら `npm run gitleaks:install` で再インストール必要
+
+---
