@@ -21,9 +21,10 @@
 □ Phase 3 または 4: pre-commit 自動化（確認してから進めます）
 
 **重要なルール**:
-- AI: コマンドを提示する（「以下を実行してください」とだけ伝える）
-- ユーザー: コマンドを実行して結果を報告する
-- AI: 結果を受けて次のステップを案内する
+- AI: コマンドを実行する（1コマンドずつ）
+- AI: 実行結果を報告する
+- AI: 次のステップを提案する
+- ユーザー: 重要な判断時のみ確認する
 
 進めてよろしいですか？「はい」と返信していただければ Phase 0 から開始します。
 ```
@@ -32,15 +33,23 @@
 
 ユーザーが「はい」「進めて」等と返信するまで、Phase 0 を開始しないでください。
 
-**ステップ3: コマンド提示のルール**
+**ステップ3: コマンド実行と結果報告のルール**
 
-- ✅ 良い例: "以下のコマンドを実行してください:\n```bash\nnpm install -D secretlint\n```"
-- ❌ 悪い例: Bashツールで自動実行する
-- ❌ 悪い例: "実行しますね"と言って勝手に実行
+各 Phase で AI がコマンドを実行し、結果を報告して次の対応を提案します：
 
-**AI がコマンドを提示 → ユーザーが実行 → ユーザーが結果報告 → AI が次を案内**
+- ✅ 良い例:
+  1. AIがコマンドを実行
+  2. 「実行結果: ○○でした」と報告
+  3. 「次は△△を行います」と次のステップを提案
+  4. ユーザーの確認を待つ（重要な判断が必要な場合）
 
-この流れを必ず守ってください。守らないとユーザーの意図しない動作になります。
+- ❌ 悪い例: ユーザーの返信を待たずに複数コマンドを連続実行
+- ❌ 悪い例: 結果を報告せずに次のコマンドを実行
+
+**重要**:
+- 各ステップは1コマンド単位で実行
+- 必ず結果を報告してから次へ進む
+- 重要な判断（Phase選択、検出時の対応等）はユーザーに確認
 
 ---
 
@@ -181,8 +190,7 @@ npx secretlint "**/*"
 以下のコマンドを実行してください：
 
 ```bash
-cp tmp/security-setup/templates/scripts/install-gitleaks.js scripts/
-node scripts/install-gitleaks.js
+node tmp/security-setup/templates/scripts/install-gitleaks.js
 ```
 
 このスクリプトは OS を自動判定して gitleaks バイナリを `./bin/` にダウンロードします。
@@ -246,13 +254,18 @@ node scripts/install-gitleaks.js
 
 ---
 
-## ステップ 2.2: security-verify.js をコピー
+## ステップ 2.2: スクリプトファイルをコピー
 
 以下のコマンドを実行してください：
 
 ```bash
 cp tmp/security-setup/templates/scripts/security-verify.js scripts/
+cp tmp/security-setup/templates/scripts/install-gitleaks.js scripts/
 ```
+
+これで以下が `scripts/` に配置されます：
+- `security-verify.js` - ヘルスチェック + テストラン
+- `install-gitleaks.js` - gitleaks インストーラー
 
 ---
 
