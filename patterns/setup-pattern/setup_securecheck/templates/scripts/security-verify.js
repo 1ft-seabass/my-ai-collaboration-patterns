@@ -170,7 +170,7 @@ if (fs.existsSync(localBinary)) {
 if (gitleaksVersion) {
   checkResult(true, `gitleaks ${gitleaksVersion}`);
 } else {
-  checkResult(false, 'gitleaks — 見つかりません（node scripts/install-gitleaks.js で導入可能）', 'warning');
+  checkResult(false, 'gitleaks — 見つかりません（node scripts/install-gitleaks.js で導入してください）');
 }
 
 console.log('');
@@ -283,8 +283,5 @@ if (testRun) {
   }
 } else {
   // 通常モード（--test-run なし）
-  if (results.warning > 0) {
-    console.log('\n⚠️  gitleaks が未導入です。secretlint のみで最低限は守られています。');
-  }
   process.exit(0);
 }

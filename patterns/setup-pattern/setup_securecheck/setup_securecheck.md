@@ -4,6 +4,46 @@
 
 ---
 
+## 🤖 AI への重要な指示
+
+### ウィザード開始時に必ず実行すること
+
+**ステップ1: 全体の流れを提示**
+
+以下のチェックボックスリストをそのまま表示してください:
+
+```
+これから以下の流れでセキュリティチェックを導入します：
+
+□ Phase 0: ヘルスチェック（既存設定の確認）
+□ Phase 1: 初動スキャン（secretlint + gitleaks で現状把握）
+□ Phase 2: 手動運用（npm scripts の追加）
+□ Phase 3 または 4: pre-commit 自動化（確認してから進めます）
+
+**重要なルール**:
+- AI: コマンドを提示する（「以下を実行してください」とだけ伝える）
+- ユーザー: コマンドを実行して結果を報告する
+- AI: 結果を受けて次のステップを案内する
+
+進めてよろしいですか？「はい」と返信していただければ Phase 0 から開始します。
+```
+
+**ステップ2: ユーザーの返信を待つ**
+
+ユーザーが「はい」「進めて」等と返信するまで、Phase 0 を開始しないでください。
+
+**ステップ3: コマンド提示のルール**
+
+- ✅ 良い例: "以下のコマンドを実行してください:\n```bash\nnpm install -D secretlint\n```"
+- ❌ 悪い例: Bashツールで自動実行する
+- ❌ 悪い例: "実行しますね"と言って勝手に実行
+
+**AI がコマンドを提示 → ユーザーが実行 → ユーザーが結果報告 → AI が次を案内**
+
+この流れを必ず守ってください。守らないとユーザーの意図しない動作になります。
+
+---
+
 ## 📋 前提条件
 
 このウィザードは以下を前提としています：
@@ -18,6 +58,7 @@
 
 | Phase | 内容 | ここで止めてもOK？ |
 |-------|------|------------------|
+| **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 10/10 なら完了 |
 | **Phase 1** | 初動スキャン（現状把握） | ✅ 問題発見したらまず対処 |
 | **Phase 2** | 手動運用（npm scripts） | ✅ ライトに運用したい場合 |
 | **Phase 3** | pre-commit 強制（チーム全員） | ✅ チーム開発の場合 |
@@ -37,10 +78,47 @@
 
 | ツール | 役割 | 得意領域 |
 |--------|------|----------|
-| **secretlint** | メイン | クラウドサービス特化、Node.js親和、精密検出 |
-| **gitleaks** | 補助 | 高速、entropy検出、git履歴スキャン |
+| **secretlint** | メイン検出エンジン | クラウドサービス特化、Node.js親和、精密検出 |
+| **gitleaks** | メイン検出エンジン | 高速、entropy検出、git履歴スキャン |
 | **husky** | git hooks 管理 | npm で hooks を共有可能に（Phase 3/4） |
 | **lint-staged** | staged ファイル限定実行 | 差分だけ高速チェック（Phase 3/4） |
+
+**二重チェック体制**: secretlint と gitleaks の両方を使うことで、より確実にシークレットを検出します。
+
+---
+
+# Phase 0: ヘルスチェック（既存設定の確認）
+
+**目的**: 既にセキュリティチェックが導入されているか確認する
+
+---
+
+## ステップ 0.1: ヘルスチェックを実行
+
+以下のコマンドを実行してください：
+
+```bash
+node tmp/security-setup/templates/scripts/security-verify.js
+```
+
+### 結果の判断基準
+
+| 結果 | 対応 |
+|------|------|
+| **10/10 passed** | ✅ 完璧！Phase 1-4 はスキップして終了 |
+| **9/10 passed（gitleaks のみ ❌）** | ⚠️ gitleaks をインストールすれば完了（Phase 1.4 へ） |
+| **複数の ❌ がある** | 🔧 Phase 1 から導入を開始 |
+| **全て ❌** | 🆕 未導入。Phase 1 から導入を開始 |
+
+**10/10 の場合**: おめでとうございます！設定は完璧です。`npm run security:verify:testrun` で実際のスキャンもテストできます。
+
+**それ以外の場合**: Phase 1 から順に導入していきましょう。
+
+---
+
+## Phase 0 完了
+
+既存設定の確認が完了しました。結果に応じて次のステップに進みます。
 
 ---
 
@@ -55,8 +133,8 @@
 以下のコマンドを実行してください：
 
 ```bash
-cp security-setup/templates/.secretlintrc.json .
-cp security-setup/templates/gitleaks.toml .
+cp tmp/security-setup/templates/.secretlintrc.json .
+cp tmp/security-setup/templates/gitleaks.toml .
 ```
 
 これで以下が配置されます：
@@ -98,18 +176,20 @@ npx secretlint "**/*"
 
 ---
 
-## ステップ 1.4: gitleaks のインストール
+## ステップ 1.4: gitleaks のインストール（必須）
 
 以下のコマンドを実行してください：
 
 ```bash
-cp security-setup/templates/scripts/install-gitleaks.js scripts/
+cp tmp/security-setup/templates/scripts/install-gitleaks.js scripts/
 node scripts/install-gitleaks.js
 ```
 
 このスクリプトは OS を自動判定して gitleaks バイナリを `./bin/` にダウンロードします。
 
 **Windows/macOS/Linux すべて対応**しています。
+
+**重要**: gitleaks は secretlint と並ぶメイン検出エンジンです。必ずインストールしてください。
 
 ---
 
@@ -148,7 +228,7 @@ node scripts/install-gitleaks.js
 
 ## ステップ 2.1: package.json に scripts を追加
 
-`security-setup/templates/package.json.example` の内容を確認し、以下の scripts を既存の `package.json` に追加してください：
+`tmp/security-setup/templates/package.json.example` の内容を確認し、以下の scripts を既存の `package.json` に追加してください：
 
 ```json
 {
@@ -171,7 +251,7 @@ node scripts/install-gitleaks.js
 以下のコマンドを実行してください：
 
 ```bash
-cp security-setup/templates/scripts/security-verify.js scripts/
+cp tmp/security-setup/templates/scripts/security-verify.js scripts/
 ```
 
 ---
@@ -197,9 +277,9 @@ npm run security:verify:testrun
 ```
 
 **期待する結果**:
-- ヘルスチェック完了
+- ヘルスチェック完了（10/10 ✅）
 - secretlint で全ファイルスキャン
-- gitleaks で全履歴スキャン（gitleaksがある場合）
+- gitleaks で全履歴スキャン
 - 検出があれば詳細表示
 
 ---
@@ -283,7 +363,7 @@ npx husky init
 以下のコマンドを実行してください：
 
 ```bash
-cp security-setup/templates/scripts/pre-commit.js scripts/
+cp tmp/security-setup/templates/scripts/pre-commit.js scripts/
 ```
 
 `.husky/pre-commit` を編集して、以下の内容に置き換えてください：
@@ -297,7 +377,7 @@ node scripts/pre-commit.js
 
 ## ステップ 3.5: .gitignore を更新
 
-`security-setup/templates/gitignore.example` の内容を確認し、以下を既存の `.gitignore` に追加してください：
+`tmp/security-setup/templates/gitignore.example` の内容を確認し、以下を既存の `.gitignore` に追加してください：
 
 ```gitignore
 # gitleaks binary (large binary file)
@@ -320,7 +400,7 @@ git commit -m "test: pre-commit hook"
 
 **期待する結果**:
 - lint-staged (secretlint) が実行される
-- gitleaks が実行される（バイナリがある場合）
+- gitleaks が実行される
 - 問題なければコミット成功
 - 検出があればコミット失敗
 
@@ -396,7 +476,7 @@ npx husky init
 以下のコマンドを実行してください：
 
 ```bash
-cp security-setup/templates/scripts/pre-commit.js scripts/
+cp tmp/security-setup/templates/scripts/pre-commit.js scripts/
 ```
 
 `.husky/pre-commit` を編集して、以下の内容に置き換えてください：
@@ -410,7 +490,7 @@ node scripts/pre-commit.js
 
 ## ステップ 4.5: .gitignore を更新
 
-`security-setup/templates/gitignore.example` の内容を確認し、以下を既存の `.gitignore` に追加してください：
+`tmp/security-setup/templates/gitignore.example` の内容を確認し、以下を既存の `.gitignore` に追加してください：
 
 ```gitignore
 # gitleaks binary (large binary file)
@@ -436,7 +516,7 @@ git commit -m "test: pre-commit hook"
 
 **期待する結果**:
 - lint-staged (secretlint) が実行される
-- gitleaks が実行される（バイナリがある場合）
+- gitleaks が実行される
 - 問題なければコミット成功
 - 検出があればコミット失敗
 
@@ -646,3 +726,17 @@ npm run secret-scan:full
 ```
 
 **重要**: 定期的に `npm run security:verify:testrun` を実行して、設定が正しく動作しているか確認してください。
+
+---
+
+## クリーンアップ（任意）
+
+ウィザード導入に使用した `tmp/security-setup/` ディレクトリは、導入完了後は不要です。
+
+以下のコマンドで削除できます：
+
+```bash
+rm -rf tmp/security-setup/
+```
+
+**注**: 削除しても問題ありません。再度ヘルスチェックが必要な場合は、`npx degit` で再取得できます。
