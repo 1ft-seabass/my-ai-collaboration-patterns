@@ -1,107 +1,496 @@
-# シークレットスキャン導入ガイド
+# シークレットスキャン導入ガイド（ウィザード形式）
 
-AI 生成ドキュメント（letters/notes）を含むプロジェクトでの secretlint + gitleaks 導入手順。
+**このドキュメントは AI が読み、人間にウィザード形式で案内するための手順書です。**
 
-段階的に導入し、状況に応じてどこで止めるかを判断する。基本的には、Phase 3（フル版）または Phase 4（個人用）推奨。
+---
 
-## 背景
+## 📋 前提条件
+
+このウィザードは以下を前提としています：
+
+- **Node.js プロジェクト**（package.json が存在する）
+- **git リポジトリ**（.git が存在する）
+- **`!` コマンド実行が可能な環境**（Claude Code, Cursor 等）または手動実行
+
+---
+
+## 🎯 導入の全体像
+
+| Phase | 内容 | ここで止めてもOK？ |
+|-------|------|------------------|
+| **Phase 1** | 初動スキャン（現状把握） | ✅ 問題発見したらまず対処 |
+| **Phase 2** | 手動運用（npm scripts） | ✅ ライトに運用したい場合 |
+| **Phase 3** | pre-commit 強制（チーム全員） | ✅ チーム開発の場合 |
+| **Phase 4** | pre-commit 強制（個人用） | ✅ 個人開発の場合 |
+
+---
+
+## 📚 背景とツール構成
+
+### なぜセキュリティチェックが必要か
 
 - AI がドキュメントを書く際、動作確認時の認証情報が混入するリスクがある
 - `docs/notes` に経緯を残す運用では、curl例やAPI設定メモに本物が紛れやすい
 - プライベートリポジトリでも「見えにくい」だけで「安全」ではない
 
-## ツール構成
+### ツール構成
 
 | ツール | 役割 | 得意領域 |
 |--------|------|----------|
-| secretlint | メイン | クラウドサービス特化、Node.js親和、精密検出 |
-| gitleaks | 補助 | 高速、entropy検出、git履歴スキャン |
-| husky | git hooks 管理 | npm で hooks を共有可能に（Phase 3/4） |
-| lint-staged | staged ファイル限定実行 | 差分だけ高速チェック（Phase 3/4） |
-
-## どこまで導入するかの判断基準
-
-| 状況 | 推奨 |
-|------|------|
-| 個人開発 | Phase 3（フル版）または Phase 4（個人用） |
-| チーム全員で強制 | Phase 3（フル版） |
-| 自分だけ使いたい、他の人には任意 | **Phase 4（個人用）** |
-| ピュアなコミット保持（ライトな状態） | Phase 2（ライト版） |
+| **secretlint** | メイン | クラウドサービス特化、Node.js親和、精密検出 |
+| **gitleaks** | 補助 | 高速、entropy検出、git履歴スキャン |
+| **husky** | git hooks 管理 | npm で hooks を共有可能に（Phase 3/4） |
+| **lint-staged** | staged ファイル限定実行 | 差分だけ高速チェック（Phase 3/4） |
 
 ---
 
-# Phase 1: 初動スキャン（必須）
+# Phase 1: 初動スキャン（現状把握）
 
-まず現状を把握する。いきなり自動化せず、何が検出されるか確認。
+**目的**: いきなり自動化せず、まず何が検出されるか確認する
 
-## 1.1 secretlint インストール
+---
+
+## ステップ 1.1: テンプレートファイルをコピー
+
+以下のコマンドを実行してください：
+
+```bash
+cp security-setup/templates/.secretlintrc.json .
+cp security-setup/templates/gitleaks.toml .
+```
+
+これで以下が配置されます：
+- `.secretlintrc.json` - secretlint 設定
+- `gitleaks.toml` - gitleaks 設定
+
+---
+
+## ステップ 1.2: secretlint をインストール
+
+以下のコマンドを実行してください：
 
 ```bash
 npm install -D secretlint @secretlint/secretlint-rule-preset-recommend
 ```
 
-`.secretlintrc.json` を作成:
+---
 
-```json
-{
-  "rules": [
-    {
-      "id": "@secretlint/secretlint-rule-preset-recommend"
-    }
-  ]
-}
-```
+## ステップ 1.3: secretlint で初回スキャン
 
-## 1.2 secretlint で初回スキャン
+以下のコマンドを実行してください：
 
 ```bash
 npx secretlint "**/*"
 ```
 
-→ ユーザーに結果を報告し、方針検討
-
-## 1.3 gitleaks インストール
-
-```bash
-# macOS
-brew install gitleaks
-
-# Windows (Scoop)
-scoop install gitleaks
-
-# Windows (Chocolatey)
-choco install gitleaks
-
-# Go
-go install github.com/gitleaks/gitleaks/v8@latest
-
-# バイナリ直接（Windows / Linux）
-# https://github.com/gitleaks/gitleaks/releases
-# Windows: gitleaks_X.X.X_windows_x64.zip
-```
-
-## 1.4 gitleaks で初回スキャン
-
-```bash
-gitleaks detect --source . -v
-```
-
-→ ユーザーに結果を報告し、方針検討
-
-## 1.5 検出時の判断基準
+### 結果の判断基準
 
 | 状況 | 対応 |
 |------|------|
-| 本物のシークレット | **即座に無効化（トークン再発行）** → ファイル修正 |
-| プレースホルダー（YOUR_API_KEY等） | allowlist に追加 |
-| サンプル/ダミー値 | allowlist または値を明確なダミーに変更 |
-| false positive | allowlist に追加 |
+| **本物のシークレット** | ⚠️ **即座に無効化（トークン再発行）** → ファイル修正 |
+| **プレースホルダー**（YOUR_API_KEY等） | `.secretlintrc.json` の `ignores` に追加 |
+| **サンプル/ダミー値** | 値を明確なダミーに変更、または allowlist 追加 |
+| **false positive** | `.secretlintrc.json` の `ignores` に追加 |
 
-**重要**: ファイル修正より先にトークン側を無効化する。ファイルを直しても履歴に残っている。
+**重要**: ファイル修正より**先にトークン側を無効化**する。ファイルを直しても git 履歴に残っている。
 
-## 1.6 allowlist 設定
+**検出があった場合**: 内容を確認して、必要に応じて対処してから次に進みます。
 
-`.secretlintrc.json`:
+---
+
+## ステップ 1.4: gitleaks のインストール
+
+以下のコマンドを実行してください：
+
+```bash
+cp security-setup/templates/scripts/install-gitleaks.js scripts/
+node scripts/install-gitleaks.js
+```
+
+このスクリプトは OS を自動判定して gitleaks バイナリを `./bin/` にダウンロードします。
+
+**Windows/macOS/Linux すべて対応**しています。
+
+---
+
+## ステップ 1.5: gitleaks で初回スキャン
+
+以下のコマンドを実行してください：
+
+```bash
+./bin/gitleaks detect --source . -v --config gitleaks.toml
+```
+
+**Windows の場合**:
+```bash
+.\bin\gitleaks.exe detect --source . -v --config gitleaks.toml
+```
+
+**検出があった場合**: secretlint と同様に内容を確認して対処します。
+
+---
+
+## Phase 1 完了
+
+ここまでで現状把握が完了しました。
+
+**Phase 1 で止める場合**: 手動でスキャンを走らせる運用も可能です。
+
+**Phase 2 に進む場合**: 続けて npm scripts を追加します。
+
+---
+
+# Phase 2: 手動運用（npm scripts）
+
+**目的**: npm scripts で手動スキャンを簡単に実行できるようにする
+
+---
+
+## ステップ 2.1: package.json に scripts を追加
+
+`security-setup/templates/package.json.example` の内容を確認し、以下の scripts を既存の `package.json` に追加してください：
+
+```json
+{
+  "scripts": {
+    "security:verify": "node scripts/security-verify.js",
+    "security:verify:testrun": "node scripts/security-verify.js --test-run",
+    "security:install-gitleaks": "node scripts/install-gitleaks.js",
+    "secret-scan": "secretlint \"**/*\"",
+    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . -v"
+  }
+}
+```
+
+**注**: 既存の scripts とマージしてください（上書きではなく追加）。
+
+---
+
+## ステップ 2.2: security-verify.js をコピー
+
+以下のコマンドを実行してください：
+
+```bash
+cp security-setup/templates/scripts/security-verify.js scripts/
+```
+
+---
+
+## ステップ 2.3: ヘルスチェックを実行
+
+以下のコマンドを実行してください：
+
+```bash
+npm run security:verify
+```
+
+**期待する結果**: 10 項目のヘルスチェックが実行され、✅ または ⚠️ が表示されます。
+
+---
+
+## ステップ 2.4: テストラン（実際のスキャン）
+
+以下のコマンドを実行してください：
+
+```bash
+npm run security:verify:testrun
+```
+
+**期待する結果**:
+- ヘルスチェック完了
+- secretlint で全ファイルスキャン
+- gitleaks で全履歴スキャン（gitleaksがある場合）
+- 検出があれば詳細表示
+
+---
+
+## Phase 2 完了
+
+ここまでで以下が可能になりました：
+
+- `npm run secret-scan` - secretlint で全ファイルスキャン
+- `npm run secret-scan:full` - secretlint + gitleaks で全スキャン
+- `npm run security:verify` - 設定のヘルスチェック
+- `npm run security:verify:testrun` - ヘルスチェック + 実際のスキャン
+
+**Phase 2 で止める場合**: コミット前に手動で `npm run secret-scan` を走らせる運用です。ピュアなコミット履歴を保ちたい場合に適しています。
+
+**Phase 3 または 4 に進む場合**: pre-commit フックで自動化します。
+
+---
+
+# Phase 3 vs Phase 4 の選択
+
+**ここで人間に確認してください**:
+
+## Phase 3: pre-commit 強制（チーム全員）
+
+- **対象**: チーム全員がセキュリティチェックを強制される
+- **.husky/ をコミット**: Git で共有し、全員の環境で自動実行
+- **適している**: チーム開発、全員で同じルールを守りたい場合
+
+## Phase 4: pre-commit 強制（個人用）
+
+- **対象**: 自分だけセキュリティチェックを使う
+- **.husky/ を .gitignore**: 自分のローカルのみで動作
+- **適している**: 個人開発、または「自分だけ使いたい」場合
+
+**どちらを選びますか？** Phase 3 / Phase 4
+
+---
+
+# Phase 3: pre-commit 強制（チーム全員）
+
+---
+
+## ステップ 3.1: lint-staged をインストール
+
+以下のコマンドを実行してください：
+
+```bash
+npm install -D lint-staged
+```
+
+---
+
+## ステップ 3.2: package.json に lint-staged 設定を追加
+
+既存の `package.json` に以下を追加してください：
+
+```json
+{
+  "lint-staged": {
+    "*": ["secretlint"]
+  }
+}
+```
+
+---
+
+## ステップ 3.3: husky をインストール
+
+以下のコマンドを実行してください：
+
+```bash
+npm install -D husky
+npx husky init
+```
+
+---
+
+## ステップ 3.4: pre-commit フックをコピー
+
+以下のコマンドを実行してください：
+
+```bash
+cp security-setup/templates/scripts/pre-commit.js scripts/
+```
+
+`.husky/pre-commit` を編集して、以下の内容に置き換えてください：
+
+```bash
+#!/bin/sh
+node scripts/pre-commit.js
+```
+
+---
+
+## ステップ 3.5: .gitignore を更新
+
+`security-setup/templates/gitignore.example` の内容を確認し、以下を既存の `.gitignore` に追加してください：
+
+```gitignore
+# gitleaks binary (large binary file)
+bin/gitleaks
+bin/gitleaks.exe
+```
+
+**注**: Phase 3 では `.husky/` は**コミットする**ため、.gitignore に追加**しません**。
+
+---
+
+## ステップ 3.6: 動作確認
+
+以下のコマンドを実行してください：
+
+```bash
+git add .
+git commit -m "test: pre-commit hook"
+```
+
+**期待する結果**:
+- lint-staged (secretlint) が実行される
+- gitleaks が実行される（バイナリがある場合）
+- 問題なければコミット成功
+- 検出があればコミット失敗
+
+**テストコミットなので、コミットを取り消してもOKです**：
+
+```bash
+git reset HEAD~1
+```
+
+---
+
+## ステップ 3.7: 最終確認
+
+以下のコマンドを実行してください：
+
+```bash
+npm run security:verify:testrun
+```
+
+**全て ✅ なら Phase 3 完了です！**
+
+---
+
+## Phase 3 完了
+
+セキュリティチェックが pre-commit フックで自動実行されるようになりました。
+
+**チーム全員に共有**: `.husky/` がコミットされているため、`npm install` 後に全員の環境で自動的に有効化されます。
+
+---
+
+# Phase 4: pre-commit 強制（個人用）
+
+---
+
+## ステップ 4.1: lint-staged をインストール
+
+以下のコマンドを実行してください：
+
+```bash
+npm install -D lint-staged
+```
+
+---
+
+## ステップ 4.2: package.json に lint-staged 設定を追加
+
+既存の `package.json` に以下を追加してください：
+
+```json
+{
+  "lint-staged": {
+    "*": ["secretlint"]
+  }
+}
+```
+
+---
+
+## ステップ 4.3: husky をインストール
+
+以下のコマンドを実行してください：
+
+```bash
+npm install -D husky
+npx husky init
+```
+
+---
+
+## ステップ 4.4: pre-commit フックをコピー
+
+以下のコマンドを実行してください：
+
+```bash
+cp security-setup/templates/scripts/pre-commit.js scripts/
+```
+
+`.husky/pre-commit` を編集して、以下の内容に置き換えてください：
+
+```bash
+#!/bin/sh
+node scripts/pre-commit.js
+```
+
+---
+
+## ステップ 4.5: .gitignore を更新
+
+`security-setup/templates/gitignore.example` の内容を確認し、以下を既存の `.gitignore` に追加してください：
+
+```gitignore
+# gitleaks binary (large binary file)
+bin/gitleaks
+bin/gitleaks.exe
+
+# Phase 4（個人用）の場合のみ以下を追加:
+.husky/
+```
+
+**注**: Phase 4 では `.husky/` を **.gitignore に追加**します。自分のローカルのみで動作します。
+
+---
+
+## ステップ 4.6: 動作確認
+
+以下のコマンドを実行してください：
+
+```bash
+git add .
+git commit -m "test: pre-commit hook"
+```
+
+**期待する結果**:
+- lint-staged (secretlint) が実行される
+- gitleaks が実行される（バイナリがある場合）
+- 問題なければコミット成功
+- 検出があればコミット失敗
+
+**テストコミットなので、コミットを取り消してもOKです**：
+
+```bash
+git reset HEAD~1
+```
+
+---
+
+## ステップ 4.7: 最終確認
+
+以下のコマンドを実行してください：
+
+```bash
+npm run security:verify:testrun
+```
+
+**全て ✅ なら Phase 4 完了です！**
+
+---
+
+## Phase 4 完了
+
+セキュリティチェックが pre-commit フックで自動実行されるようになりました。
+
+**個人用**: `.husky/` が .gitignore に追加されているため、自分のローカルのみで動作します。
+
+---
+
+# 検出時の対応フロー
+
+シークレットが検出された場合の対応手順：
+
+## 1. トークンを無効化（最優先）
+
+**ファイル修正より先に、トークン側を無効化してください。**
+
+- API キーの再発行
+- トークンの削除
+- パスワードの変更
+
+**理由**: git 履歴に残っているため、ファイルを直しても過去のコミットから取得可能。
+
+---
+
+## 2. ファイルを修正
+
+以下のいずれかの方法で対処：
+
+### パターンA: allowlist に追加（プレースホルダーの場合）
+
+`.secretlintrc.json` に `ignores` を追加：
 
 ```json
 {
@@ -111,524 +500,149 @@ gitleaks detect --source . -v
     }
   ],
   "ignores": [
-    {
-      "comments": ["テンプレートファイルは除外"],
-      "patterns": ["docs/actions/**", "**/TEMPLATE.md"]
-    }
+    "**/YOUR_API_KEY_HERE"
   ]
 }
 ```
 
-`.gitleaksignore`（プロジェクトルート）:
-
-```
-# false positive のファイル:行 を指定
-docs/actions/example_api_usage.md:3
-```
-
-## 1.7 方針決定
-
-| 結果 | 方針 |
-|------|------|
-| 軽微 or なし | 現環境で続行 → Phase 2 へ |
-| 広範囲に漏洩 | Git リポジトリやり直しも検討 |
-
----
-
-# Phase 2: 手動運用（ライト版）
-
-npm scripts で手動実行できる状態。package.json への影響は devDependencies のみ。
-
-**ここで止めてもOK。ピュアなコミットを保持したい場合はここまで。**
-
-## 2.1 npm scripts 追加
-
-`package.json`:
-
-```json
-{
-  "scripts": {
-    "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && gitleaks detect --source . -v"
-  }
-}
-```
-
-## 2.2 手動実行用シェルスクリプト（オプション）
-
-`scripts/secret-scan.sh` を作成:
-
-```bash
-#!/bin/bash
-set -e
-
-echo "=== secretlint ==="
-npx secretlint "**/*"
-
-echo ""
-echo "=== gitleaks ==="
-gitleaks detect --source . -v
-
-echo ""
-echo "✅ All checks passed"
-```
-
-```bash
-chmod +x scripts/secret-scan.sh
-```
-
-## 2.3 運用
-
-```bash
-# コミット前に手動で実行
-npm run secret-scan
-
-# または
-./scripts/secret-scan.sh
-```
-
-## Phase 2 完了時点の状態
-
-- ✅ secretlint + gitleaks インストール済み
-- ✅ 手動でスキャン可能
-- ✅ package.json は devDependencies のみ追加
-- ❌ pre-commit 強制なし（忘れたらスルー）
-
----
-
-# Phase 3: pre-commit 強制（フル版）
-
-husky + lint-staged で全コミットを自動チェック。
-
-**注意**: package.json に `prepare` スクリプトが追加され、他の開発者にも伝播する。
-
-## Windows 環境の注意点
-
-`.husky/pre-commit` は bash スクリプトのため:
-
-| 環境 | 動作 |
-|------|------|
-| Git Bash 経由 | ✅ 動く |
-| VSCode ターミナル (Git Bash) | ✅ 動く |
-| PowerShell / cmd 直接 | ⚠️ 動かない可能性 |
-
-Git for Windows を入れていれば Git Bash が付属するので、通常は問題なし。
-
-### 安全策: Node.js で書く（オプション）
-
-PowerShell / cmd でも確実に動かしたい場合:
-
-`scripts/pre-commit.js` を作成:
-
-```javascript
-const { execSync } = require('child_process');
-try {
-  execSync('npx lint-staged', { stdio: 'inherit' });
-  execSync('npx gitleaks protect --staged', { stdio: 'inherit' });
-} catch (e) {
-  process.exit(1);
-}
-```
-
-`.husky/pre-commit` を編集:
-
-```bash
-node scripts/pre-commit.js
-```
-
-## 3.1 husky + lint-staged インストール
-
-```bash
-npm install -D husky lint-staged
-npx husky init
-```
-
-## 3.2 pre-commit フック設定
-
-`.husky/pre-commit` を編集:
-
-```bash
-npx lint-staged
-npx gitleaks protect --staged
-```
-
-## 3.3 lint-staged 設定
-
-`package.json` に追加:
-
-```json
-{
-  "lint-staged": {
-    "*": ["secretlint"]
-  }
-}
-```
-
-## 3.4 動作確認
-
-```bash
-# 適当なファイルを変更して
-git add .
-git commit -m "test"
-# → secretlint と gitleaks が自動実行される
-```
-
-## Phase 3 完了時点の状態
-
-- ✅ 全コミットが自動チェックされる
-- ✅ 検出されたらコミット失敗
-- ⚠️ package.json に `prepare: husky` が追加される
-- ⚠️ 他の開発者も npm install 時に自動適用
-
----
-
-# Phase 4: 個人用セットアップ（自分だけ強制、他は任意）
-
-自分は pre-commit 強制を使いたいが、他の人には影響させたくない場合。
-
-**Phase 3 との違い**: `prepare` スクリプトを使わず、`husky:install` で手動有効化にする。
-
-## 設計判断
-
-| 項目 | Phase 3 | Phase 4 |
-|------|---------|---------|
-| `package.json` の `prepare` | `"prepare": "husky"` | なし |
-| 他の人が `npm install` | 自動で husky 有効化 | husky 有効化されない |
-| pre-commit フック | 全員に強制 | 有効化した人のみ |
-
-**Phase 4 を選ぶ理由**:
-- 個人プロジェクトで自分用に使いたい
-- チームにはまだ導入提案していない
-- 試験的に導入して様子を見たい
-
-## 4.1 husky + lint-staged インストール
-
-```bash
-npm install -D husky lint-staged
-```
-
-## 4.2 package.json 設定（prepare を使わない）
-
-`package.json`:
-
-```json
-{
-  "scripts": {
-    "husky:install": "husky",
-    "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && gitleaks detect --source . -v"
-  },
-  "lint-staged": {
-    "*": ["secretlint"]
-  }
-}
-```
-
-**ポイント**: `"prepare": "husky"` ではなく `"husky:install": "husky"` にする。
-
-## 4.3 husky を手動で有効化（自分だけ）
-
-```bash
-# husky ディレクトリを初期化
-npm run husky:install
-```
-
-## 4.4 pre-commit フック作成
-
-`.husky/pre-commit` を作成:
-
-```bash
-#!/bin/bash
-
-# secretlint (via lint-staged)
-npx lint-staged
-
-# gitleaks (binary with fallback)
-if [ -x "./bin/gitleaks" ]; then
-  ./bin/gitleaks protect --staged --config gitleaks.toml
-elif command -v gitleaks &> /dev/null; then
-  gitleaks protect --staged --config gitleaks.toml
-else
-  echo "⚠️  gitleaks not found. Run: npm run gitleaks:install"
-  exit 1
-fi
-```
-
-実行権限を付与:
-
-```bash
-chmod +x .husky/pre-commit
-```
-
-## 4.5 動作確認
-
-```bash
-echo "# Test" > test.md
-git add test.md
-git commit -m "test"
-# → secretlint + gitleaks が自動実行される
-```
-
-## Phase 4 完了時点の状態
-
-**導入した人（あなた）**:
-- ✅ `.husky/` フォルダがある
-- ✅ pre-commit フックが動く
-- ✅ コミット時に自動チェックされる
-
-**他の人が `git clone` & `npm install` したとき**:
-- ✅ husky は自動セットアップされない
-- ✅ pre-commit フックは動かない
-- ✅ 通常通りコミットできる
-
-## 4.6 他の人も使いたくなったら
-
-README やチーム内で共有する手順:
-
-```bash
-# 1. gitleaks バイナリをインストール（Docker環境の場合）
-npm run gitleaks:install
-
-# 2. husky を手動で有効化
-npm run husky:install
-
-# 3. pre-commit フックに実行権限を付与
-chmod +x .husky/pre-commit
-
-# 4. 動作確認
-echo "# Test" > test.md
-git add test.md
-git commit -m "test"
-# → secretlint + gitleaks が自動実行される
-```
-
-## Phase 4 → Phase 3 への移行
-
-チーム全員で使うことが決まったら、`prepare` スクリプトを追加するだけ:
-
-```json
-{
-  "scripts": {
-    "prepare": "husky",
-    "husky:install": "husky"
-  }
-}
-```
-
-これで以降は `npm install` 時に全員自動適用される。
-
----
-
-# Docker 環境での注意点
-
-Docker / Dev Container 環境では、gitleaks がイメージ再構築時に消失する問題がある。
-
-## 問題
-
-| ツール | インストール方法 | Docker再構築時 |
-|--------|-----------------|----------------|
-| secretlint | npm パッケージ | ✅ `npm install` で自動復元 |
-| gitleaks | システムバイナリ | ❌ 消える |
-
-## 解決策: bin/ にバイナリを配置
-
-gitleaks を `bin/gitleaks` に配置し、インストールスクリプトで管理する。
-
-### 手順1: インストールスクリプト作成
-
-`scripts/install-gitleaks.sh`:
-
-```bash
-#!/bin/bash
-set -e
-
-GITLEAKS_VERSION="8.30.0"
-GITLEAKS_BIN="./bin/gitleaks"
-
-echo "🔍 Checking gitleaks installation..."
-
-if [ -x "$GITLEAKS_BIN" ]; then
-  echo "✅ gitleaks is already installed"
-  exit 0
-fi
-
-echo "📥 Downloading gitleaks v${GITLEAKS_VERSION}..."
-mkdir -p bin
-wget -q --show-progress \
-  "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
-  -O /tmp/gitleaks.tar.gz
-
-echo "📦 Extracting..."
-tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
-mv /tmp/gitleaks "$GITLEAKS_BIN"
-chmod +x "$GITLEAKS_BIN"
-rm /tmp/gitleaks.tar.gz
-
-echo "✅ gitleaks installed: $($GITLEAKS_BIN version)"
-```
-
-### 手順2: npm script 追加
-
-`package.json`:
-
-```json
-{
-  "scripts": {
-    "gitleaks:install": "bash scripts/install-gitleaks.sh",
-    "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . --config gitleaks.toml -v"
-  }
-}
-```
-
-### 手順3: pre-commit フック修正
-
-`.husky/pre-commit`:
-
-```bash
-#!/bin/bash
-
-# secretlint (npm package)
-npx lint-staged
-
-# gitleaks (binary with fallback)
-if [ -x "./bin/gitleaks" ]; then
-  ./bin/gitleaks protect --staged --config gitleaks.toml
-elif command -v gitleaks &> /dev/null; then
-  gitleaks protect --staged --config gitleaks.toml
-else
-  echo "⚠️  gitleaks not found. Run: npm run gitleaks:install"
-  exit 1
-fi
-```
-
-### 手順4: .gitignore に追加
-
-```gitignore
-# gitleaks binary (large binary file)
-bin/gitleaks
-```
-
-### 手順5: gitleaks.toml 作成
+`gitleaks.toml` に `allowlist` を追加：
 
 ```toml
-title = "Gitleaks config"
-
 [allowlist]
 paths = [
-  '''node_modules/.*''',
-  '''dist/.*''',
+    '''docs/examples/.*'''
 ]
 
 regexes = [
-  '''YOUR_TOKEN_HERE''',
-  '''your_api_key_here''',
+    '''YOUR_TOKEN_HERE''',
+    '''EXAMPLE_API_KEY'''
 ]
 ```
 
-## Docker 環境での運用フロー
+---
 
-```
-初回セットアップ:
-  npm install
-  npm run gitleaks:install
+### パターンB: 値を明確なダミーに変更
 
-開発中:
-  git commit → secretlint + gitleaks 自動実行
+```bash
+# Before
+API_KEY=sk-1234567890abcdef
 
-Docker 再構築後:
-  npm install            # secretlint 復元
-  npm run gitleaks:install  # gitleaks 復元
+# After
+API_KEY=sk-DUMMY_KEY_REPLACE_WITH_YOUR_ACTUAL_KEY
 ```
 
 ---
 
-# 検出時の対応フロー
+## 3. git 履歴から削除（必要な場合）
 
-## pre-commit で止まったとき（Phase 3/4）
+**本物のシークレットがコミット済みの場合**、履歴から削除する必要があります。
+
+### 方法A: BFG Repo-Cleaner（推奨）
 
 ```bash
-git commit -m "add feature"
-# 🚨 secretlint found issues...
+# BFG のインストール（https://rtyley.github.io/bfg-repo-cleaner/）
+brew install bfg  # macOS
+# または jar を直接ダウンロード
 
-# 1. 該当ファイルを確認・修正
-# 2. 再度 add & commit
-git add -A
-git commit -m "add feature"
+# シークレットを含むファイルを削除
+bfg --delete-files secrets.txt
+
+# または特定の文字列を置換
+bfg --replace-text passwords.txt
+
+# git 履歴を書き換え
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
 ```
 
-## 直前コミットに入ってしまった場合
+### 方法B: git filter-branch
 
 ```bash
-# コミット取り消し（変更は残る）
-git reset --soft HEAD~1
-
-# 修正して再コミット
-git add -A
-git commit -m "add feature"
-```
-
-## git履歴に残ってしまった場合（要注意）
-
-```bash
-# 履歴から完全削除（破壊的操作）
 git filter-branch --force --index-filter \
-  "git rm --cached --ignore-unmatch path/to/file" \
+  "git rm --cached --ignore-unmatch path/to/secrets.txt" \
   --prune-empty --tag-name-filter cat -- --all
 
-# または BFG Repo-Cleaner（より高速）
-bfg --delete-files "filename"
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
 ```
 
-**判断**: 軽微なら履歴改変、広範囲ならリポジトリ立ち上げ直しも選択肢。docs/notes に経緯があれば Git ログ消失のダメージは限定的。
+**警告**: 履歴書き換えは**強制プッシュが必要**になります。チーム開発の場合は注意してください。
 
 ---
 
-# よくある検出パターン
+## 4. リモートに強制プッシュ（履歴書き換えした場合）
 
-| パターン | 例 | 対処 |
-|---------|-----|------|
-| Slack token | `xoxb-`, `xoxp-` | 即無効化、再発行 |
-| AWS | `AKIA...` | 即無効化、IAMで再発行 |
-| GitHub | `ghp_`, `gho_` | 即無効化、再発行 |
-| OpenAI | `sk-...` | 即無効化、再発行 |
-| JWT | `eyJ...` | 用途確認、必要なら再発行 |
-| 高entropy文字列 | ランダムな32文字以上 | 本物か確認 |
-| .env.example 混入 | 本物の接続文字列 | 重点チェック対象 |
+```bash
+git push origin --force --all
+git push origin --force --tags
+```
+
+**チームメンバーに通知**: 全員が re-clone または reset が必要です。
 
 ---
 
-# 段階的導入の方針（AI 向けまとめ）
+# よくある検出パターンと対処
 
-こちらを、段階的に導入していきます。
-
-1. secretlint インストールして `npx secretlint "**/*"` して初回チェック
-2. ユーザーに報告しつつ方針検討
-3. gitleaks インストールして `gitleaks detect --source . -v` して初回チェック
-4. ユーザーに報告しつつ方針検討
-5. npm scripts 追加（Phase 2 完了 = ライト版）
-6. **ユーザーに確認**: Phase 3（全員強制）か Phase 4（個人用）か？
-7. Phase 3 の場合: `prepare: husky` で全員に伝播
-8. Phase 4 の場合: `husky:install` で手動有効化、他の人には任意
-9. **Docker 環境の場合**: gitleaks を bin/ に配置、インストールスクリプト作成
-
-### 追加検討事項
-
-- 検出されたシークレットの即時無効化（トークン再発行）をユーザーに促す
-- allowlist / ignore 設定をユーザーと相談して決める
-- AI への指示テンプレート（docs/actions）にシークレット注意事項を追記するか確認
-- .env.example がある場合、本物混入がないかの重点チェック
-- Docker 環境では gitleaks 消失対策が必要
+| 検出内容 | 判断 | 対処 |
+|---------|------|------|
+| `aws_access_key_id = AKIAIOSFODNN7EXAMPLE` | サンプル | allowlist 追加 |
+| `password: "test1234"` | ダミー（明らかに弱い） | そのままでOK or 明確なダミーに変更 |
+| `token: "ghp_xxxxxxxxxxxxxxxxxxxx"` | 本物の GitHub PAT | ⚠️ **即座に無効化** |
+| `YOUR_API_KEY_HERE` | プレースホルダー | allowlist 追加 |
+| `mongodb://localhost:27017` | ローカル接続 | allowlist 追加 or そのまま |
+| `SECRET=xxxxxxxx` | 不明 | 確認が必要 |
 
 ---
 
-# まとめ
+# トラブルシューティング
 
-1. **Phase 1 で現状把握**（いきなり自動化しない）
-2. **本物は即無効化**、ファイル修正より先にトークン側を止める
-3. **Phase 2 で止めてもOK**（ピュアなコミット保持）
-4. **Phase 3 は伝播する**ことを理解した上で導入
-5. **Phase 4 は自分だけ**、他の人には任意で入れさせる
-6. **Docker 環境では gitleaks を bin/ に配置**して永続化
-7. **検出 = 防げた、という成功体験として捉える**
-8. **最悪リポジトリ立ち上げ直しでも notes があればなんとかなる**
+## gitleaks がインストールできない
+
+**症状**: `install-gitleaks.js` でエラー
+
+**対処**:
+1. プラットフォームが対応しているか確認（Windows x64, macOS x64/arm64, Linux x64/arm64）
+2. ネットワーク接続を確認
+3. 手動でインストール: https://github.com/gitleaks/gitleaks/releases
+
+---
+
+## pre-commit が動かない
+
+**症状**: コミットしても secretlint が実行されない
+
+**対処**:
+1. `.husky/pre-commit` が存在するか確認
+2. `.husky/pre-commit` が実行可能か確認（`chmod +x .husky/pre-commit`）
+3. `npm run security:verify` でヘルスチェック
+
+---
+
+## secretlint の false positive が多い
+
+**症状**: 明らかに問題ないのに検出される
+
+**対処**:
+1. `.secretlintrc.json` の `ignores` に追加
+2. `@secretlint/secretlint-rule-pattern` でカスタムルールを追加
+3. 特定のディレクトリを除外（`docs/examples/**` 等）
+
+---
+
+# セキュリティチェック完了！
+
+導入が完了しました。以下のコマンドでいつでも確認できます：
+
+```bash
+# ヘルスチェック
+npm run security:verify
+
+# ヘルスチェック + 実際のスキャン
+npm run security:verify:testrun
+
+# 手動スキャン
+npm run secret-scan
+npm run secret-scan:full
+```
+
+**重要**: 定期的に `npm run security:verify:testrun` を実行して、設定が正しく動作しているか確認してください。
