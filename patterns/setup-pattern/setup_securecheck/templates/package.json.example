@@ -4,7 +4,7 @@
     "security:verify:testrun": "node scripts/security-verify.js --test-run",
     "security:install-gitleaks": "node scripts/install-gitleaks.js",
     "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . -v",
+    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . -v --config gitleaks.toml",
     "husky:install": "husky"
   },
   "lint-staged": {

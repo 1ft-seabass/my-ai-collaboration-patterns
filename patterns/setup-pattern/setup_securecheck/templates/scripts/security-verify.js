@@ -155,22 +155,20 @@ if (lintStagedVersion) {
   checkResult(false, 'lint-staged — コマンドが見つかりません');
 }
 
-// 10. gitleaks バイナリ
+// 10. gitleaks バイナリ（bin/gitleaks のみをチェック）
 const isWindows = process.platform === 'win32';
 const binaryName = isWindows ? 'gitleaks.exe' : 'gitleaks';
 const localBinary = path.join(process.cwd(), 'bin', binaryName);
 
-let gitleaksVersion = null;
 if (fs.existsSync(localBinary)) {
-  gitleaksVersion = execCommand(`"${localBinary}" version`);
+  const gitleaksVersion = execCommand(`"${localBinary}" version`);
+  if (gitleaksVersion) {
+    checkResult(true, `gitleaks ${gitleaksVersion}`);
+  } else {
+    checkResult(false, `gitleaks — bin/${binaryName} が実行できません（実行権限またはバイナリが壊れている可能性）`);
+  }
 } else {
-  gitleaksVersion = execCommand('gitleaks version');
-}
-
-if (gitleaksVersion) {
-  checkResult(true, `gitleaks ${gitleaksVersion}`);
-} else {
-  checkResult(false, 'gitleaks — 見つかりません（node scripts/install-gitleaks.js で導入してください）');
+  checkResult(false, `gitleaks — bin/${binaryName} が見つかりません（node tmp/security-setup/templates/scripts/install-gitleaks.js で導入してください）`);
 }
 
 console.log('');
