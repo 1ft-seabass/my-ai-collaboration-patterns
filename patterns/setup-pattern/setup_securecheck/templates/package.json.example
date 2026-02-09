@@ -1,6 +1,7 @@
 {
   "scripts": {
     "security:verify": "node scripts/security-verify.js",
+    "security:verify:simple": "node scripts/security-verify.js --simple",
     "security:verify:testrun": "node scripts/security-verify.js --test-run",
     "security:install-gitleaks": "node scripts/install-gitleaks.js",
     "secret-scan": "secretlint \"**/*\"",

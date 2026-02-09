@@ -7,6 +7,7 @@ const { execSync } = require('child_process');
 // Parse command line arguments
 const args = process.argv.slice(2);
 const testRun = args.includes('--test-run');
+const simpleRun = args.includes('--simple');
 
 console.log('🔍 Security Setup Health Check');
 console.log('================================\n');
@@ -160,8 +161,9 @@ const isWindows = process.platform === 'win32';
 const binaryName = isWindows ? 'gitleaks.exe' : 'gitleaks';
 const localBinary = path.join(process.cwd(), 'bin', binaryName);
 
+let gitleaksVersion = null;
 if (fs.existsSync(localBinary)) {
-  const gitleaksVersion = execCommand(`"${localBinary}" version`);
+  gitleaksVersion = execCommand(`"${localBinary}" version`);
   if (gitleaksVersion) {
     checkResult(true, `gitleaks ${gitleaksVersion}`);
   } else {
@@ -187,10 +189,14 @@ if (results.failed > 0) {
 console.log('\n✅ ヘルスチェック完了');
 
 // ===========================
-// テストラン（--test-run フラグ時のみ）
+// テストラン（--test-run または --simple フラグ時のみ）
 // ===========================
-if (testRun) {
-  console.log('\n🧪 実際のスキャンをテスト実行します...\n');
+if (testRun || simpleRun) {
+  if (testRun) {
+    console.log('\n🧪 実際のスキャンをテスト実行します（全ファイル + 全履歴）...\n');
+  } else {
+    console.log('\n🧪 シンプルテスト実行します（staged ファイルのみ）...\n');
+  }
 
   const testResults = {
     secretlint: { passed: false, output: '' },
@@ -199,9 +205,12 @@ if (testRun) {
 
   // secretlint テスト
   console.log('[secretlint テスト]');
-  console.log('  npx secretlint "**/*"');
+  const secretlintCmd = simpleRun
+    ? 'npx lint-staged --diff="git diff --cached --name-only"'
+    : './node_modules/.bin/secretlint "**/*"';
+  console.log(`  ${secretlintCmd}`);
   try {
-    const output = execSync('npx secretlint "**/*"', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+    const output = execSync(secretlintCmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
     testResults.secretlint.passed = true;
     testResults.secretlint.output = output;
     console.log('  → ✅ 0 件検出');
@@ -233,8 +242,12 @@ if (testRun) {
     console.log('[gitleaks テスト]');
 
     const gitleaksCmd = fs.existsSync(localBinary)
-      ? `"${localBinary}" detect --source . -v --config gitleaks.toml`
-      : 'gitleaks detect --source . -v --config gitleaks.toml';
+      ? (simpleRun
+          ? `"${localBinary}" protect --staged -v --config gitleaks.toml`
+          : `"${localBinary}" detect --source . -v --config gitleaks.toml`)
+      : (simpleRun
+          ? 'gitleaks protect --staged -v --config gitleaks.toml'
+          : 'gitleaks detect --source . -v --config gitleaks.toml');
 
     console.log(`  ${gitleaksCmd}`);
 
