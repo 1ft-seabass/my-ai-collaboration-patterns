@@ -110,7 +110,8 @@ tmp/security-setup/                   # 一時ディレクトリ（導入完了�
 | コマンド | 用途 |
 |---------|------|
 | `npm run security:verify` | ヘルスチェック（設定確認のみ） |
-| `npm run security:verify:testrun` | ヘルスチェック + 実際のスキャンテスト |
+| `npm run security:verify:simple` | ヘルスチェック + staged ファイルスキャン（軽量・pre-commit相当） |
+| `npm run security:verify:testrun` | ヘルスチェック + 全ファイル + 全履歴スキャン（重い） |
 | `npm run security:install-gitleaks` | gitleaks バイナリのインストール（OS 自動判定） |
 | `npm run secret-scan` | secretlint で全ファイルスキャン |
 | `npm run secret-scan:full` | secretlint + gitleaks で全スキャン |

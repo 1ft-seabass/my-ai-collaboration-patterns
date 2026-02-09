@@ -119,7 +119,9 @@ node tmp/security-setup/templates/scripts/security-verify.js
 | **複数の ❌ がある** | 🔧 Phase 1 から導入を開始 |
 | **全て ❌** | 🆕 未導入。Phase 1 から導入を開始 |
 
-**10/10 の場合**: おめでとうございます！設定は完璧です。`npm run security:verify:testrun` で実際のスキャンもテストできます。
+**10/10 の場合**: おめでとうございます！設定は完璧です。
+- `npm run security:verify:simple` - staged ファイルのみテスト（軽量）
+- `npm run security:verify:testrun` - 全ファイル + 全履歴テスト（重い）
 
 **それ以外の場合**: Phase 1 から順に導入していきましょう。
 
@@ -214,6 +216,11 @@ node tmp/security-setup/templates/scripts/install-gitleaks.js
 .\bin\gitleaks.exe detect --source . -v --config gitleaks.toml
 ```
 
+**gitleaks の動作について**:
+- **git 履歴全体をスキャン**します（現在のファイルだけでなく、過去のコミットも含む）
+- ファイルを削除しても、過去のコミットに残っていれば検出されます
+- `tmp/` ディレクトリは最初から除外されています（`gitleaks.toml` の allowlist に含まれています）
+
 **検出があった場合**: secretlint と同様に内容を確認して対処します。
 
 ---
@@ -242,10 +249,11 @@ node tmp/security-setup/templates/scripts/install-gitleaks.js
 {
   "scripts": {
     "security:verify": "node scripts/security-verify.js",
+    "security:verify:simple": "node scripts/security-verify.js --simple",
     "security:verify:testrun": "node scripts/security-verify.js --test-run",
     "security:install-gitleaks": "node scripts/install-gitleaks.js",
     "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . -v"
+    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . -v --config gitleaks.toml"
   }
 }
 ```
@@ -283,7 +291,13 @@ npm run security:verify
 
 ## ステップ 2.4: テストラン（実際のスキャン）
 
-以下のコマンドを実行してください：
+**シンプルテスト**（staged ファイルのみ、軽量）:
+
+```bash
+npm run security:verify:simple
+```
+
+**フルテスト**（全ファイル + 全履歴、重い）:
 
 ```bash
 npm run security:verify:testrun
@@ -291,8 +305,8 @@ npm run security:verify:testrun
 
 **期待する結果**:
 - ヘルスチェック完了（10/10 ✅）
-- secretlint で全ファイルスキャン
-- gitleaks で全履歴スキャン
+- simple: staged ファイルのみスキャン（pre-commit相当）
+- testrun: secretlint で全ファイルスキャン + gitleaks で全履歴スキャン
 - 検出があれば詳細表示
 
 ---
@@ -304,7 +318,8 @@ npm run security:verify:testrun
 - `npm run secret-scan` - secretlint で全ファイルスキャン
 - `npm run secret-scan:full` - secretlint + gitleaks で全スキャン
 - `npm run security:verify` - 設定のヘルスチェック
-- `npm run security:verify:testrun` - ヘルスチェック + 実際のスキャン
+- `npm run security:verify:simple` - ヘルスチェック + staged ファイルスキャン（軽量）
+- `npm run security:verify:testrun` - ヘルスチェック + 全ファイル + 全履歴スキャン（重い）
 
 **Phase 2 で止める場合**: コミット前に手動で `npm run secret-scan` を走らせる運用です。ピュアなコミット履歴を保ちたい場合に適しています。
 
