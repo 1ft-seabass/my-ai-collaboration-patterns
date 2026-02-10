@@ -85,12 +85,13 @@ checks.existence.push({ name: '.husky/pre-commit', exists: huskyPrecommitExists 
 // 4. package.json の lint-staged 設定
 const packageJsonExists = fileExists('package.json');
 let lintStagedExists = false;
+let packageJsonData = null;
 if (packageJsonExists) {
   const packageJson = readFile('package.json');
   if (packageJson) {
     try {
-      const pkg = JSON.parse(packageJson);
-      lintStagedExists = !!pkg['lint-staged'];
+      packageJsonData = JSON.parse(packageJson);
+      lintStagedExists = !!packageJsonData['lint-staged'];
     } catch (e) {
       // parse error
     }
@@ -99,6 +100,33 @@ if (packageJsonExists) {
 checkResult(lintStagedExists, 'package.json lint-staged 設定' + (!lintStagedExists ? ' — 設定が見つかりません' : ''));
 checks.existence.push({ name: 'lint-staged', exists: lintStagedExists });
 
+// 5. package.json の npm scripts
+const requiredScripts = [
+  'security:verify',
+  'security:verify:simple',
+  'security:verify:testrun',
+  'security:install-gitleaks'
+];
+
+let scriptsCheckPassed = true;
+const missingScripts = [];
+
+if (packageJsonData && packageJsonData.scripts) {
+  for (const scriptName of requiredScripts) {
+    if (!packageJsonData.scripts[scriptName]) {
+      scriptsCheckPassed = false;
+      missingScripts.push(scriptName);
+    }
+  }
+}
+
+if (scriptsCheckPassed && packageJsonData) {
+  checkResult(true, 'package.json に必須 npm scripts あり');
+} else {
+  checkResult(false, `package.json に必須 npm scripts — 不足: ${missingScripts.join(', ')}`);
+}
+checks.existence.push({ name: 'npm-scripts', exists: scriptsCheckPassed });
+
 console.log('');
 
 // ===========================
@@ -106,7 +134,7 @@ console.log('');
 // ===========================
 console.log('[中身チェック]');
 
-// 5. .secretlintrc.json の内容
+// 6. .secretlintrc.json の内容
 if (secretlintrcExists) {
   const secretlintrc = readFile('.secretlintrc.json');
   const hasPresetRecommend = secretlintrc && secretlintrc.includes('preset-recommend');
@@ -115,7 +143,7 @@ if (secretlintrcExists) {
   checkResult(false, '.secretlintrc.json — 存在チェックが ❌ のためスキップ', 'skip');
 }
 
-// 6. gitleaks.toml の内容
+// 7. gitleaks.toml の内容
 if (gitleaksTomlExists) {
   const gitleaksToml = readFile('gitleaks.toml');
   const isNotEmpty = gitleaksToml && gitleaksToml.trim().length > 0;
@@ -124,7 +152,7 @@ if (gitleaksTomlExists) {
   checkResult(false, 'gitleaks.toml — 存在チェックが ❌ のためスキップ', 'skip');
 }
 
-// 7. .husky/pre-commit の内容
+// 8. .husky/pre-commit の内容
 if (huskyPrecommitExists) {
   const precommit = readFile('.husky/pre-commit');
   const hasSecretlint = precommit && (precommit.includes('secretlint') || precommit.includes('lint-staged'));
@@ -140,7 +168,7 @@ console.log('');
 // ===========================
 console.log('[動作チェック]');
 
-// 8. secretlint
+// 9. secretlint
 const secretlintVersion = execCommand('npx secretlint --version');
 if (secretlintVersion) {
   checkResult(true, `secretlint ${secretlintVersion}`);
@@ -148,7 +176,7 @@ if (secretlintVersion) {
   checkResult(false, 'secretlint — コマンドが見つかりません');
 }
 
-// 9. lint-staged
+// 10. lint-staged
 const lintStagedVersion = execCommand('npx lint-staged --version');
 if (lintStagedVersion) {
   checkResult(true, `lint-staged ${lintStagedVersion}`);
@@ -156,7 +184,7 @@ if (lintStagedVersion) {
   checkResult(false, 'lint-staged — コマンドが見つかりません');
 }
 
-// 10. gitleaks バイナリ（bin/gitleaks のみをチェック）
+// 11. gitleaks バイナリ（bin/gitleaks のみをチェック）
 const isWindows = process.platform === 'win32';
 const binaryName = isWindows ? 'gitleaks.exe' : 'gitleaks';
 const localBinary = path.join(process.cwd(), 'bin', binaryName);
@@ -179,7 +207,7 @@ console.log('');
 // 結果サマリー
 // ===========================
 console.log('================================');
-console.log(`結果: ${results.passed}/10 passed, ${results.failed} failed, ${results.warning} warning${results.skipped > 0 ? `, ${results.skipped} skipped` : ''}`);
+console.log(`結果: ${results.passed}/11 passed, ${results.failed} failed, ${results.warning} warning${results.skipped > 0 ? `, ${results.skipped} skipped` : ''}`);
 
 if (results.failed > 0) {
   console.log('\n❌ ヘルスチェックに問題があります。まず設定を修正してください。');
