@@ -12,6 +12,10 @@
     "gitleaks:install": "bash scripts/install-gitleaks.sh",
     "secret-scan": "secretlint \"**/*\"",
     "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . -v",
+    "security:verify": "node scripts/security-verify.js",
+    "security:verify:simple": "node scripts/security-verify.js --simple",
+    "security:verify:testrun": "node scripts/security-verify.js --test-run",
+    "security:install-gitleaks": "node scripts/install-gitleaks.js",
     "prepare": "husky"
   },
   "keywords": [],
