@@ -146,4 +146,8 @@ core
 core.*
 
 # gitleaks binary (large binary file)
-bin/gitleaks
+bin/
+
+# Temporary files
+tmp/
+.tmp/
