@@ -12,12 +12,12 @@ import { loadTemplate } from "../utils/template.js";
 import { listMarkdownFiles } from "../utils/search.js";
 
 export const prepareNoteInputSchema = {
-  title: z.string().describe("ノートのタイトル"),
+  title: z.string().describe("ノートのタイトル（英数字のみ、日本語タイトルの場合は英訳してから渡すこと）"),
 };
 
 export const prepareNoteToolDefinition = {
   name: "prepare_note",
-  description: "「ノートを作りたい」「知見を記録したい」「試行錯誤をまとめたい」ときに使う。テンプレートとファイル名を生成して返す。実際のファイル作成はユーザー側で行う。",
+  description: "「ノートを作りたい」「知見を記録したい」「試行錯誤をまとめたい」ときに使う。テンプレートとファイル名を生成して返す。実際のファイル作成はユーザー側で行う。注意: タイトルは英数字のみで指定すること（日本語タイトルの場合は英訳が必要）。",
   inputSchema: prepareNoteInputSchema,
 };
 

@@ -11,13 +11,13 @@ import { generateFilename } from "../utils/naming.js";
 import { loadTemplate } from "../utils/template.js";
 
 export const prepareTaskInputSchema = {
-  title: z.string().describe("タスクのタイトル"),
+  title: z.string().describe("タスクのタイトル（英数字のみ、日本語タイトルの場合は英訳してから渡すこと）"),
   priority: z.enum(["high", "medium", "low"]).optional().default("medium").describe("優先度"),
 };
 
 export const prepareTaskToolDefinition = {
   name: "prepare_task",
-  description: "「タスクを記録したい」「あとでやることをメモしたい」ときに使う。テンプレートとファイル名を生成して返す。実際のファイル作成はユーザー側で行う。",
+  description: "「タスクを記録したい」「あとでやることをメモしたい」ときに使う。テンプレートとファイル名を生成して返す。実際のファイル作成はユーザー側で行う。注意: タイトルは英数字のみで指定すること（日本語タイトルの場合は英訳が必要）。",
   inputSchema: prepareTaskInputSchema,
 };
 

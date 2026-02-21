@@ -12,13 +12,13 @@ import { loadTemplate } from "../utils/template.js";
 import { listMarkdownFiles, extractTitle } from "../utils/search.js";
 
 export const prepareLetterInputSchema = {
-  title: z.string().describe("申し送りのタイトル"),
+  title: z.string().describe("申し送りのタイトル（英数字のみ、日本語タイトルの場合は英訳してから渡すこと）"),
   recent_notes_count: z.number().optional().default(10).describe("添える直近ノート数"),
 };
 
 export const prepareLetterToolDefinition = {
   name: "prepare_letter",
-  description: "「申し送りを作りたい」「次のセッションに引き継ぎたい」ときに使う。テンプレートとファイル名を生成し、直近のノートと前回の申し送り情報も返す。実際のファイル作成はユーザー側で行う。",
+  description: "「申し送りを作りたい」「次のセッションに引き継ぎたい」ときに使う。テンプレートとファイル名を生成し、直近のノートと前回の申し送り情報も返す。実際のファイル作成はユーザー側で行う。注意: タイトルは英数字のみで指定すること（日本語タイトルの場合は英訳が必要）。",
   inputSchema: prepareLetterInputSchema,
 };
 

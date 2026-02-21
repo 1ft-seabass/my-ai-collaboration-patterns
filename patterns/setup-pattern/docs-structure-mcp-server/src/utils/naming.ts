@@ -26,15 +26,16 @@ export function generateDatePrefix(): string {
 /**
  * タイトルをケバブケースに変換
  * - アルファベット: スペース→ハイフン、英数字とハイフンのみ残す、小文字化
- * - 日本語: そのまま使う
+ * - 日本語が含まれている場合: エラーをスロー
  *
  * @param title - 変換対象のタイトル
  * @returns ケバブケース化されたタイトル
+ * @throws {Error} 日本語文字が含まれている場合
  */
 export function toKebabCase(title: string): string {
-  // 日本語文字が含まれている場合はそのまま返す
+  // 日本語文字が含まれている場合はエラー
   if (/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/.test(title)) {
-    return title;
+    throw new Error('タイトルに日本語が含まれています。英数字のみで指定してください。');
   }
 
   // アルファベットの場合: ケバブケース変換
