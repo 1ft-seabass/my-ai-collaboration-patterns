@@ -16,23 +16,48 @@ export const helpToolDefinition = {
 };
 
 export async function helpToolHandler() {
+  const helpText = `# docs-structure MCP サーバー
+
+## docs フォルダの役割
+
+- **letters**: セッション間の申し送り
+- **notes**: 試行錯誤・知見の記録
+- **tasks**: サブの ToDo
+- **actions**: 指示書
+
+## 動かしたいときに使うツール
+
+### navigate — よく使う指示書へのパスサジェスト
+
+意図を伝えると対応する指示書のパスを返します。
+
+よく使う指示書:
+- actions/00_session_end.md - セッション終了 / 申し送り
+- actions/doc_note.md - ノート作成 / まとめ / 記録
+- actions/doc_letter.md - 申し送り作成のみ
+- actions/doc_note_and_commit.md - ノートとコミット
+- actions/git_commit.md - コミット / git commit
+- actions/01_git_push.md - プッシュ / git push
+
+### actions_info — 全指示書の一覧を表示
+
+navigate 対応のものも含め、actions フォルダ内の全指示書を一覧表示します。
+
+### search_docs_titles — タイトルで検索
+
+ノートや申し送りをタイトルで検索します。
+
+### search_docs_content — 中身を全文検索
+
+ドキュメントの中身を全文検索します。
+
+---
+version: 0.1.0`;
+
   return {
     content: [{
       type: "text" as const,
-      text: JSON.stringify({
-        name: "docs-structure",
-        version: "0.1.0",
-        description: "letters/notes/tasks の日常運用を支援する MCP サーバー",
-        tools: [
-          { name: "help", summary: "この MCP の使い方とバージョンを表示" },
-          { name: "prepare_note", summary: "ノート作成の段取り（テンプレート + ファイル名生成）" },
-          { name: "prepare_letter", summary: "申し送り作成の段取り（テンプレート + 直近情報）" },
-          { name: "prepare_task", summary: "タスク作成の段取り（テンプレート + ファイル名生成）" },
-          { name: "list_letters", summary: "申し送りの一覧取得" },
-          { name: "search_docs_titles", summary: "タイトル検索（軽量）" },
-          { name: "search_docs_content", summary: "全文検索（grep）" }
-        ]
-      }, null, 2)
+      text: helpText
     }]
   };
 }
