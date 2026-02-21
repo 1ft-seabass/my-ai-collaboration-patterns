@@ -62,7 +62,7 @@ tags: [mcp, docs-structure, typescript, debugging, session-handoff]
 ### MCP サーバーの動作確認方法
 ```bash
 # 1. ログファイルの確認
-tail -20 patterns/setup-patterns/docs-structure-mcp-server/mcp-server.log
+tail -20 patterns/setup-pattern/docs-structure-mcp-server/mcp-server.log
 
 # 2. Claude Code を再起動
 # （MCP サーバーの変更を反映するため）
@@ -98,7 +98,7 @@ tail -20 patterns/setup-patterns/docs-structure-mcp-server/mcp-server.log
 **検証コマンド** (次のセッションのAIが実行):
 ```bash
 # 1. MCP サーバーのログを確認
-tail -30 patterns/setup-patterns/docs-structure-mcp-server/mcp-server.log
+tail -30 patterns/setup-pattern/docs-structure-mcp-server/mcp-server.log
 
 # 2. search_docs_content で検索テスト
 # Claude Code で「actions に関するノートを全文検索で探して」と指示
@@ -187,7 +187,7 @@ Running grep command {"cmd":"grep -rn \"undefined\" ..."}
 
 ### 3. ログファイルの場所
 
-- `patterns/setup-patterns/docs-structure-mcp-server/mcp-server.log`
+- `patterns/setup-pattern/docs-structure-mcp-server/mcp-server.log`
 - デバッグ時に必ず確認すること
 
 ### 4. コミット済みだがプッシュ未実施
@@ -200,7 +200,7 @@ Running grep command {"cmd":"grep -rn \"undefined\" ..."}
 
 ### プロジェクト構成
 ```
-patterns/setup-patterns/docs-structure-mcp-server/
+patterns/setup-pattern/docs-structure-mcp-server/
 ├── package.json                  # MCP SDK, zod, dotenv
 ├── tsconfig.json
 ├── .env                          # 絶対パス設定（gitignore済み）
@@ -238,9 +238,9 @@ patterns/setup-patterns/docs-structure-mcp-server/
 - `.env`: DOCS_PATH の絶対パス設定（例: `/home/node/workspace/repos/my-ai-collaboration-patterns/docs`）
 
 ### 関連ドキュメント
-- [実装依頼書](../../../patterns/setup-patterns/docs-structure-mcp-server/03-oneshot-mcp-setup.md)
+- [実装依頼書](../../../patterns/setup-pattern/docs-structure-mcp-server/03-oneshot-mcp-setup.md)
 - [開発ノート](../../notes/2026-02-21-14-30-00-docs-structure-mcp-server-implementation.md)
-- [README](../../../patterns/setup-patterns/docs-structure-mcp-server/README.md)
+- [README](../../../patterns/setup-pattern/docs-structure-mcp-server/README.md)
 
 ---
 

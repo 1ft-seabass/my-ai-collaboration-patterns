@@ -61,7 +61,7 @@ docs-structure-mcp-server/
 | `search_docs_titles` | タイトル検索 | `query`, `scope?` |
 | `search_docs_content` | 全文検索（grep） | `query`, `scope?` |
 
-**実装場所**: `patterns/setup-patterns/docs-structure-mcp-server/src/tools/*`
+**実装場所**: `patterns/setup-pattern/docs-structure-mcp-server/src/tools/*`
 
 ### ログ機能の追加
 
@@ -192,9 +192,9 @@ Running grep command {"cmd":"grep -rn \"undefined\" ..."}
 
 ## 関連ドキュメント
 
-- [実装依頼書](../../../patterns/setup-patterns/docs-structure-mcp-server/03-oneshot-mcp-setup.md)
-- [README](../../../patterns/setup-patterns/docs-structure-mcp-server/README.md)
-- [開発 TODO](../../../patterns/setup-patterns/docs-structure-mcp-server/TODO.md)
+- [実装依頼書](../../../patterns/setup-pattern/docs-structure-mcp-server/03-oneshot-mcp-setup.md)
+- [README](../../../patterns/setup-pattern/docs-structure-mcp-server/README.md)
+- [開発 TODO](../../../patterns/setup-pattern/docs-structure-mcp-server/TODO.md)
 
 ---
 

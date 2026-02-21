@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "docs-structure": {
+      "command": "npx",
+      "args": ["tsx", "/home/node/workspace/repos/my-ai-collaboration-patterns/patterns/setup-pattern/docs-structure-mcp-server/src/index.ts"]
+    }
+  }
+}

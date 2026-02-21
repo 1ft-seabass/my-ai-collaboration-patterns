@@ -39,7 +39,7 @@ MCP サーバー化により、これらの処理を TypeScript の固定ロジ�
 1. **MCP サーバーのセットアップ**
 
 ```bash
-cd patterns/setup-patterns/docs-structure-mcp-server
+cd patterns/setup-pattern/docs-structure-mcp-server
 npm install
 ```
 
