@@ -25,9 +25,13 @@ import { log } from "./utils/logger.js";
 
 // ツールハンドラーのインポート
 import { helpToolDefinition, helpToolHandler } from "./tools/help.js";
-import { prepareNoteToolDefinition, prepareNoteToolHandler } from "./tools/prepare-note.js";
-import { prepareTaskToolDefinition, prepareTaskToolHandler } from "./tools/prepare-task.js";
-import { prepareLetterToolDefinition, prepareLetterToolHandler } from "./tools/prepare-letter.js";
+import { guideSessionEndToolDefinition, guideSessionEndToolHandler } from "./tools/guide-session-end.js";
+import { guideNoteCreationToolDefinition, guideNoteCreationToolHandler } from "./tools/guide-note-creation.js";
+import { guideLetterCreationToolDefinition, guideLetterCreationToolHandler } from "./tools/guide-letter-creation.js";
+import { guideTaskCreationToolDefinition, guideTaskCreationToolHandler } from "./tools/guide-task-creation.js";
+import { guideNoteAndCommitToolDefinition, guideNoteAndCommitToolHandler } from "./tools/guide-note-and-commit.js";
+import { guideGitCommitToolDefinition, guideGitCommitToolHandler } from "./tools/guide-git-commit.js";
+import { guideGitPushToolDefinition, guideGitPushToolHandler } from "./tools/guide-git-push.js";
 import { listLettersToolDefinition, listLettersToolHandler } from "./tools/list-letters.js";
 import { searchDocsTitlesToolDefinition, searchDocsTitlesToolHandler } from "./tools/search-docs-titles.js";
 import { searchDocsContentToolDefinition, searchDocsContentToolHandler } from "./tools/search-docs-content.js";
@@ -47,34 +51,74 @@ server.registerTool(
   helpToolHandler
 );
 
-// prepare_note ツール登録
+// guide_session_end ツール登録
 server.registerTool(
-  prepareNoteToolDefinition.name,
+  guideSessionEndToolDefinition.name,
   {
-    description: prepareNoteToolDefinition.description,
-    inputSchema: prepareNoteToolDefinition.inputSchema,
+    description: guideSessionEndToolDefinition.description,
+    inputSchema: guideSessionEndToolDefinition.inputSchema,
   },
-  async (args: any) => prepareNoteToolHandler(args, resolvedDocsPath)
+  async (args: any) => guideSessionEndToolHandler(args, resolvedDocsPath)
 );
 
-// prepare_task ツール登録
+// guide_note_creation ツール登録
 server.registerTool(
-  prepareTaskToolDefinition.name,
+  guideNoteCreationToolDefinition.name,
   {
-    description: prepareTaskToolDefinition.description,
-    inputSchema: prepareTaskToolDefinition.inputSchema,
+    description: guideNoteCreationToolDefinition.description,
+    inputSchema: guideNoteCreationToolDefinition.inputSchema,
   },
-  async (args: any) => prepareTaskToolHandler(args, resolvedDocsPath)
+  async (args: any) => guideNoteCreationToolHandler(args, resolvedDocsPath)
 );
 
-// prepare_letter ツール登録
+// guide_letter_creation ツール登録
 server.registerTool(
-  prepareLetterToolDefinition.name,
+  guideLetterCreationToolDefinition.name,
   {
-    description: prepareLetterToolDefinition.description,
-    inputSchema: prepareLetterToolDefinition.inputSchema,
+    description: guideLetterCreationToolDefinition.description,
+    inputSchema: guideLetterCreationToolDefinition.inputSchema,
   },
-  async (args: any) => prepareLetterToolHandler(args, resolvedDocsPath)
+  async (args: any) => guideLetterCreationToolHandler(args, resolvedDocsPath)
+);
+
+// guide_task_creation ツール登録
+server.registerTool(
+  guideTaskCreationToolDefinition.name,
+  {
+    description: guideTaskCreationToolDefinition.description,
+    inputSchema: guideTaskCreationToolDefinition.inputSchema,
+  },
+  async (args: any) => guideTaskCreationToolHandler(args, resolvedDocsPath)
+);
+
+// guide_note_and_commit ツール登録
+server.registerTool(
+  guideNoteAndCommitToolDefinition.name,
+  {
+    description: guideNoteAndCommitToolDefinition.description,
+    inputSchema: guideNoteAndCommitToolDefinition.inputSchema,
+  },
+  async (args: any) => guideNoteAndCommitToolHandler(args, resolvedDocsPath)
+);
+
+// guide_git_commit ツール登録
+server.registerTool(
+  guideGitCommitToolDefinition.name,
+  {
+    description: guideGitCommitToolDefinition.description,
+    inputSchema: guideGitCommitToolDefinition.inputSchema,
+  },
+  async (args: any) => guideGitCommitToolHandler(args, resolvedDocsPath)
+);
+
+// guide_git_push ツール登録
+server.registerTool(
+  guideGitPushToolDefinition.name,
+  {
+    description: guideGitPushToolDefinition.description,
+    inputSchema: guideGitPushToolDefinition.inputSchema,
+  },
+  async (args: any) => guideGitPushToolHandler(args, resolvedDocsPath)
 );
 
 // list_letters ツール登録
