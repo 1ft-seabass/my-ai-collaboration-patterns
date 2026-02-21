@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "docs-structure": {
+      "command": "npx",
+      "args": ["tsx", "/absolute/path/to/docs-structure-mcp-server/src/index.ts"]
+    }
+  }
+}
