@@ -11,10 +11,10 @@ import { generateFilename } from "../utils/naming.js";
 import { loadTemplate } from "../utils/template.js";
 import { listMarkdownFiles, extractTitle } from "../utils/search.js";
 
-export const prepareLetterInputSchema = z.object({
+export const prepareLetterInputSchema = {
   title: z.string().describe("申し送りのタイトル"),
   recent_notes_count: z.number().optional().default(10).describe("添える直近ノート数"),
-});
+};
 
 export const prepareLetterToolDefinition = {
   name: "prepare_letter",

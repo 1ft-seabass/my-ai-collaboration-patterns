@@ -8,10 +8,10 @@ import { z } from "zod";
 import { searchTitles } from "../utils/search.js";
 import type { Scope } from "../utils/search.js";
 
-export const searchDocsTitlesInputSchema = z.object({
+export const searchDocsTitlesInputSchema = {
   query: z.string().describe("検索文字列"),
   scope: z.enum(["notes", "letters", "tasks", "all"]).optional().default("all").describe("検索範囲"),
-});
+};
 
 export const searchDocsTitlesToolDefinition = {
   name: "search_docs_titles",

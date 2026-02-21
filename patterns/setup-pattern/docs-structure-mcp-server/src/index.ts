@@ -38,58 +38,72 @@ const server = new McpServer({
 });
 
 // help ツール登録
-server.tool(
+server.registerTool(
   helpToolDefinition.name,
-  helpToolDefinition.description,
-  helpToolDefinition.inputSchema,
+  {
+    description: helpToolDefinition.description,
+    inputSchema: helpToolDefinition.inputSchema,
+  },
   helpToolHandler
 );
 
 // prepare_note ツール登録
-server.tool(
+server.registerTool(
   prepareNoteToolDefinition.name,
-  prepareNoteToolDefinition.description,
-  prepareNoteToolDefinition.inputSchema,
+  {
+    description: prepareNoteToolDefinition.description,
+    inputSchema: prepareNoteToolDefinition.inputSchema,
+  },
   async (args: any) => prepareNoteToolHandler(args, resolvedDocsPath)
 );
 
 // prepare_task ツール登録
-server.tool(
+server.registerTool(
   prepareTaskToolDefinition.name,
-  prepareTaskToolDefinition.description,
-  prepareTaskToolDefinition.inputSchema,
+  {
+    description: prepareTaskToolDefinition.description,
+    inputSchema: prepareTaskToolDefinition.inputSchema,
+  },
   async (args: any) => prepareTaskToolHandler(args, resolvedDocsPath)
 );
 
 // prepare_letter ツール登録
-server.tool(
+server.registerTool(
   prepareLetterToolDefinition.name,
-  prepareLetterToolDefinition.description,
-  prepareLetterToolDefinition.inputSchema,
+  {
+    description: prepareLetterToolDefinition.description,
+    inputSchema: prepareLetterToolDefinition.inputSchema,
+  },
   async (args: any) => prepareLetterToolHandler(args, resolvedDocsPath)
 );
 
 // list_letters ツール登録
-server.tool(
+server.registerTool(
   listLettersToolDefinition.name,
-  listLettersToolDefinition.description,
-  listLettersToolDefinition.inputSchema,
+  {
+    description: listLettersToolDefinition.description,
+    inputSchema: listLettersToolDefinition.inputSchema,
+  },
   async (args: any) => listLettersToolHandler(args, resolvedDocsPath)
 );
 
 // search_docs_titles ツール登録
-server.tool(
+server.registerTool(
   searchDocsTitlesToolDefinition.name,
-  searchDocsTitlesToolDefinition.description,
-  searchDocsTitlesToolDefinition.inputSchema,
+  {
+    description: searchDocsTitlesToolDefinition.description,
+    inputSchema: searchDocsTitlesToolDefinition.inputSchema,
+  },
   async (args: any) => searchDocsTitlesToolHandler(args, resolvedDocsPath)
 );
 
 // search_docs_content ツール登録
-server.tool(
+server.registerTool(
   searchDocsContentToolDefinition.name,
-  searchDocsContentToolDefinition.description,
-  searchDocsContentToolDefinition.inputSchema,
+  {
+    description: searchDocsContentToolDefinition.description,
+    inputSchema: searchDocsContentToolDefinition.inputSchema,
+  },
   async (args: any) => {
     log('search_docs_content tool called', { args });
     return searchDocsContentToolHandler(args, resolvedDocsPath);

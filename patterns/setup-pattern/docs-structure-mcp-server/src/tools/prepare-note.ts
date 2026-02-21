@@ -11,9 +11,9 @@ import { generateFilename } from "../utils/naming.js";
 import { loadTemplate } from "../utils/template.js";
 import { listMarkdownFiles } from "../utils/search.js";
 
-export const prepareNoteInputSchema = z.object({
+export const prepareNoteInputSchema = {
   title: z.string().describe("ノートのタイトル"),
-});
+};
 
 export const prepareNoteToolDefinition = {
   name: "prepare_note",

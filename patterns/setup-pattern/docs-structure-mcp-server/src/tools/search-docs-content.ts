@@ -9,10 +9,10 @@ import { grepContent } from "../utils/search.js";
 import type { Scope } from "../utils/search.js";
 import { log } from "../utils/logger.js";
 
-export const searchDocsContentInputSchema = z.object({
+export const searchDocsContentInputSchema = {
   query: z.string().describe("検索文字列"),
   scope: z.enum(["notes", "letters", "tasks", "all"]).optional().default("all").describe("検索範囲"),
-});
+};
 
 export const searchDocsContentToolDefinition = {
   name: "search_docs_content",

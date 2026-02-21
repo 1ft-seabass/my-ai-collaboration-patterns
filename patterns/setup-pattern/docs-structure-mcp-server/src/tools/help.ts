@@ -7,7 +7,7 @@
 
 import { z } from "zod";
 
-export const helpInputSchema = z.object({});
+export const helpInputSchema = {};
 
 export const helpToolDefinition = {
   name: "help",

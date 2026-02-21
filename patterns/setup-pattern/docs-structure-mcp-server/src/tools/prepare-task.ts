@@ -10,10 +10,10 @@ import { join } from "node:path";
 import { generateFilename } from "../utils/naming.js";
 import { loadTemplate } from "../utils/template.js";
 
-export const prepareTaskInputSchema = z.object({
+export const prepareTaskInputSchema = {
   title: z.string().describe("タスクのタイトル"),
   priority: z.enum(["high", "medium", "low"]).optional().default("medium").describe("優先度"),
-});
+};
 
 export const prepareTaskToolDefinition = {
   name: "prepare_task",

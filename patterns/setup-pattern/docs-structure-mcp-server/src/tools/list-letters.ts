@@ -8,9 +8,9 @@ import { z } from "zod";
 import { join, basename } from "node:path";
 import { listMarkdownFiles, extractTitle, extractTags, extractCreatedAt } from "../utils/search.js";
 
-export const listLettersInputSchema = z.object({
+export const listLettersInputSchema = {
   count: z.number().min(1).max(10).optional().default(1).describe("取得件数"),
-});
+};
 
 export const listLettersToolDefinition = {
   name: "list_letters",
