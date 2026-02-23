@@ -36,7 +36,7 @@ const navigableActions = [
     description: 'git コミット実行'
   },
   {
-    keywords: ['プッシュ', 'push', 'git push', 'プッシュ前', 'プッシュ前チェック'],
+    keywords: ['プッシュ', 'push', 'git push', 'プッシュ前', 'プッシュ前チェック', 'プッシュし', 'プッシュする'],
     path: 'actions/01_git_push.md',
     description: 'git push 前の最終チェック'
   }
@@ -48,7 +48,7 @@ export const navigateInputSchema = {
 
 export const navigateToolDefinition = {
   name: "navigate",
-  description: "「ノートを作りたい」「セッション終了」「コミットしたい」「申し送り作りたい」「プッシュ前チェック」など、やりたいことを伝えると対応する指示書のパスを返す。パスを確認後、指示書として実行する。",
+  description: "「ノートを作りたい」「セッション終了」「コミットしたい」「プッシュしたい」「申し送り作りたい」など、やりたいことを伝えると対応する指示書のパスを返す。git 操作（コミット、プッシュ）も指示書経由で実行する。パスを確認後、指示書として実行する。",
   inputSchema: navigateInputSchema,
 };
 
