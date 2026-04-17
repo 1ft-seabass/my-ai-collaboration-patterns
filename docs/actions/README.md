@@ -25,6 +25,10 @@ AIが指示書を読み込み、定義されたタスクを実行します。
 - `doc_note.md` - ノート作成のみ
 - `doc_letter.md` - 申し送り作成のみ
 
+### ブランチ作業用
+
+- `for_branch_init.md` - ブランチ専用ドキュメント構造の初期化
+
 ### セキュリティ・セットアップ系
 
 - `check_my_security_prepare_level.md` - セキュリティ準備レベル診断

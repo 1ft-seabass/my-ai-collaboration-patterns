@@ -65,6 +65,16 @@
 
 ---
 
+## 🌿 ブランチ作業用
+
+**`@actions/for_branch_init.md`**
+ブランチ専用ドキュメント構造の初期化
+- `docs/{branch-name}/notes,letters,tasks/` を作成
+- 4つの action ファイルのパスをブランチ専用に書き換え
+- 以降はそのまま `@docs/actions/` を使える
+
+---
+
 ## 🔒 セキュリティ・セットアップ系
 
 **`@actions/check_my_security_prepare_level.md`**
@@ -79,6 +89,7 @@
 
 | 状況 | 使うアクション |
 |------|---------------|
+| ブランチ作業開始時 | `@actions/for_branch_init.md` |
 | プロジェクト開始時 | `@actions/check_my_security_prepare_level.md` |
 | セッション終了 | `@actions/00_session_end.md` |
 | プッシュ前チェック | `@actions/01_git_push.md` |
