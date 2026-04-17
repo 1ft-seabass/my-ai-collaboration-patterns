@@ -4,6 +4,21 @@ docs-structure パターンの変更履歴。
 
 ---
 
+## [1.2.1] - 2026-04-17
+
+### 変更
+- `for_branch_init.md` を `docs/actions/` および `templates/actions/` から `patterns/setup-pattern/docs-structure-for-branch/` へ移動
+  - ブランチ初期化は「0手順目の一回限りセットアップ」であり ongoing action ではないため
+  - `setup-pattern` 配下の責務として分離することで同期コスト・重複を解消
+- `for_branch_init.md` の手順を改善
+  - 手順2.5 追加: TEMPLATE.md のブランチ専用ディレクトリへのコピーとパス書き換え
+  - `check_my_security_prepare_level.md` を action 書き換え対象に追加
+  - 元の `docs/notes/, docs/letters/, docs/tasks/` には一切触れない設計に明文化
+  - main / master ブランチでは即終了するルールを強化
+- `README.md` の関連パターンセクションに `docs-structure-for-branch` へのリンクを追加
+
+---
+
 ## [1.2.0] - 2026-04-17
 
 ### 追加
