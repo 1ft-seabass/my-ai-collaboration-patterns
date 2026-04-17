@@ -240,6 +240,7 @@ docs/
 
 - [server-management](../server-management/) - サーバー管理スクリプト（このドキュメント構造で管理可能）
 - [prompt-engineering](../prompt-engineering/) - プロンプト設計（Coming Soon）
+- [docs-structure-for-branch](../setup-pattern/docs-structure-for-branch/) - ブランチ専用ドキュメント構造の初期化（feature ブランチ作業時）
 
 ## 📚 詳細ドキュメント
 

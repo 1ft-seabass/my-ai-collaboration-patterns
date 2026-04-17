@@ -7,11 +7,13 @@
 ### 実行手順の理解
 - [ ] 手順1: 現在のブランチ名を取得してユーザーに確認する
 - [ ] 手順2: ブランチ専用ディレクトリ（notes/letters/tasks）を作成する
-- [ ] 手順3: 4つの action ファイル内の `docs/` パスをブランチ専用パスに書き換える
+- [ ] 手順2.5: README.md と TEMPLATE.md を元ディレクトリからコピーし、TEMPLATE.md 内のパスをブランチ専用に書き換える
+- [ ] 手順3: action ファイル内の `docs/` パスをブランチ専用パスに書き換える
 - [ ] 手順4: 完了を通知する
 
 ### 重要ルール
-- [ ] main / master ブランチでは実行しない
+- [ ] main / master ブランチでは**即終了**する（理由を伝えて作業しない）
+- [ ] 元の docs/notes/, docs/letters/, docs/tasks/ には**一切触れない**
 - [ ] 各手順のコマンド結果をユーザーに報告してから次へ進む
 - [ ] ユーザーの承認を得てから次の手順へ進む
 
@@ -43,6 +45,41 @@
    - 作成されたディレクトリをユーザーに報告する
    - 次へ進む承認を得る
 
+2.5. テンプレートファイルのコピーとパス書き換え
+
+   以下のコマンドを実行してください：
+
+   ```bash
+   BRANCH=$(git branch --show-current)
+   for dir in notes letters tasks; do
+     [ -f "docs/${dir}/README.md" ]  && cp "docs/${dir}/README.md"  "docs/${BRANCH}/${dir}/README.md"
+     [ -f "docs/${dir}/TEMPLATE.md" ] && cp "docs/${dir}/TEMPLATE.md" "docs/${BRANCH}/${dir}/TEMPLATE.md"
+   done
+   ```
+
+   続いて TEMPLATE.md 内のパスを書き換えます：
+
+   ```bash
+   node -e "
+   const fs = require('fs');
+   const { execSync } = require('child_process');
+   const branch = execSync('git branch --show-current').toString().trim();
+   ['notes', 'letters', 'tasks'].forEach(dir => {
+     const f = \`docs/\${branch}/\${dir}/TEMPLATE.md\`;
+     if (!fs.existsSync(f)) return;
+     let c = fs.readFileSync(f, 'utf8');
+     c = c.replace(/docs\/notes\//g,   \`docs/\${branch}/notes/\`);
+     c = c.replace(/docs\/letters\//g, \`docs/\${branch}/letters/\`);
+     c = c.replace(/docs\/tasks\//g,   \`docs/\${branch}/tasks/\`);
+     fs.writeFileSync(f, c);
+     console.log('Updated: ' + f);
+   });
+   "
+   ```
+
+   - コピーおよび書き換えたファイルの一覧をユーザーに報告する
+   - 次へ進む承認を得る
+
 3. action ファイルのパス書き換え
 
    以下のコマンドを実行してください：
@@ -56,13 +93,15 @@
      'docs/actions/00_session_end.md',
      'docs/actions/doc_note.md',
      'docs/actions/doc_letter.md',
-     'docs/actions/doc_note_and_commit.md'
+     'docs/actions/doc_note_and_commit.md',
+     'docs/actions/check_my_security_prepare_level.md',
    ];
    files.forEach(f => {
+     if (!fs.existsSync(f)) return;
      let c = fs.readFileSync(f, 'utf8');
-     c = c.replace(/docs\/notes\//g, 'docs/' + branch + '/notes/');
+     c = c.replace(/docs\/notes\//g,   'docs/' + branch + '/notes/');
      c = c.replace(/docs\/letters\//g, 'docs/' + branch + '/letters/');
-     c = c.replace(/docs\/tasks\//g, 'docs/' + branch + '/tasks/');
+     c = c.replace(/docs\/tasks\//g,   'docs/' + branch + '/tasks/');
      fs.writeFileSync(f, c);
      console.log('Updated: ' + f);
    });
@@ -85,12 +124,23 @@
    - docs/{branch-name}/letters/
    - docs/{branch-name}/tasks/
 
+   コピー・書き換えしたテンプレート:
+   - docs/{branch-name}/notes/README.md
+   - docs/{branch-name}/notes/TEMPLATE.md（パス書き換え済み）
+   - docs/{branch-name}/letters/README.md
+   - docs/{branch-name}/letters/TEMPLATE.md（パス書き換え済み）
+   - docs/{branch-name}/tasks/README.md
+   - docs/{branch-name}/tasks/TEMPLATE.md（パス書き換え済み）
+
    書き換えた action ファイル:
    - docs/actions/00_session_end.md
    - docs/actions/doc_note.md
    - docs/actions/doc_letter.md
    - docs/actions/doc_note_and_commit.md
+   - docs/actions/check_my_security_prepare_level.md（存在する場合）
 
    以降はそのまま @docs/actions/ を使ってください。
    ノート・申し送りは docs/{branch-name}/ 以下に作成されます。
+
+   元の docs/notes/, docs/letters/, docs/tasks/ はそのまま残っています（変更していません）。
    ```
