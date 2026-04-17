@@ -8,16 +8,6 @@ AIと効率的に協働開発するための**実践的パターン集**
 # ドキュメント構造（✅ 利用可能）
 npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
 
-# アクションパターン（✅ 利用可能）
-npx degit <username>/my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./actions
-
-# ブランチ専用ワークスペース（✅ 利用可能）
-git checkout -b feature/your-feature
-npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
-
-# 執筆作業向け（✅ 利用可能）
-npx degit <username>/my-ai-collaboration-patterns/patterns/writing-collaborate/templates ./collaborate
-
 # セットアップガイド（✅ 利用可能）
 npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/setup_securecheck ./setup_securecheck
 ```
@@ -27,73 +17,19 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/setup_s
 ## 📦 パターン一覧
 
 ### [docs-structure](./patterns/docs-structure/) - ドキュメント構造
-AIが理解しやすいドキュメント管理
+AIが理解しやすいドキュメント管理と actions による作業自動化
 
 **使用例**:
 - プロジェクト開始時のドキュメント構造構築
-- 申し送り・ノート・ADRの体系的管理
+- 申し送り・ノートの体系的管理
 - AIセッション間の文脈引き継ぎ
+- ブランチ作業（`@actions/for_branch_init.md` で初期化）
 
 **主な機能**:
-- 階層的なドキュメント構造
-- 申し送りテンプレート
-- 開発ノート・ADRテンプレート
+- 4フォルダ構成（notes/letters/tasks/actions）
+- 申し送り・ノートテンプレート
 - README駆動のナビゲーション
-
-### [actions-pattern](./patterns/actions-pattern/) - アクションパターン
-繰り返しタスクを効率化し、トークン消費を約70%削減
-
-**使用例**:
-- Git操作の自動化（コミット・プッシュ）
-- 知見のまとめ作成
-- セッション開始時の定型作業
-
-**主な機能**:
-- 明確な指示書による一貫した実行
-- トークン消費の大幅削減（約70%）
-- 会話の往復を削減
-- `@actions/タスク名.md` で即座に実行
-
-**効果**:
-- 会話ベース: 8,667トークン → actionsパターン: 2,667トークン
-
-### [docs-structure-for-target-branch-only](./patterns/docs-structure-for-target-branch-only/) - ブランチ専用ワークスペース
-ブランチ開発に特化した封じ込め型のドキュメント・スクリプト管理
-
-**使用例**:
-- 機能ブランチでの開発
-- 実験的な機能の開発
-- 長期ブランチでの開発
-
-**主な機能**:
-- ブランチ専用のdocs/（ドキュメント）
-- ブランチ専用のscripts/（テスト・起動・ビルド）
-- ブランチ専用のactions/（タスク自動化）
-- Node.js優先のスクリプト（プラットフォーム非依存）
-- ブランチ削除で全て消える
-
-**効果**:
-- mainブランチの汚染: 100% → 0%（完全分離）
-- ブランチ削除の手間: 手動クリーンアップ → 自動削除
-
-### [writing-collaborate](./patterns/writing-collaborate/) - 執筆作業向けAI協働
-執筆作業（ブログ、ハンズオン、ドキュメント）に特化した軽量AI協働構造
-
-**使用例**:
-- ブログ記事の執筆
-- ハンズオン資料の作成
-- Zenn books、Honkit、mdBook などの執筆
-- docs/ フォルダを静的サイトジェネレーターで使用するプロジェクト
-
-**主な機能**:
-- collaborate/ フォルダ（docs/ と衝突しない）
-- 3フォルダ構成（notes・letters・tasks のみ）
-- 執筆作業に最適化された軽量構造
-- README駆動のナビゲーション
-
-**効果**:
-- セッション開始時間: 10分 → 2分（80%削減）
-- 文脈説明の質問: 5-10回 → 0-1回（90%削減）
+- actions による繰り返しタスクの自動化（約70%トークン削減）
 
 ### [server-management](./patterns/server-management/) - サーバー管理
 **Coming Soon**
@@ -141,13 +77,6 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/<pattern-name>/templa
 
 # 例: ドキュメント構造
 npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
-
-# 例: アクションパターン
-npx degit <username>/my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./actions
-
-# 例: ブランチ専用ワークスペース
-git checkout -b feature/my-feature
-npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure-for-target-branch-only/templates .
 ```
 
 ### Git Clone
@@ -155,7 +84,6 @@ npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure-for-ta
 ```bash
 git clone https://github.com/<username>/my-ai-collaboration-patterns.git
 cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
-cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./
 ```
 
 ### 詳細ガイド
@@ -163,9 +91,6 @@ cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./
 各パターンの詳細は、パターンディレクトリ内の `README.md` と `GUIDE.md` を参照してください。
 
 - [docs-structure パターン](./patterns/docs-structure/README.md)
-- [actions-pattern パターン](./patterns/actions-pattern/README.md)
-- [docs-structure-for-target-branch-only パターン](./patterns/docs-structure-for-target-branch-only/README.md)
-- [writing-collaborate パターン](./patterns/writing-collaborate/README.md)
 - [setup-pattern セットアップガイド](./patterns/setup-pattern/README.md)
 
 ## 🎯 特徴
@@ -180,9 +105,8 @@ cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./
 
 このリポジトリは `docs/` ディレクトリで自身のパターンを使用しています：
 
-- [AI協働開発ガイド](./docs/ai-collaboration/AI_COLLABORATION_GUIDE.md)
 - [開発ノート](./docs/notes/)
-- [申し送り](./docs/letter/)
+- [申し送り](./docs/letters/)
 
 ## 🤝 コントリビューション
 
@@ -195,7 +119,6 @@ cp -r my-ai-collaboration-patterns/patterns/actions-pattern/templates/actions ./
 
 参考例:
 - [docs-structure パターン](./patterns/docs-structure/)
-- [actions-pattern パターン](./patterns/actions-pattern/)
 
 ## 📄 ライセンス
 
@@ -209,7 +132,4 @@ MIT License - 自由に使用・改変・配布できます
 
 **Quick Start**:
 - [docs-structure パターンを見る](./patterns/docs-structure/)
-- [actions-pattern パターンを見る](./patterns/actions-pattern/)
-- [docs-structure-for-target-branch-only パターンを見る](./patterns/docs-structure-for-target-branch-only/)
-- [writing-collaborate パターンを見る](./patterns/writing-collaborate/)
 - [setup-pattern セットアップガイドを見る](./patterns/setup-pattern/)
