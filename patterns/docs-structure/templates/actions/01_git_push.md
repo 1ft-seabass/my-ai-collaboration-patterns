@@ -3,7 +3,7 @@
 ## チェック項目
 
 1. ドキュメント類の機密情報チェック（最重要）
-   - README.md, docs/letters, docs/notes 対象
+   - git diff --cached の全差分を対象（フォルダ・ブランチ構成に関わらず全ファイル）
    - 今回 AIが生成した可能性のあるファイル
    - 以下が含まれていないか：
      * APIキー形式：sk-, pk-, AIza, ghp_, xoxb-, AKIA
