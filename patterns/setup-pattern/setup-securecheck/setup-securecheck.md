@@ -18,7 +18,7 @@
 □ Phase 0: ヘルスチェック（既存設定の確認）
 □ Phase 1: 初動スキャン（secretlint + gitleaks で現状把握）
 □ Phase 2: 手動運用（npm scripts の追加）
-□ Phase 3 または 4: pre-commit 自動化（確認してから進めます）
+□ Phase 3: pre-commit 自動化（simple-git-hooks）
 
 **重要なルール**:
 - AI: コマンドを実行する（1コマンドずつ）
@@ -49,7 +49,7 @@
 **重要**:
 - 各ステップは1コマンド単位で実行
 - 必ず結果を報告してから次へ進む
-- 重要な判断（Phase選択、検出時の対応等）はユーザーに確認
+- 重要な判断（検出時の対応等）はユーザーに確認
 
 ---
 
@@ -70,8 +70,7 @@
 | **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 10/10 なら完了 |
 | **Phase 1** | 初動スキャン（現状把握） | ✅ 問題発見したらまず対処 |
 | **Phase 2** | 手動運用（npm scripts） | ✅ ライトに運用したい場合 |
-| **Phase 3** | pre-commit 強制（チーム全員） | ✅ チーム開発の場合 |
-| **Phase 4** | pre-commit 強制（個人用） | ✅ 個人開発の場合 |
+| **Phase 3** | pre-commit 自動化（simple-git-hooks） | ✅ 自動化したい場合 |
 
 ---
 
@@ -89,8 +88,7 @@
 |--------|------|----------|
 | **secretlint** | メイン検出エンジン | クラウドサービス特化、Node.js親和、精密検出 |
 | **gitleaks** | メイン検出エンジン | 高速、entropy検出、git履歴スキャン |
-| **husky** | git hooks 管理 | npm で hooks を共有可能に（Phase 3/4） |
-| **lint-staged** | staged ファイル限定実行 | 差分だけ高速チェック（Phase 3/4） |
+| **simple-git-hooks** | git hooks 管理 | package.json だけで完結、軽量 |
 
 **二重チェック体制**: secretlint と gitleaks の両方を使うことで、より確実にシークレットを検出します。
 
@@ -114,12 +112,12 @@ node tmp/security-setup/templates/scripts/security-verify.js
 
 | 結果 | 対応 |
 |------|------|
-| **10/10 passed** | ✅ 完璧！Phase 1-4 はスキップして終了 |
-| **9/10 passed（gitleaks のみ ❌）** | ⚠️ gitleaks をインストールすれば完了（Phase 1.4 へ） |
+| **11/11 passed** | ✅ 完璧！Phase 1-3 はスキップして終了 |
+| **10/11 passed（gitleaks のみ ❌）** | ⚠️ gitleaks をインストールすれば完了（Phase 1.4 へ） |
 | **複数の ❌ がある** | 🔧 Phase 1 から導入を開始 |
 | **全て ❌** | 🆕 未導入。Phase 1 から導入を開始 |
 
-**10/10 の場合**: おめでとうございます！設定は完璧です。
+**11/11 の場合**: おめでとうございます！設定は完璧です。
 - `npm run security:verify:simple` - staged ファイルのみテスト（軽量）
 - `npm run security:verify:testrun` - 全ファイル + 全履歴テスト（重い）
 
@@ -285,7 +283,7 @@ cp tmp/security-setup/templates/scripts/install-gitleaks.js scripts/
 npm run security:verify
 ```
 
-**期待する結果**: 10 項目のヘルスチェックが実行され、✅ または ⚠️ が表示されます。
+**期待する結果**: 11 項目のヘルスチェックが実行され、✅ または ⚠️ が表示されます。
 
 ---
 
@@ -303,12 +301,6 @@ npm run security:verify:simple
 npm run security:verify:testrun
 ```
 
-**期待する結果**:
-- ヘルスチェック完了（10/10 ✅）
-- simple: staged ファイルのみスキャン（pre-commit相当）
-- testrun: secretlint で全ファイルスキャン + gitleaks で全履歴スキャン
-- 検出があれば詳細表示
-
 ---
 
 ## Phase 2 完了
@@ -321,72 +313,31 @@ npm run security:verify:testrun
 - `npm run security:verify:simple` - ヘルスチェック + staged ファイルスキャン（軽量）
 - `npm run security:verify:testrun` - ヘルスチェック + 全ファイル + 全履歴スキャン（重い）
 
-**Phase 2 で止める場合**: コミット前に手動で `npm run secret-scan` を走らせる運用です。ピュアなコミット履歴を保ちたい場合に適しています。
+**Phase 2 で止める場合**: コミット前に手動で `npm run secret-scan` を走らせる運用です。
 
-**Phase 3 または 4 に進む場合**: pre-commit フックで自動化します。
-
----
-
-# Phase 3 vs Phase 4 の選択
-
-**ここで人間に確認してください**:
-
-## Phase 3: pre-commit 強制（チーム全員）
-
-- **対象**: チーム全員がセキュリティチェックを強制される
-- **.husky/ をコミット**: Git で共有し、全員の環境で自動実行
-- **適している**: チーム開発、全員で同じルールを守りたい場合
-
-## Phase 4: pre-commit 強制（個人用）
-
-- **対象**: 自分だけセキュリティチェックを使う
-- **.husky/ を .gitignore**: 自分のローカルのみで動作
-- **適している**: 個人開発、または「自分だけ使いたい」場合
-
-**どちらを選びますか？** Phase 3 / Phase 4
+**Phase 3 に進む場合**: pre-commit フックで自動化します。
 
 ---
 
-# Phase 3: pre-commit 強制（チーム全員）
+# Phase 3: pre-commit 自動化（simple-git-hooks）
+
+**目的**: コミット時に自動でスキャンが走るようにする
+
+simple-git-hooks を使うと package.json だけで hooks を管理できます。`.husky/` ディレクトリは不要です。
 
 ---
 
-## ステップ 3.1: lint-staged をインストール
+## ステップ 3.1: simple-git-hooks をインストール
 
 以下のコマンドを実行してください：
 
 ```bash
-npm install -D lint-staged
+npm install -D simple-git-hooks
 ```
 
 ---
 
-## ステップ 3.2: package.json に lint-staged 設定を追加
-
-既存の `package.json` に以下を追加してください：
-
-```json
-{
-  "lint-staged": {
-    "*": ["secretlint"]
-  }
-}
-```
-
----
-
-## ステップ 3.3: husky をインストール
-
-以下のコマンドを実行してください：
-
-```bash
-npm install -D husky
-npx husky init
-```
-
----
-
-## ステップ 3.4: pre-commit フックをコピー
+## ステップ 3.2: pre-commit フックをコピー
 
 以下のコマンドを実行してください：
 
@@ -394,12 +345,36 @@ npx husky init
 cp tmp/security-setup/templates/scripts/pre-commit.js scripts/
 ```
 
-`.husky/pre-commit` を編集して、以下の内容に置き換えてください：
+---
+
+## ステップ 3.3: package.json に simple-git-hooks 設定を追加
+
+既存の `package.json` に以下を追加してください：
+
+```json
+{
+  "simple-git-hooks": {
+    "pre-commit": "node scripts/pre-commit.js"
+  },
+  "scripts": {
+    "postinstall": "npx simple-git-hooks"
+  }
+}
+```
+
+**注**: 既存の scripts とマージしてください（上書きではなく追加）。
+
+---
+
+## ステップ 3.4: フックを有効化
+
+以下のコマンドを実行してください：
 
 ```bash
-#!/bin/sh
-node scripts/pre-commit.js
+npx simple-git-hooks
 ```
+
+`simple-git-hooks` の設定を変更した場合は、このコマンドを再実行する必要があります。
 
 ---
 
@@ -411,9 +386,10 @@ node scripts/pre-commit.js
 # gitleaks binary (large binary file)
 bin/gitleaks
 bin/gitleaks.exe
-```
 
-**注**: Phase 3 では `.husky/` は**コミットする**ため、.gitignore に追加**しません**。
+# pre-commit 実行ログ（ローカル専用）
+.logs/
+```
 
 ---
 
@@ -427,8 +403,9 @@ git commit -m "test: pre-commit hook"
 ```
 
 **期待する結果**:
-- lint-staged (secretlint) が実行される
+- secretlint が実行される
 - gitleaks が実行される
+- `.logs/pre-commit.log` にログが記録される
 - 問題なければコミット成功
 - 検出があればコミット失敗
 
@@ -456,123 +433,9 @@ npm run security:verify:testrun
 
 セキュリティチェックが pre-commit フックで自動実行されるようになりました。
 
-**チーム全員に共有**: `.husky/` がコミットされているため、`npm install` 後に全員の環境で自動的に有効化されます。
-
----
-
-# Phase 4: pre-commit 強制（個人用）
-
----
-
-## ステップ 4.1: lint-staged をインストール
-
-以下のコマンドを実行してください：
-
-```bash
-npm install -D lint-staged
-```
-
----
-
-## ステップ 4.2: package.json に lint-staged 設定を追加
-
-既存の `package.json` に以下を追加してください：
-
-```json
-{
-  "lint-staged": {
-    "*": ["secretlint"]
-  }
-}
-```
-
----
-
-## ステップ 4.3: husky をインストール
-
-以下のコマンドを実行してください：
-
-```bash
-npm install -D husky
-npx husky init
-```
-
----
-
-## ステップ 4.4: pre-commit フックをコピー
-
-以下のコマンドを実行してください：
-
-```bash
-cp tmp/security-setup/templates/scripts/pre-commit.js scripts/
-```
-
-`.husky/pre-commit` を編集して、以下の内容に置き換えてください：
-
-```bash
-#!/bin/sh
-node scripts/pre-commit.js
-```
-
----
-
-## ステップ 4.5: .gitignore を更新
-
-`tmp/security-setup/templates/gitignore.example` の内容を確認し、以下を既存の `.gitignore` に追加してください：
-
-```gitignore
-# gitleaks binary (large binary file)
-bin/gitleaks
-bin/gitleaks.exe
-
-# Phase 4（個人用）の場合のみ以下を追加:
-.husky/
-```
-
-**注**: Phase 4 では `.husky/` を **.gitignore に追加**します。自分のローカルのみで動作します。
-
----
-
-## ステップ 4.6: 動作確認
-
-以下のコマンドを実行してください：
-
-```bash
-git add .
-git commit -m "test: pre-commit hook"
-```
-
-**期待する結果**:
-- lint-staged (secretlint) が実行される
-- gitleaks が実行される
-- 問題なければコミット成功
-- 検出があればコミット失敗
-
-**テストコミットなので、コミットを取り消してもOKです**：
-
-```bash
-git reset HEAD~1
-```
-
----
-
-## ステップ 4.7: 最終確認
-
-以下のコマンドを実行してください：
-
-```bash
-npm run security:verify:testrun
-```
-
-**全て ✅ なら Phase 4 完了です！**
-
----
-
-## Phase 4 完了
-
-セキュリティチェックが pre-commit フックで自動実行されるようになりました。
-
-**個人用**: `.husky/` が .gitignore に追加されているため、自分のローカルのみで動作します。
+- コミットのたびに secretlint + gitleaks が自動実行されます
+- 実行結果は `.logs/pre-commit.log` に記録されます（最新50件）
+- `npm install` 後に `postinstall` で全員の hooks が自動で有効化されます
 
 ---
 
@@ -608,10 +471,13 @@ npm run security:verify:testrun
     }
   ],
   "ignores": [
-    "**/YOUR_API_KEY_HERE"
+    "docs/examples/**",
+    "**/*.example.*"
   ]
 }
 ```
+
+**注**: 個別値ではなくファイルパターンで ignore することを推奨します（理由: 個別値の ignore は負債化しやすい）。
 
 `gitleaks.toml` に `allowlist` を追加：
 
@@ -720,9 +586,22 @@ git push origin --force --tags
 **症状**: コミットしても secretlint が実行されない
 
 **対処**:
-1. `.husky/pre-commit` が存在するか確認
-2. `.husky/pre-commit` が実行可能か確認（`chmod +x .husky/pre-commit`）
+1. `npx simple-git-hooks` を再実行する
+2. `.git/hooks/pre-commit` が存在するか確認
 3. `npm run security:verify` でヘルスチェック
+
+---
+
+## simple-git-hooks の設定を変更したのに反映されない
+
+**症状**: package.json の simple-git-hooks 設定を変えたが hooks が古いまま
+
+**対処**:
+```bash
+npx simple-git-hooks
+```
+
+simple-git-hooks は package.json の設定を変えても自動では反映されません。変更後は毎回このコマンドが必要です。
 
 ---
 
@@ -731,9 +610,8 @@ git push origin --force --tags
 **症状**: 明らかに問題ないのに検出される
 
 **対処**:
-1. `.secretlintrc.json` の `ignores` に追加
-2. `@secretlint/secretlint-rule-pattern` でカスタムルールを追加
-3. 特定のディレクトリを除外（`docs/examples/**` 等）
+1. `.secretlintrc.json` の `ignores` にファイルパターンを追加（個別値ではなくパターン推奨）
+2. 特定のディレクトリを除外（`docs/examples/**` 等）
 
 ---
 
