@@ -9,7 +9,7 @@ AIと効率的に協働開発するための**実践的パターン集**
 npx degit <username>/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
 
 # セットアップガイド（✅ 利用可能）
-npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/setup_securecheck ./setup_securecheck
+npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/setup-securecheck ./setup-securecheck
 ```
 
 **Note**: `<username>` は実際のGitHubユーザー名に置き換えてください。
@@ -50,15 +50,15 @@ AIが理解しやすいドキュメント管理と actions による作業自動
 よく使われる技術の段階的導入手順
 
 **現在利用可能**:
-- [setup_securecheck](./patterns/setup-pattern/setup_securecheck/) - シークレットスキャン（secretlint + gitleaks）
+- [setup-securecheck](./patterns/setup-pattern/setup-securecheck/) - シークレットスキャン（secretlint + gitleaks）
 
 **使用例**:
 ```bash
 # セットアップガイド一式を取得
-npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/setup_securecheck ./setup_securecheck
+npx degit <username>/my-ai-collaboration-patterns/patterns/setup-pattern/setup-securecheck ./setup-securecheck
 
 # または手順書のみを AI に渡す
-# patterns/setup-pattern/setup_securecheck/setup_securecheck.md を読ませて段階的に導入
+# patterns/setup-pattern/setup-securecheck/setup-securecheck.md を読ませて段階的に導入
 ```
 
 **特徴**:
