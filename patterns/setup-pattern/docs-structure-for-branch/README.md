@@ -47,12 +47,11 @@ echo "ブランチ: $BRANCH"
 mkdir -p "docs/${BRANCH}/notes" "docs/${BRANCH}/letters" "docs/${BRANCH}/tasks"
 echo "ディレクトリ作成完了"
 
-# 2. README.md と TEMPLATE.md をコピー
+# 2. 公式テンプレートを degit で取得
 for dir in notes letters tasks; do
-  [ -f "docs/${dir}/README.md" ]  && cp "docs/${dir}/README.md"  "docs/${BRANCH}/${dir}/README.md"
-  [ -f "docs/${dir}/TEMPLATE.md" ] && cp "docs/${dir}/TEMPLATE.md" "docs/${BRANCH}/${dir}/TEMPLATE.md"
+  npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure/templates/${dir} "docs/${BRANCH}/${dir}" --force
 done
-echo "テンプレートコピー完了"
+echo "テンプレート取得完了"
 
 # 3. TEMPLATE.md 内のパスをブランチ専用に書き換え
 node -e "

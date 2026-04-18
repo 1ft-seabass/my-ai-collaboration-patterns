@@ -7,7 +7,7 @@
 ### 実行手順の理解
 - [ ] 手順1: 現在のブランチ名を取得してユーザーに確認する
 - [ ] 手順2: ブランチ専用ディレクトリ（notes/letters/tasks）を作成する
-- [ ] 手順2.5: README.md と TEMPLATE.md を元ディレクトリからコピーし、TEMPLATE.md 内のパスをブランチ専用に書き換える
+- [ ] 手順2.5: 公式テンプレートを npx degit で取得し、TEMPLATE.md 内のパスをブランチ専用に書き換える
 - [ ] 手順3: action ファイル内の `docs/` パスをブランチ専用パスに書き換える
 - [ ] 手順4: 完了を通知する
 
@@ -52,8 +52,7 @@
    ```bash
    BRANCH=$(git branch --show-current)
    for dir in notes letters tasks; do
-     [ -f "docs/${dir}/README.md" ]  && cp "docs/${dir}/README.md"  "docs/${BRANCH}/${dir}/README.md"
-     [ -f "docs/${dir}/TEMPLATE.md" ] && cp "docs/${dir}/TEMPLATE.md" "docs/${BRANCH}/${dir}/TEMPLATE.md"
+     npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure/templates/${dir} "docs/${BRANCH}/${dir}" --force
    done
    ```
 
@@ -77,7 +76,7 @@
    "
    ```
 
-   - コピーおよび書き換えたファイルの一覧をユーザーに報告する
+   - 取得および書き換えたファイルの一覧をユーザーに報告する
    - 次へ進む承認を得る
 
 3. action ファイルのパス書き換え
@@ -124,7 +123,7 @@
    - docs/{branch-name}/letters/
    - docs/{branch-name}/tasks/
 
-   コピー・書き換えしたテンプレート:
+   取得・書き換えしたテンプレート:
    - docs/{branch-name}/notes/README.md
    - docs/{branch-name}/notes/TEMPLATE.md（パス書き換え済み）
    - docs/{branch-name}/letters/README.md
