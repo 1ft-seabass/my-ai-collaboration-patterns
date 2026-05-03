@@ -67,7 +67,7 @@
 
 | Phase | 内容 | ここで止めてもOK？ |
 |-------|------|------------------|
-| **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 10/10 なら完了 |
+| **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 11/11 なら完了 |
 | **Phase 1** | 初動スキャン（現状把握） | ✅ 問題発見したらまず対処 |
 | **Phase 2** | 手動運用（npm scripts） | ✅ ライトに運用したい場合 |
 | **Phase 3** | pre-commit 自動化（simple-git-hooks） | ✅ 自動化したい場合 |
@@ -384,8 +384,7 @@ npx simple-git-hooks
 
 ```gitignore
 # gitleaks binary (large binary file)
-bin/gitleaks
-bin/gitleaks.exe
+bin/
 
 # pre-commit 実行ログ（ローカル専用）
 .logs/

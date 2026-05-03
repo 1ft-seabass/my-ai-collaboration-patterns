@@ -1,6 +1,5 @@
 # gitleaks binary (large binary file)
-bin/gitleaks
-bin/gitleaks.exe
+bin/
 
 # pre-commit 実行ログ（ローカル専用）
 .logs/
