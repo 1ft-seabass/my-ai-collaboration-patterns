@@ -20,10 +20,11 @@ v2.0.0（simple-git-hooks）構成に移行します。
 
 作業を開始する前に、以下の手順を理解したことをチェックボックスで提示してください：
 
-- [ ] Step 1: 現状確認
+- [ ] Step 1: 現状確認（スキャンツールの状態確認を含む）
 - [ ] Step 2: migrate-to-v2.sh でパッケージ変更を実行
 - [ ] Step 3: package.json を手動で更新
 - [ ] Step 4: スクリプトファイルを新バージョンに置き換え
+- [ ] Step 4.5: スキャンツールの確認・インストール
 - [ ] Step 5: .gitignore を更新
 - [ ] Step 6: 動作確認
 
@@ -62,6 +63,22 @@ ls .husky/
 ```
 
 .husky/pre-commit が存在することを確認してください。
+
+### 1.3 スキャンツールの状態確認
+
+```bash
+npx secretlint --version
+```
+
+```bash
+node -e "const fs=require('fs');['bin/gitleaks','bin/gitleaks.exe'].forEach(p=>console.log(p+':',fs.existsSync(p)?'✅ あり':'❌ なし'))"
+```
+
+| 状態 | 意味 |
+|---|---|
+| secretlint ✅ | npm install 済み、問題なし |
+| secretlint ❌ | `npm install` が必要（devDependencies に含まれているはず） |
+| gitleaks ❌ | gitignore 管理のためクローン直後は正常。Step 4.5 でインストール |
 
 **確認が取れたら Step 2 に進みます。ユーザーに確認を求めてください。**
 
@@ -167,7 +184,40 @@ head -10 scripts/pre-commit.js
 
 **期待する結果**: `writeLog` という関数が含まれている（ログ機能の目印）。
 
-**確認が取れたら Step 5 に進みます。ユーザーに確認を求めてください。**
+**確認が取れたら Step 4.5 に進みます。ユーザーに確認を求めてください。**
+
+---
+
+## Step 4.5: スキャンツールの確認・インストール
+
+クローンしたての環境では secretlint が未インストール、gitleaks バイナリが存在しない場合があります。
+いずれも冪等なので、既にインストール済みの場合は自動スキップされます。
+
+### secretlint のインストール
+
+```bash
+npm install -D secretlint @secretlint/secretlint-rule-preset-recommend
+```
+
+### gitleaks バイナリのインストール
+
+```bash
+node scripts/install-gitleaks.js
+```
+
+`bin/gitleaks`（Windows は `bin/gitleaks.exe`）が既にある場合はスキップされます。
+
+### インストール後の確認
+
+```bash
+npx secretlint --version
+```
+
+```bash
+node -e "const fs=require('fs');['bin/gitleaks','bin/gitleaks.exe'].forEach(p=>console.log(p+':',fs.existsSync(p)?'✅ あり':'❌ なし'))"
+```
+
+**両方 ✅ になったら Step 5 に進みます。ユーザーに確認を求めてください。**
 
 ---
 
