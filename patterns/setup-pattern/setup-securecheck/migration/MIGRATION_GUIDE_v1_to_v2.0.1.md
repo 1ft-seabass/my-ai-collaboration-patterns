@@ -1,4 +1,4 @@
-# setup-securecheck v1 → v2.0.0 移行ガイド（AI 向けウィザード指示書）
+# setup-securecheck v1 → v2.0.1 移行ガイド（AI 向けウィザード指示書）
 
 <!-- ============================================================
   このファイルは AI が読むウィザード指示書です
@@ -7,11 +7,12 @@
 ## このガイドの目的
 
 setup-securecheck v1（husky + lint-staged）を使って導入済みのプロジェクトを
-v2.0.0（simple-git-hooks）構成に移行します。
+v2.0.1（simple-git-hooks）構成に移行します。
 
 **主な変更内容**:
 - husky + lint-staged → simple-git-hooks（package.json だけで完結）
 - pre-commit.js に実行ログ出力を追加（.logs/pre-commit.log）
+- pre-commit の secretlint を staged ファイルのみに変更（コミット高速化）
 - .gitignore に .logs/ を追加
 
 ---
@@ -165,7 +166,7 @@ cat .git/hooks/pre-commit
 
 ## Step 4: スクリプトファイルを新バージョンに置き換え
 
-新しい `pre-commit.js`（ログ出力機能付き）と `security-verify.js`（ログ確認機能付き）に更新します。
+新しい `pre-commit.js`（ログ出力機能付き・staged のみスキャン）と `security-verify.js`（ログ確認機能付き）に更新します。
 
 ```bash
 npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/setup-securecheck/templates/scripts ./tmp/securecheck-v2-scripts
@@ -179,10 +180,10 @@ cp tmp/securecheck-v2-scripts/security-verify.js scripts/
 **確認コマンド**:
 
 ```bash
-head -10 scripts/pre-commit.js
+grep -n "git diff --cached" scripts/pre-commit.js
 ```
 
-**期待する結果**: `writeLog` という関数が含まれている（ログ機能の目印）。
+**期待する結果**: `git diff --cached` が含まれている（staged のみスキャンの目印）。
 
 **確認が取れたら Step 4.5 に進みます。ユーザーに確認を求めてください。**
 

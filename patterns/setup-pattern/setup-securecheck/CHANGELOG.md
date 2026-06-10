@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.1] - 2026-06-10
+
+### 修正
+
+- **pre-commit の secretlint を staged ファイルのみに変更**
+  - `"**/*"` 全件スキャン → `git diff --cached --name-only` で staged ファイルに絞る
+  - コミット時間: 数十秒〜10分超 → 数秒に改善
+  - gitleaks の `protect --staged` と対称な構成に統一
+  - Windows のコマンドライン長制限を考慮して 100 件ずつ分割処理
+
+---
+
 ## [2.0.0] - 2026-04-18
 
 ### 変更

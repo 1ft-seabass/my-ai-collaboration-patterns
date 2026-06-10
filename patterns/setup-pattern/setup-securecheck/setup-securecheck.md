@@ -432,7 +432,7 @@ npm run security:verify:testrun
 
 セキュリティチェックが pre-commit フックで自動実行されるようになりました。
 
-- コミットのたびに secretlint + gitleaks が自動実行されます
+- コミットのたびに secretlint（staged のみ）+ gitleaks（staged のみ）が自動実行されます
 - 実行結果は `.logs/pre-commit.log` に記録されます（最新50件）
 - `npm install` 後に `postinstall` で全員の hooks が自動で有効化されます
 
