@@ -39,7 +39,7 @@
 
    ```bash
    BRANCH=$(git branch --show-current)
-   mkdir -p "docs/${BRANCH}/notes" "docs/${BRANCH}/letters" "docs/${BRANCH}/tasks"
+   mkdir -p "docs/branches/${BRANCH}/notes" "docs/branches/${BRANCH}/letters" "docs/branches/${BRANCH}/tasks"
    ```
 
    - 作成されたディレクトリをユーザーに報告する
@@ -52,7 +52,7 @@
    ```bash
    BRANCH=$(git branch --show-current)
    for dir in notes letters tasks; do
-     npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure/templates/${dir} "docs/${BRANCH}/${dir}" --force
+     npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure/templates/${dir} "docs/branches/${BRANCH}/${dir}" --force
    done
    ```
 
@@ -64,12 +64,12 @@
    const { execSync } = require('child_process');
    const branch = execSync('git branch --show-current').toString().trim();
    ['notes', 'letters', 'tasks'].forEach(dir => {
-     const f = \`docs/\${branch}/\${dir}/TEMPLATE.md\`;
+     const f = \`docs/branches/\${branch}/\${dir}/TEMPLATE.md\`;
      if (!fs.existsSync(f)) return;
      let c = fs.readFileSync(f, 'utf8');
-     c = c.replace(/docs\/notes\//g,   \`docs/\${branch}/notes/\`);
-     c = c.replace(/docs\/letters\//g, \`docs/\${branch}/letters/\`);
-     c = c.replace(/docs\/tasks\//g,   \`docs/\${branch}/tasks/\`);
+     c = c.replace(/docs\/notes\//g,   \`docs/branches/\${branch}/notes/\`);
+     c = c.replace(/docs\/letters\//g, \`docs/branches/\${branch}/letters/\`);
+     c = c.replace(/docs\/tasks\//g,   \`docs/branches/\${branch}/tasks/\`);
      fs.writeFileSync(f, c);
      console.log('Updated: ' + f);
    });
@@ -98,9 +98,9 @@
    files.forEach(f => {
      if (!fs.existsSync(f)) return;
      let c = fs.readFileSync(f, 'utf8');
-     c = c.replace(/docs\/notes\//g,   'docs/' + branch + '/notes/');
-     c = c.replace(/docs\/letters\//g, 'docs/' + branch + '/letters/');
-     c = c.replace(/docs\/tasks\//g,   'docs/' + branch + '/tasks/');
+     c = c.replace(/docs\/notes\//g,   'docs/branches/' + branch + '/notes/');
+     c = c.replace(/docs\/letters\//g, 'docs/branches/' + branch + '/letters/');
+     c = c.replace(/docs\/tasks\//g,   'docs/branches/' + branch + '/tasks/');
      fs.writeFileSync(f, c);
      console.log('Updated: ' + f);
    });
@@ -116,20 +116,20 @@
    以下のフォーマットで完了を通知してください：
 
    ```
-   ブランチ専用ドキュメント構造を初期化しました: docs/{branch-name}/
+   ブランチ専用ドキュメント構造を初期化しました: docs/branches/{branch-name}/
 
    作成したディレクトリ:
-   - docs/{branch-name}/notes/
-   - docs/{branch-name}/letters/
-   - docs/{branch-name}/tasks/
+   - docs/branches/{branch-name}/notes/
+   - docs/branches/{branch-name}/letters/
+   - docs/branches/{branch-name}/tasks/
 
    取得・書き換えしたテンプレート:
-   - docs/{branch-name}/notes/README.md
-   - docs/{branch-name}/notes/TEMPLATE.md（パス書き換え済み）
-   - docs/{branch-name}/letters/README.md
-   - docs/{branch-name}/letters/TEMPLATE.md（パス書き換え済み）
-   - docs/{branch-name}/tasks/README.md
-   - docs/{branch-name}/tasks/TEMPLATE.md（パス書き換え済み）
+   - docs/branches/{branch-name}/notes/README.md
+   - docs/branches/{branch-name}/notes/TEMPLATE.md（パス書き換え済み）
+   - docs/branches/{branch-name}/letters/README.md
+   - docs/branches/{branch-name}/letters/TEMPLATE.md（パス書き換え済み）
+   - docs/branches/{branch-name}/tasks/README.md
+   - docs/branches/{branch-name}/tasks/TEMPLATE.md（パス書き換え済み）
 
    書き換えた action ファイル:
    - docs/actions/00_session_end.md
@@ -139,7 +139,7 @@
    - docs/actions/check_my_security_prepare_level.md（存在する場合）
 
    以降はそのまま @docs/actions/ を使ってください。
-   ノート・申し送りは docs/{branch-name}/ 以下に作成されます。
+   ノート・申し送りは docs/branches/{branch-name}/ 以下に作成されます。
 
    元の docs/notes/, docs/letters/, docs/tasks/ はそのまま残っています（変更していません）。
    ```
