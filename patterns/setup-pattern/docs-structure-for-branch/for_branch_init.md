@@ -5,6 +5,7 @@
 作業を開始する前に、以下の手順を理解したことをチェックボックスで提示してください：
 
 ### 実行手順の理解
+- [ ] 手順0: docs-structure の導入状況を確認する（未導入なら先に導入）
 - [ ] 手順1: 現在のブランチ名を取得してユーザーに確認する
 - [ ] 手順2: ブランチ専用ディレクトリ（notes/letters/tasks）を作成する
 - [ ] 手順2.5: 公式テンプレートを npx degit で取得し、TEMPLATE.md 内のパスをブランチ専用に書き換える
@@ -18,6 +19,37 @@
 - [ ] ユーザーの承認を得てから次の手順へ進む
 
 理解できましたか？ゴーサインをください。
+
+---
+
+0. docs-structure の確認
+
+   以下のコマンドで `docs/actions/` ディレクトリの存在を確認してください：
+
+   ```bash
+   ls docs/actions/ 2>/dev/null && echo "EXISTS" || echo "NOT FOUND"
+   ```
+
+   | 結果 | 対応 |
+   |------|------|
+   | **EXISTS** | docs-structure 導入済み → 手順 1 へ進む |
+   | **NOT FOUND** | docs-structure 未導入 → 以下の手順で先に導入する |
+
+   **docs-structure が未導入の場合**:
+
+   ```bash
+   npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure/templates tmp/docs-structure-templates --force
+   ```
+
+   取得したファイルを `docs/` 直下に配置してください（`templates/` というフォルダ名にしない）：
+
+   ```bash
+   mkdir -p docs
+   cp -r tmp/docs-structure-templates/. docs/
+   ```
+
+   - 配置が完了したらユーザーに報告する
+   - 次へ進む承認を得る
 
 ---
 
