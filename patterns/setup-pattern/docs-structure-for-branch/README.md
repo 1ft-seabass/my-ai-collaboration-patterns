@@ -14,19 +14,15 @@ docs-structure 導入済みのプロジェクトで、**ブランチ専用のド
 
 以下をそのまま AI に貼り付けてください：
 
----
-
+```
 ブランチ専用のドキュメント構造を初期化したいです。
 
 まず以下のコマンドで手順書を取得してください：
 
-```bash
 npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/docs-structure-for-branch tmp/docs-structure-for-branch --force
+
+取得後、tmp/docs-structure-for-branch/for_branch_init.md を読んで指示に従ってください。
 ```
-
-取得後、`tmp/docs-structure-for-branch/for_branch_init.md` を読んで指示に従ってください。
-
----
 
 ## 📂 実行後の構造
 

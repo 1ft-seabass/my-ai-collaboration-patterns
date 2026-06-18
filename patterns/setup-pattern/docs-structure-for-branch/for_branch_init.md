@@ -130,9 +130,9 @@
    files.forEach(f => {
      if (!fs.existsSync(f)) return;
      let c = fs.readFileSync(f, 'utf8');
-     c = c.replace(/docs\/notes\//g,   'docs/branches/' + branch + '/notes/');
-     c = c.replace(/docs\/letters\//g, 'docs/branches/' + branch + '/letters/');
-     c = c.replace(/docs\/tasks\//g,   'docs/branches/' + branch + '/tasks/');
+     c = c.replace(/docs\/(?:branches\/[^\/]+\/)?notes\//g,   'docs/branches/' + branch + '/notes/');
+     c = c.replace(/docs\/(?:branches\/[^\/]+\/)?letters\//g, 'docs/branches/' + branch + '/letters/');
+     c = c.replace(/docs\/(?:branches\/[^\/]+\/)?tasks\//g,   'docs/branches/' + branch + '/tasks/');
      fs.writeFileSync(f, c);
      console.log('Updated: ' + f);
    });
