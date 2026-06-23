@@ -116,6 +116,7 @@
    以下のコマンドを実行してください：
 
    ```bash
+   BRANCH=$(git branch --show-current)
    node -e "
    const fs = require('fs');
    const { execSync } = require('child_process');
@@ -127,20 +128,32 @@
      'docs/actions/doc_note_and_commit.md',
      'docs/actions/check_my_security_prepare_level.md',
    ];
+   const re = /docs\/(?:branches\/.+?\/)?(?=notes\/|letters\/|tasks\/)/g;
+   const target = 'docs/branches/' + branch + '/';
    files.forEach(f => {
      if (!fs.existsSync(f)) return;
      let c = fs.readFileSync(f, 'utf8');
-     c = c.replace(/docs\/(?:branches\/[^\/]+\/)?notes\//g,   'docs/branches/' + branch + '/notes/');
-     c = c.replace(/docs\/(?:branches\/[^\/]+\/)?letters\//g, 'docs/branches/' + branch + '/letters/');
-     c = c.replace(/docs\/(?:branches\/[^\/]+\/)?tasks\//g,   'docs/branches/' + branch + '/tasks/');
-     fs.writeFileSync(f, c);
-     console.log('Updated: ' + f);
+     let count = 0;
+     const updated = c.replace(re, () => { count++; return target; });
+     fs.writeFileSync(f, updated);
+     console.log((count > 0 ? 'Updated (' + count + ' replacements)' : 'No change') + ': ' + f);
    });
    console.log('Branch:', branch);
    "
+   echo "--- post-check ---"
+   STALE=$(grep -rE "docs/(notes|letters|tasks)/" docs/actions/ 2>/dev/null)
+   OTHER=$(grep -r "docs/branches/" docs/actions/ 2>/dev/null | grep -Fv "docs/branches/${BRANCH}/")
+   if [ -n "$STALE" ] || [ -n "$OTHER" ]; then
+     echo "⚠️  未置換のパスが残っています:"
+     [ -n "$STALE" ] && echo "$STALE"
+     [ -n "$OTHER" ] && echo "$OTHER"
+   else
+     echo "✅ 残存パスなし — すべて正常に置換されました"
+   fi
    ```
 
-   - 書き換えたファイルの一覧をユーザーに報告する
+   - 置換ログと post-check 結果をユーザーに報告する
+   - ⚠️ が出た場合は手動で確認してから次へ進む
    - 次へ進む承認を得る
 
 4. 完了通知
