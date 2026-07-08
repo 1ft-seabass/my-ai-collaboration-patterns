@@ -113,15 +113,18 @@ node tmp/security-setup/templates/scripts/security-verify.js
 | 結果 | 対応 |
 |------|------|
 | **11/11 passed** | ✅ 完璧！Phase 1-3 はスキップして終了 |
-| **10/11 passed（gitleaks のみ ❌）** | ⚠️ gitleaks をインストールすれば完了（Phase 1.4 へ） |
+| **10/11 passed（❌ が gitleaks 関連の項目のみ）** | ⚠️ gitleaks をインストールすれば完了（Phase 1.4 へ） |
+| **10/11 passed（❌ が gitleaks 関連以外）** | 🔧 該当項目のみ Phase 1-3 から対応ステップを実施 |
 | **複数の ❌ がある** | 🔧 Phase 1 から導入を開始 |
 | **全て ❌** | 🆕 未導入。Phase 1 から導入を開始 |
+
+**重要**: 「10/11」という数字だけで判断せず、**どの項目が ❌ か**を必ず確認してください。特に「.git/hooks/pre-commit の内容」チェックが `|| true` 等の握りつぶしで ❌ になっている場合、gitleaks とは無関係な原因のため、gitleaks インストールだけでは解決しません（ステップ 3.3 を参照）。
 
 **11/11 の場合**: おめでとうございます！設定は完璧です。
 - `npm run security:verify:simple` - staged ファイルのみテスト（軽量）
 - `npm run security:verify:testrun` - 全ファイル + 全履歴テスト（重い）
 
-**それ以外の場合**: Phase 1 から順に導入していきましょう。
+**それ以外の場合**: ❌ の項目を確認し、Phase 1 から順に（または該当項目のみ）対応していきましょう。
 
 ---
 
@@ -369,6 +372,10 @@ cp tmp/security-setup/templates/scripts/pre-commit.js scripts/
 ```
 
 **注**: 既存の scripts とマージしてください（上書きではなく追加）。
+
+> ⚠️ **`simple-git-hooks` キーが既に存在する場合**:
+> 値をマージで温存せず、`pre-commit` の値が `node scripts/pre-commit.js` と完全一致するか必ず確認してください。
+> `|| true` などが付与されている場合、exit code が握りつぶされコミットがブロックされなくなります。異なっていれば上記の値に**修正**し、ステップ 3.4 で再度有効化してください。
 
 ---
 
