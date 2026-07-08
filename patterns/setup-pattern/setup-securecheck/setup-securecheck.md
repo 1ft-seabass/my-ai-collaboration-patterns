@@ -258,6 +258,12 @@ node tmp/security-setup/templates/scripts/install-gitleaks.js
 
 **注**: 既存の scripts とマージしてください（上書きではなく追加）。
 
+> **⚠️ `"**/*"` スキャンについて**:
+> `secret-scan` / `secret-scan:full` は `.gitignore` を無視して全ファイルをスキャンします。
+> ログファイルや一時ファイルで誤検知が出ることがありますが、これは **全体監査用** の意図的な仕様です。
+> pre-commit フック（`pre-commit.js`）は staged ファイルのみをスキャンするため、`.gitignore` 済みファイルには反応しません。
+> 「`secret-scan` で毎回エラーが出る」場合は、誤爆ファイルを `.secretlintrc.json` の `ignores` に追加してください。
+
 ---
 
 ## ステップ 2.2: スクリプトファイルをコピー
@@ -412,6 +418,31 @@ git commit -m "test: pre-commit hook"
 
 ```bash
 git reset HEAD~1
+```
+
+---
+
+## ステップ 3.6.5: ネガティブテスト（フックが実際にブロックするか確認）
+
+陽性確認（コミット成功）だけでは不十分です。**シークレットを含むファイルが実際にブロックされるか**を確認してください：
+
+```bash
+echo 'TEST_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' > .test-secret-canary
+git add .test-secret-canary
+git commit -m "test: should be blocked by pre-commit hook"
+```
+
+**期待する結果**: コミットが **失敗（ブロック）** される
+
+> ⚠️ **もしコミットが成功してしまった場合**:
+> - `simple-git-hooks` の設定に `|| true` 等の exit code 抑制がないか確認してください
+> - `npm run security:verify` でヘルスチェックを実行してください（check #8 で検出されます）
+
+**テストファイルをクリーンアップ**:
+
+```bash
+git restore --staged .test-secret-canary
+rm .test-secret-canary
 ```
 
 ---

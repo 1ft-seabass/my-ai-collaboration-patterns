@@ -156,7 +156,12 @@ if (gitleaksTomlExists) {
 if (gitHookExists) {
   const precommit = readFile('.git/hooks/pre-commit');
   const hasPreCommitJs = precommit && precommit.includes('pre-commit.js');
-  checkResult(hasPreCommitJs, '.git/hooks/pre-commit に pre-commit.js' + (hasPreCommitJs ? ' あり' : ' が含まれていません'));
+  const hasSuppression = precommit && /\|\|\s*true/.test(precommit);
+  if (hasSuppression) {
+    checkResult(false, '.git/hooks/pre-commit — || true が含まれており exit code が握りつぶされています（コミットがブロックされません）');
+  } else {
+    checkResult(hasPreCommitJs, '.git/hooks/pre-commit に pre-commit.js' + (hasPreCommitJs ? ' あり' : ' が含まれていません'));
+  }
 } else {
   checkResult(false, '.git/hooks/pre-commit — 存在チェックが ❌ のためスキップ', 'skip');
 }
