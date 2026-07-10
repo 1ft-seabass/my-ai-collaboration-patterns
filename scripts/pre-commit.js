@@ -6,6 +6,9 @@ console.log('Running pre-commit checks...');
 
 const LOG_FILE = path.join(process.cwd(), '.logs', 'pre-commit.log');
 const MAX_LOG_ENTRIES = 50;
+// setup-securecheck.md ステップ3.6.5のネガティブテストが使うファイル名。
+// これがステージされている＝人間が意図的にネガティブテストを実行中、という合図。
+const CANARY_FILENAME = '.test-secret-canary';
 
 function getBranch() {
   try {
@@ -15,11 +18,12 @@ function getBranch() {
   }
 }
 
-function writeLog(result) {
+function writeLog(result, isCanary) {
   const entry = JSON.stringify({
     timestamp: new Date().toISOString(),
     result,
-    branch: getBranch()
+    branch: getBranch(),
+    ...(isCanary ? { type: 'canary' } : {})
   });
 
   const logsDir = path.dirname(LOG_FILE);
@@ -50,6 +54,8 @@ function chunk(arr, size) {
   return chunks;
 }
 
+let isCanaryTest = false;
+
 try {
   let secretlintOk = true;
   let gitleaksOk = true;
@@ -59,6 +65,8 @@ try {
   // staged ファイルのみをスキャン（gitleaks --staged と対称）
   const staged = execSync('git diff --cached --name-only --diff-filter=ACM', { encoding: 'utf8' })
     .split('\n').map(s => s.trim()).filter(Boolean);
+
+  isCanaryTest = staged.includes(CANARY_FILENAME);
 
   if (staged.length === 0) {
     console.log('ステージされたファイルがないため secretlint をスキップします');
@@ -109,7 +117,7 @@ try {
   }
 
   const passed = secretlintOk && gitleaksOk;
-  writeLog(passed ? 'passed' : 'failed');
+  writeLog(passed ? 'passed' : 'failed', isCanaryTest);
 
   if (passed) {
     console.log('\n✅ All checks passed');
@@ -120,7 +128,7 @@ try {
   console.error(`\n❌ Pre-commit checks failed (${failedTools})`);
   process.exit(1);
 } catch (e) {
-  writeLog('failed');
+  writeLog('failed', isCanaryTest);
   console.error('\n❌ Pre-commit checks failed (unexpected error)');
   console.error(e.message || e);
   process.exit(1);
