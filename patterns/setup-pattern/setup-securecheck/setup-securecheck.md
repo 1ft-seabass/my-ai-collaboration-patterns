@@ -67,7 +67,7 @@
 
 | Phase | 内容 | ここで止めてもOK？ |
 |-------|------|------------------|
-| **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 12/12 なら完了 |
+| **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 13/13 なら完了 |
 | **Phase 1** | 初動スキャン（現状把握） | ✅ 問題発見したらまず対処 |
 | **Phase 2** | 手動運用（npm scripts） | ✅ ライトに運用したい場合 |
 | **Phase 3** | pre-commit 自動化（simple-git-hooks） | ✅ 自動化したい場合 |
@@ -108,11 +108,15 @@
 node tmp/security-setup/templates/scripts/security-verify.js
 ```
 
+### 0. husky/lint-staged（v1構成）の警告が出た場合
+
+ヘルスチェックの実行結果の**冒頭**に `⚠️ husky/lint-staged ベースの v1 構成を検出しました` という警告が出た場合、このプロジェクトはまだ v1（husky + lint-staged）のままです。**このままPhase 1に進まないでください**。先に `migration/MIGRATION_GUIDE_v1_to_v2.0.1.md` を参照し、v2への移行を完了させてから、改めてこのヘルスチェックをやり直してください。
+
 ### 結果の判断基準
 
 | 結果 | 対応 |
 |------|------|
-| **12/12 passed** | ✅ 完璧！Phase 1-3 はスキップして終了 |
+| **13/13 passed** | ✅ 完璧！Phase 1-3 はスキップして終了 |
 | **❌ が gitleaks 関連の項目のみ（バイナリ未導入・機能的カナリアテスト skip 等）** | ⚠️ gitleaks をインストールすれば完了（Phase 1.4 へ） |
 | **❌ が gitleaks 関連以外** | 🔧 該当項目のみ Phase 1-3 から対応ステップを実施 |
 | **複数の ❌ がある** | 🔧 Phase 1 から導入を開始 |
@@ -120,9 +124,28 @@ node tmp/security-setup/templates/scripts/security-verify.js
 
 **重要**: passed の数だけで判断せず、**どの項目が ❌ か**を必ず確認してください。特に以下は個別の原因を持つため、まとめて「gitleaks 未導入」で済ませないでください:
 - 「.git/hooks/pre-commit の内容」チェックが `|| true` 等の握りつぶしで ❌ の場合、gitleaks とは無関係な原因です（ステップ 3.3 を参照）
-- 「gitleaks.toml に検出ルール」チェックや「gitleaks 機能的カナリアテスト」が ❌ の場合、gitleaks は導入済みでも検出ルールが機能していません（`gitleaks.toml` に `[extend]` または `[[rules]]` があるか確認）
+- 「gitleaks.toml に検出ルール」チェックや「gitleaks 機能的カナリアテスト」が ❌ の場合、gitleaks は導入済みでも検出ルールが機能していません（`gitleaks.toml` に `[extend]` または `[[rules]]` があるか確認）。**このケースが既存導入プロジェクトで起きた場合は、下記「既存導入プロジェクトで検出ルール0件バグに該当する場合」を必ず確認してから対応してください**（`gitleaks.toml` を単純に上書きコピーすると、導入後にユーザーが追加した独自のallowlist/rulesを握りつぶす可能性があります）
 
-**12/12 の場合**: おめでとうございます！設定は完璧です。
+### 既存導入プロジェクトで検出ルール0件バグに該当する場合
+
+`gitleaks.toml` が既に存在するのに検出ルールが機能していない（v2.0.1以前のバグ）場合、ステップ1.1の `cp` でそのまま上書きする前に、**カスタマイズの有無**を必ず確認してください。
+
+```bash
+diff gitleaks.toml tmp/security-setup/templates/gitleaks.toml
+```
+
+| diff結果 | 対応 |
+|---|---|
+| **差分なし（未カスタマイズ）** | そのままステップ1.1の `cp` で上書きしてよい |
+| **差分あり（独自のallowlist/rules追加等）** | 上書きせず、以下の決定論的パッチスクリプトを実行する |
+
+```bash
+node tmp/security-setup/templates/scripts/patch-gitleaks-toml.js
+```
+
+このスクリプトは `[extend] useDefault = true` の追記と `tmp/.*` のアンカー化（`^tmp/.*`）**のみ**を機械的に行い、他のカスタム内容（独自のallowlist/rules）には一切触れません。AIの読み取り判断に依存しないため、どのセッションで実行しても同じ結果になります。
+
+**13/13 の場合**: おめでとうございます！設定は完璧です。
 - `npm run security:verify:simple` - staged ファイルのみテスト（軽量）
 - `npm run security:verify:testrun` - 全ファイル + 全履歴テスト（重い）
 
@@ -449,6 +472,8 @@ git commit -m "test: should be blocked by pre-commit hook"
 
 **期待する結果**: コミットが **失敗（ブロック）** される。出力に `=== secretlint ===` と `=== gitleaks ===` の両方のセクションが表示されることを確認してください（片方が失敗してももう片方は必ず実行されます）。
 
+> ℹ️ **このテストの実行は記録されます**: `pre-commit.js` は `.test-secret-canary` がステージされたコミットを検知すると、`.logs/pre-commit.log` に通常のコミットとは別の `type: "canary"` エントリとして記録します。`npm run security:verify` の check#13「ネガティブテスト実行痕跡」はこのエントリの有無を確認するため、**このステップを一度も実行していないと check#13 が ⚠️ になります**。「ネガティブテストをやったつもり」ではなく、実際に実行した記録が残っているかで判定される仕組みです。
+
 ### 3.6.5-b: gitleaks 単独でも検出できるか個別に確認
 
 pre-commit フック全体がブロックしても、それが secretlint だけの検出によるものか、gitleaks も実際に機能しているかは別途確認が必要です（ステップ 3.6.5-a のカナリアをステージしたまま実行してください）：
@@ -557,7 +582,7 @@ regexes = [
 
 ```bash
 # Before
-API_KEY=sk-1234567890abcdef
+API_KEY=sk-1234567890abcdef  # gitleaks:allow secretlint-disable-line
 
 # After
 API_KEY=sk-DUMMY_KEY_REPLACE_WITH_YOUR_ACTUAL_KEY
