@@ -67,7 +67,7 @@
 
 | Phase | 内容 | ここで止めてもOK？ |
 |-------|------|------------------|
-| **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 11/11 なら完了 |
+| **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 12/12 なら完了 |
 | **Phase 1** | 初動スキャン（現状把握） | ✅ 問題発見したらまず対処 |
 | **Phase 2** | 手動運用（npm scripts） | ✅ ライトに運用したい場合 |
 | **Phase 3** | pre-commit 自動化（simple-git-hooks） | ✅ 自動化したい場合 |
@@ -112,15 +112,17 @@ node tmp/security-setup/templates/scripts/security-verify.js
 
 | 結果 | 対応 |
 |------|------|
-| **11/11 passed** | ✅ 完璧！Phase 1-3 はスキップして終了 |
-| **10/11 passed（❌ が gitleaks 関連の項目のみ）** | ⚠️ gitleaks をインストールすれば完了（Phase 1.4 へ） |
-| **10/11 passed（❌ が gitleaks 関連以外）** | 🔧 該当項目のみ Phase 1-3 から対応ステップを実施 |
+| **12/12 passed** | ✅ 完璧！Phase 1-3 はスキップして終了 |
+| **❌ が gitleaks 関連の項目のみ（バイナリ未導入・機能的カナリアテスト skip 等）** | ⚠️ gitleaks をインストールすれば完了（Phase 1.4 へ） |
+| **❌ が gitleaks 関連以外** | 🔧 該当項目のみ Phase 1-3 から対応ステップを実施 |
 | **複数の ❌ がある** | 🔧 Phase 1 から導入を開始 |
 | **全て ❌** | 🆕 未導入。Phase 1 から導入を開始 |
 
-**重要**: 「10/11」という数字だけで判断せず、**どの項目が ❌ か**を必ず確認してください。特に「.git/hooks/pre-commit の内容」チェックが `|| true` 等の握りつぶしで ❌ になっている場合、gitleaks とは無関係な原因のため、gitleaks インストールだけでは解決しません（ステップ 3.3 を参照）。
+**重要**: passed の数だけで判断せず、**どの項目が ❌ か**を必ず確認してください。特に以下は個別の原因を持つため、まとめて「gitleaks 未導入」で済ませないでください:
+- 「.git/hooks/pre-commit の内容」チェックが `|| true` 等の握りつぶしで ❌ の場合、gitleaks とは無関係な原因です（ステップ 3.3 を参照）
+- 「gitleaks.toml に検出ルール」チェックや「gitleaks 機能的カナリアテスト」が ❌ の場合、gitleaks は導入済みでも検出ルールが機能していません（`gitleaks.toml` に `[extend]` または `[[rules]]` があるか確認）
 
-**11/11 の場合**: おめでとうございます！設定は完璧です。
+**12/12 の場合**: おめでとうございます！設定は完璧です。
 - `npm run security:verify:simple` - staged ファイルのみテスト（軽量）
 - `npm run security:verify:testrun` - 全ファイル + 全履歴テスト（重い）
 
@@ -209,18 +211,19 @@ node tmp/security-setup/templates/scripts/install-gitleaks.js
 以下のコマンドを実行してください：
 
 ```bash
-./bin/gitleaks detect --source . -v --config gitleaks.toml
+./bin/gitleaks git . -v --config gitleaks.toml
 ```
 
 **Windows の場合**:
 ```bash
-.\bin\gitleaks.exe detect --source . -v --config gitleaks.toml
+.\bin\gitleaks.exe git . -v --config gitleaks.toml
 ```
 
 **gitleaks の動作について**:
 - **git 履歴全体をスキャン**します（現在のファイルだけでなく、過去のコミットも含む）
 - ファイルを削除しても、過去のコミットに残っていれば検出されます
-- `tmp/` ディレクトリは最初から除外されています（`gitleaks.toml` の allowlist に含まれています）
+- リポジトリ**ルート直下**の `tmp/` ディレクトリは最初から除外されています（`gitleaks.toml` の allowlist に `^tmp/.*` として含まれています。`src/mytmp/` のような無関係なディレクトリは除外されません）
+- `detect`/`protect` は gitleaks 8.28 以降 `--help` から非表示になった非推奨コマンドです。後継の `git` サブコマンド（`--staged` でステージ済みのみ、無指定で全履歴）を使用しています
 
 **検出があった場合**: secretlint と同様に内容を確認して対処します。
 
@@ -254,7 +257,7 @@ node tmp/security-setup/templates/scripts/install-gitleaks.js
     "security:verify:testrun": "node scripts/security-verify.js --test-run",
     "security:install-gitleaks": "node scripts/install-gitleaks.js",
     "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . -v --config gitleaks.toml"
+    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks git . -v --config gitleaks.toml"
   }
 }
 ```
@@ -292,7 +295,7 @@ cp tmp/security-setup/templates/scripts/install-gitleaks.js scripts/
 npm run security:verify
 ```
 
-**期待する結果**: 11 項目のヘルスチェックが実行され、✅ または ⚠️ が表示されます。
+**期待する結果**: 12 項目のヘルスチェックが実行され、✅ または ⚠️ が表示されます。
 
 ---
 
@@ -431,19 +434,34 @@ git reset HEAD~1
 
 ## ステップ 3.6.5: ネガティブテスト（フックが実際にブロックするか確認）
 
-陽性確認（コミット成功）だけでは不十分です。**シークレットを含むファイルが実際にブロックされるか**を確認してください：
+陽性確認（コミット成功）だけでは不十分です。**シークレットを含むファイルが実際にブロックされるか**を確認してください。
+
+> ⚠️ **カナリア値の注意**: `xxxxxx` を含む値（例: `ghp_xxxxxxxx...`）は `gitleaks.toml` の allowlist regexes に一致し、gitleaks からは意図的に無視されます（プレースホルダー扱いのため）。この値だけでテストすると、secretlint 側の検出だけでコミットがブロックされ、**gitleaks が実際に機能しているかを検証できないまま「問題なし」と誤認します**。secretlint と gitleaks は必ず個別に確認してください。
+
+### 3.6.5-a: pre-commit フック全体でブロックされるか確認
 
 ```bash
-echo 'TEST_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' > .test-secret-canary
+echo 'TEST_TOKEN=ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8' > .test-secret-canary  # gitleaks:allow secretlint-disable-line
 git add .test-secret-canary
 git commit -m "test: should be blocked by pre-commit hook"
 ```
 
-**期待する結果**: コミットが **失敗（ブロック）** される
+**期待する結果**: コミットが **失敗（ブロック）** される。出力に `=== secretlint ===` と `=== gitleaks ===` の両方のセクションが表示されることを確認してください（片方が失敗してももう片方は必ず実行されます）。
 
-> ⚠️ **もしコミットが成功してしまった場合**:
-> - `simple-git-hooks` の設定に `|| true` 等の exit code 抑制がないか確認してください
-> - `npm run security:verify` でヘルスチェックを実行してください（check #8 で検出されます）
+### 3.6.5-b: gitleaks 単独でも検出できるか個別に確認
+
+pre-commit フック全体がブロックしても、それが secretlint だけの検出によるものか、gitleaks も実際に機能しているかは別途確認が必要です（ステップ 3.6.5-a のカナリアをステージしたまま実行してください）：
+
+```bash
+./bin/gitleaks git --staged --config gitleaks.toml .
+echo "exit code: $?"
+```
+
+**期待する結果**: `exit code: 1`
+
+> ⚠️ **もしコミットが成功してしまった場合、または gitleaks 単独チェックが `exit code: 0` になる場合**:
+> - コミットが成功してしまう場合: `simple-git-hooks` の設定に `|| true` 等の exit code 抑制がないか確認してください（`npm run security:verify` の check #8 で検出されます）
+> - gitleaks 単独チェックが `exit code: 0` になる場合: `gitleaks.toml` に検出ルール（`[extend]` または `[[rules]]`）が無い可能性があります（`npm run security:verify` の check #7・#11 で検出されます）
 
 **テストファイルをクリーンアップ**:
 
