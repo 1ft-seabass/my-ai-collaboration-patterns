@@ -63,6 +63,41 @@ function checkResult(passed, message, type = 'normal') {
 }
 
 // ===========================
+// husky (v1) 先行検知
+// ===========================
+// 「共通」ワンショット指示（README）は version-detect を経由せず直接このスクリプトを
+// 呼ぶため、ここで検知しないと v1(husky) 構成が素通りし、Phase 1 の新規導入フローが
+// 既存の husky 設定の上に simple-git-hooks を重ねてしまうリスクがある。
+// 判定ロジックは version-detect/scripts/detect-version.js と同一。
+(function checkHuskyLegacy() {
+  const pkgRaw = readFile('package.json');
+  let pkg = null;
+  if (pkgRaw) {
+    try {
+      pkg = JSON.parse(pkgRaw);
+    } catch (e) {
+      // parse error
+    }
+  }
+
+  const hasHusky = !!(pkg && ((pkg.devDependencies && pkg.devDependencies['husky']) || (pkg.dependencies && pkg.dependencies['husky'])));
+  const hasLintStaged = !!(pkg && ((pkg.devDependencies && pkg.devDependencies['lint-staged']) || (pkg.dependencies && pkg.dependencies['lint-staged']) || pkg['lint-staged']));
+  const huskyDirExists = fileExists('.husky');
+
+  if (hasHusky || hasLintStaged || huskyDirExists) {
+    const reasons = [];
+    if (hasHusky) reasons.push('husky が devDependencies に存在');
+    if (hasLintStaged) reasons.push('lint-staged が devDependencies/設定に存在');
+    if (huskyDirExists) reasons.push('.husky/ ディレクトリが存在');
+
+    console.log('⚠️  husky/lint-staged ベースの v1 構成を検出しました（' + reasons.join(' / ') + '）');
+    console.log('    このまま Phase 1 以降を進めると、既存の v1 設定の上に v2 が重なり混在状態になる可能性があります。');
+    console.log('    先に migration/MIGRATION_GUIDE_v1_to_v2.0.1.md を参照してください。');
+    console.log('');
+  }
+})();
+
+// ===========================
 // 存在チェック
 // ===========================
 console.log('[存在チェック]');
@@ -266,13 +301,44 @@ if (fs.existsSync(logFile)) {
   checkResult(false, '実行ログ — .logs/pre-commit.log が見つかりません（一度もコミットしていない可能性）');
 }
 
+// 13. ネガティブテスト実行痕跡（カナリアblocked）
+// 「実行ログが新しい」だけでは、Step 3.6.5のネガティブテスト（シークレットが
+// 実際にブロックされるかの確認）が一度でも実行されたかは分からない。
+// pre-commit.js は .test-secret-canary がステージされたコミットを type: 'canary'
+// としてログに記録するため、その痕跡の有無で確認する（集計数字ではなく事実で判定する）。
+if (fs.existsSync(logFile)) {
+  const lines = fs.readFileSync(logFile, 'utf8').trim().split('\n').filter(Boolean);
+  const canaryEntries = lines
+    .map(line => {
+      try {
+        return JSON.parse(line);
+      } catch (e) {
+        return null;
+      }
+    })
+    .filter(entry => entry && entry.type === 'canary');
+
+  const passedCanary = canaryEntries.find(entry => entry.result === 'passed');
+  const blockedCanary = canaryEntries.slice().reverse().find(entry => entry.result === 'failed');
+
+  if (passedCanary) {
+    checkResult(false, `ネガティブテスト実行痕跡 — カナリアがブロックされずコミットされた形跡があります（${passedCanary.timestamp}）。pre-commit フックが機能していない可能性`);
+  } else if (blockedCanary) {
+    checkResult(true, `ネガティブテスト実行痕跡 — ${blockedCanary.timestamp.slice(0, 10)} にカナリアがブロックされたことを確認`);
+  } else {
+    checkResult(false, 'ネガティブテスト実行痕跡 — Step 3.6.5のネガティブテストが実行された形跡がありません', 'warning');
+  }
+} else {
+  checkResult(false, 'ネガティブテスト実行痕跡 — .logs/pre-commit.log が見つかりません', 'skip');
+}
+
 console.log('');
 
 // ===========================
 // 結果サマリー
 // ===========================
 console.log('================================');
-console.log(`結果: ${results.passed}/12 passed, ${results.failed} failed, ${results.warning} warning${results.skipped > 0 ? `, ${results.skipped} skipped` : ''}`);
+console.log(`結果: ${results.passed}/13 passed, ${results.failed} failed, ${results.warning} warning${results.skipped > 0 ? `, ${results.skipped} skipped` : ''}`);
 
 if (results.failed > 0) {
   console.log('\n❌ ヘルスチェックに問題があります。まず設定を修正してください。');
