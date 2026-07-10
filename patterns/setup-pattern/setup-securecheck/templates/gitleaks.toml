@@ -1,12 +1,17 @@
 title = "Gitleaks config"
 
+# gitleaks のデフォルト検出ルールを継承する（これが無いと [allowlist] しか
+# 定義されず、検出ルール 0 個の設定として動作してしまう）
+[extend]
+useDefault = true
+
 # Allowlist for paths (regex)
 [allowlist]
 paths = [
   '''node_modules/.*''',
   '''dist/.*''',
   '''.git/.*''',
-  '''tmp/.*''',
+  '''^tmp/.*''',
 ]
 
 # Allowlist for regex patterns (common placeholders)
