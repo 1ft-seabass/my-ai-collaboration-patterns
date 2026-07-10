@@ -20,6 +20,28 @@
   - secretlint / gitleaks を個別に確認するステップを追加
   - `detect`/`protect`（gitleaks 8.28+ で非推奨）を `git` サブコマンドに移行
 
+- **gitleaks 呼び出しに `--redact` を追加し検出値の漏洩経路を防止**
+  - secretlint はデフォルトでマスクされるが、gitleaks は `--redact` を明示しないと検出値がそのまま標準出力に出ることが判明
+  - `pre-commit.js`・`security-verify.js`（機能的カナリアテスト・testrun）・`setup-securecheck.md` の手動コマンド・`package.json.example` の全gitleaks呼び出しに追加
+  - `setup-securecheck.md` のネガティブテストに「確認結果は要約行のみ報告し、生出力を貼り付けない」注意書きを追加
+
+### 追加
+
+- **既存導入プロジェクト向けの安全な再適用（A6）**
+  - Phase 0 に「既存導入かつ検出ルール0件バグに該当する場合」の分岐を追加。`gitleaks.toml` が未カスタマイズか診断し、カスタマイズ済みの場合は独自設定を保持したまま `[extend]` 追加と `tmp/.*` アンカー化のみを行う決定論的パッチスクリプト（`templates/scripts/patch-gitleaks-toml.js`、新規）を案内する
+  - 独立したマイグレーションガイド一式ではなく、既存のワンショット指示（README）の再利用＋Phase 0分岐という形に設計（詳細は `docs/notes/2026-07-10-05-27-29-negative-test-verification-design.md`）
+
+- **ネガティブテスト実行痕跡の検証（ヘルスチェック 12項目 → 13項目）**
+  - `pre-commit.js` が `.test-secret-canary`（ステップ3.6.5のネガティブテスト用ファイル）のステージを検知した場合、実行ログに通常のコミットとは別の `type: "canary"` エントリを記録するよう変更
+  - `security-verify.js` に新規 check#13「ネガティブテスト実行痕跡」を追加。集計数字ではなく、ネガティブテストが実際に実行されブロックに成功した記録の有無で判定する
+
+- **husky/lint-staged（v1構成）の先行検知**
+  - README共通の「新規/既存プロジェクト共通」ワンショット指示は `version-detect/` を経由せず直接 `security-verify.js` を呼ぶため、v1(husky)構成のプロジェクトが素通りし、Phase 1の新規導入フローが既存のhusky設定に重ねてsimple-git-hooksを導入してしまうリスクがあった
+  - `security-verify.js`（ヘルスチェック本体）に `version-detect/scripts/detect-version.js` と同一の判定ロジックを統合し、該当時は最初に警告を表示するよう変更
+
+- **導入ガイド自身の既知の誤検知を抑制**
+  - `setup-securecheck.md`「パターンB: 値を明確なダミーに変更」のBefore例（`sk-`接頭辞のダミー値）に `gitleaks:allow secretlint-disable-line` を追加し、このリポジトリ自身の`security:verify:testrun`での既知の誤検知を解消（リネーム前の古いコミットに残る同一箇所は履歴書き換えが必要なコストに見合わないため対象外とした）
+
 ### 背景
 
 ユーザーからの実バグ報告（4件）を受けて検証・修正。詳細は `docs/notes/2026-07-09-23-13-15-setup-securecheck-v2-0-1-gitleaks-zero-rules-report-verification.md` 以降のノートを参照。
