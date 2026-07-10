@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.0.2] - 2026-07-09
+
+### 修正
+
+- **gitleaks 検出ルール0件バグを修正（根本原因）**
+  - `templates/gitleaks.toml` に `[extend] useDefault = true` が無く、gitleaks のデフォルト検出ルールが一切適用されていなかった
+  - allowlist の `tmp/.*` を `^tmp/.*` にアンカー（`src/mytmp/` 等への部分文字列誤爆を防止）
+
+- **pre-commit で secretlint 失敗時に gitleaks が実行されない問題を修正**
+  - `templates/scripts/pre-commit.js` を、secretlint と gitleaks を独立実行して結果を集約する構成に変更
+
+- **ヘルスチェックの中身検証を強化（11項目 → 12項目）**
+  - `templates/scripts/security-verify.js` の gitleaks.toml チェックを、`[extend]`/`[[rules]]` の有無まで確認するよう強化
+  - 新規 check#11「gitleaks 機能的カナリアテスト」を追加（合成シークレットを実際にスキャンして検出できるかを確認する機能的チェック）
+
+- **導入ガイドのネガティブテストを修正**
+  - `setup-securecheck.md` ステップ3.6.5のネガティブテストのカナリア値が allowlist に一致してしまい、gitleaks の検出を正しく検証できていなかった問題を修正
+  - secretlint / gitleaks を個別に確認するステップを追加
+  - `detect`/`protect`（gitleaks 8.28+ で非推奨）を `git` サブコマンドに移行
+
+### 背景
+
+ユーザーからの実バグ報告（4件）を受けて検証・修正。詳細は `docs/notes/2026-07-09-23-13-15-setup-securecheck-v2-0-1-gitleaks-zero-rules-report-verification.md` 以降のノートを参照。
+
+---
+
 ## [2.0.1] - 2026-06-10
 
 ### 修正
