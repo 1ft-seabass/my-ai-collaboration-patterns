@@ -11,7 +11,7 @@
     "claude:keep_session": "claude --dangerously-skip-permissions -c",
     "gitleaks:install": "bash scripts/install-gitleaks.sh",
     "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks detect --source . -v",
+    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks git . -v --config gitleaks.toml --redact",
     "security:verify": "node scripts/security-verify.js",
     "security:verify:simple": "node scripts/security-verify.js --simple",
     "security:verify:testrun": "node scripts/security-verify.js --test-run",

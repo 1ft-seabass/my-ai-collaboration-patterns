@@ -5,7 +5,7 @@
     "security:verify:testrun": "node scripts/security-verify.js --test-run",
     "security:install-gitleaks": "node scripts/install-gitleaks.js",
     "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks git . -v --config gitleaks.toml",
+    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks git . -v --config gitleaks.toml --redact",
     "postinstall": "npx simple-git-hooks"
   },
   "simple-git-hooks": {

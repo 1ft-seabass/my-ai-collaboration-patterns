@@ -85,12 +85,13 @@ try {
 
   let gitleaksCommand = null;
 
+  // --redact: 検出時にシークレット値をターミナルにそのまま出さないため
   if (fs.existsSync(localBinary)) {
-    gitleaksCommand = `"${localBinary}" git --staged --config gitleaks.toml .`;
+    gitleaksCommand = `"${localBinary}" git --staged --config gitleaks.toml --redact .`;
   } else {
     try {
       execSync('gitleaks version', { stdio: 'pipe' });
-      gitleaksCommand = 'gitleaks git --staged --config gitleaks.toml .';
+      gitleaksCommand = 'gitleaks git --staged --config gitleaks.toml --redact .';
     } catch (e) {
       // gitleaks not found
     }

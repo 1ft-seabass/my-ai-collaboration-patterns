@@ -211,12 +211,12 @@ node tmp/security-setup/templates/scripts/install-gitleaks.js
 以下のコマンドを実行してください：
 
 ```bash
-./bin/gitleaks git . -v --config gitleaks.toml
+./bin/gitleaks git . -v --config gitleaks.toml --redact
 ```
 
 **Windows の場合**:
 ```bash
-.\bin\gitleaks.exe git . -v --config gitleaks.toml
+.\bin\gitleaks.exe git . -v --config gitleaks.toml --redact
 ```
 
 **gitleaks の動作について**:
@@ -224,6 +224,7 @@ node tmp/security-setup/templates/scripts/install-gitleaks.js
 - ファイルを削除しても、過去のコミットに残っていれば検出されます
 - リポジトリ**ルート直下**の `tmp/` ディレクトリは最初から除外されています（`gitleaks.toml` の allowlist に `^tmp/.*` として含まれています。`src/mytmp/` のような無関係なディレクトリは除外されません）
 - `detect`/`protect` は gitleaks 8.28 以降 `--help` から非表示になった非推奨コマンドです。後継の `git` サブコマンド（`--staged` でステージ済みのみ、無指定で全履歴）を使用しています
+- `--redact` は必須です。付けないと検出時に実際のシークレット値がそのまま標準出力に出ます。この出力をAIとの会話やdocs/notesに貼り付けると、そのまま新たな漏洩経路になります
 
 **検出があった場合**: secretlint と同様に内容を確認して対処します。
 
@@ -257,7 +258,7 @@ node tmp/security-setup/templates/scripts/install-gitleaks.js
     "security:verify:testrun": "node scripts/security-verify.js --test-run",
     "security:install-gitleaks": "node scripts/install-gitleaks.js",
     "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks git . -v --config gitleaks.toml"
+    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks git . -v --config gitleaks.toml --redact"
   }
 }
 ```
@@ -453,7 +454,7 @@ git commit -m "test: should be blocked by pre-commit hook"
 pre-commit フック全体がブロックしても、それが secretlint だけの検出によるものか、gitleaks も実際に機能しているかは別途確認が必要です（ステップ 3.6.5-a のカナリアをステージしたまま実行してください）：
 
 ```bash
-./bin/gitleaks git --staged --config gitleaks.toml .
+./bin/gitleaks git --staged --config gitleaks.toml --redact .
 echo "exit code: $?"
 ```
 
@@ -462,6 +463,8 @@ echo "exit code: $?"
 > ⚠️ **もしコミットが成功してしまった場合、または gitleaks 単独チェックが `exit code: 0` になる場合**:
 > - コミットが成功してしまう場合: `simple-git-hooks` の設定に `|| true` 等の exit code 抑制がないか確認してください（`npm run security:verify` の check #8 で検出されます）
 > - gitleaks 単独チェックが `exit code: 0` になる場合: `gitleaks.toml` に検出ルール（`[extend]` または `[[rules]]`）が無い可能性があります（`npm run security:verify` の check #7・#11 で検出されます）
+
+> ⚠️ **確認結果をAIに報告する際の注意**: `exit code` や `=== secretlint ===`/`=== gitleaks ===` のセクション表示、`❌ Pre-commit checks failed (...)` の要約行だけを報告してください。ターミナルの生出力をそのまま貼り付けたり、docs/notes に書き写したりしないこと（`--redact` を付けていても、テスト用カナリア以外の値が混入するリスクを避けるため）。
 
 **テストファイルをクリーンアップ**:
 

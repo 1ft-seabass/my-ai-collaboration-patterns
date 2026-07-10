@@ -220,7 +220,7 @@ if (gitleaksVersion) {
     fs.writeFileSync(canaryFile, `GITHUB_PAT=${CANARY_SECRET}\n`);
 
     const gitleaksBinaryPath = fs.existsSync(localBinary) ? `"${localBinary}"` : 'gitleaks';
-    const canaryCmd = `${gitleaksBinaryPath} dir "${canaryDirName}" --config gitleaks.toml`;
+    const canaryCmd = `${gitleaksBinaryPath} dir "${canaryDirName}" --config gitleaks.toml --redact`;
 
     try {
       execSync(canaryCmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
@@ -333,13 +333,15 @@ if (testRun || simpleRun) {
 
     // gitleaks 8.28+ では detect/protect が --help から非表示になった非推奨コマンドのため、
     // 後継の git サブコマンドを使用する（--staged: ステージ済みのみ / 無指定: 全履歴）
+    // --redact: 検出時に実際のシークレット値をログ・標準出力に出さないため（AIとの会話や
+    // ノートへの貼り付けが新たな漏洩経路にならないようにする）
     const gitleaksCmd = fs.existsSync(localBinary)
       ? (simpleRun
-          ? `"${localBinary}" git --staged -v --config gitleaks.toml .`
-          : `"${localBinary}" git -v --config gitleaks.toml .`)
+          ? `"${localBinary}" git --staged -v --config gitleaks.toml --redact .`
+          : `"${localBinary}" git -v --config gitleaks.toml --redact .`)
       : (simpleRun
-          ? 'gitleaks git --staged -v --config gitleaks.toml .'
-          : 'gitleaks git -v --config gitleaks.toml .');
+          ? 'gitleaks git --staged -v --config gitleaks.toml --redact .'
+          : 'gitleaks git -v --config gitleaks.toml --redact .');
 
     console.log(`  ${gitleaksCmd}`);
 
