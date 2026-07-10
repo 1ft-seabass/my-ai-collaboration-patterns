@@ -146,8 +146,11 @@ if (secretlintrcExists) {
 // 7. gitleaks.toml の内容
 if (gitleaksTomlExists) {
   const gitleaksToml = readFile('gitleaks.toml');
-  const isNotEmpty = gitleaksToml && gitleaksToml.trim().length > 0;
-  checkResult(isNotEmpty, 'gitleaks.toml が' + (isNotEmpty ? '空でない' : '空ファイルです'));
+  // [allowlist] だけで [extend]/[rules] が無いと検出ルール 0 個で動作してしまう。
+  // 「空でないこと」だけの確認では見逃すため、検出ルールの有無を確認する。
+  const hasRules = gitleaksToml && (/\[extend\]/.test(gitleaksToml) || /\[\[rules\]\]/.test(gitleaksToml));
+  checkResult(hasRules, 'gitleaks.toml に検出ルール（[extend] または [[rules]]）' +
+    (hasRules ? ' あり' : ' が見つかりません — [allowlist] のみの場合、検出ルール 0 個で動作します'));
 } else {
   checkResult(false, 'gitleaks.toml — 存在チェックが ❌ のためスキップ', 'skip');
 }
@@ -198,7 +201,45 @@ if (fs.existsSync(localBinary)) {
   checkResult(false, `gitleaks — bin/${binaryName} が見つかりません（node scripts/install-gitleaks.js で導入してください）`);
 }
 
-// 11. 実行ログの最終確認
+// 11. gitleaks 機能的カナリアテスト
+// 「[extend]/[rules] という文字列が書いてある」だけでは、実際に検出ルールが
+// 機能しているかは分からない（存在確認・内容確認と動作確認は別物）。
+// 合成シークレットを実際にスキャンし、検出できるかで確認する。
+if (gitleaksVersion) {
+  // 相対パスで指定する（絶対パスを渡すと、プロジェクトが "/tmp/..." 配下に
+  // チェックアウトされている場合などに gitleaks.toml の allowlist paths
+  // "tmp/.*" に誤爆し、カナリア自体が除外されてしまう）
+  const canaryDirName = '.security-verify-canary';
+  const canaryDir = path.join(process.cwd(), canaryDirName);
+  const canaryFile = path.join(canaryDir, 'canary.env');
+  // allowlist の regexes（YOUR_TOKEN_HERE, xxxxxx 等）に一致しない合成値
+  const CANARY_SECRET = 'ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8'; // gitleaks:allow secretlint-disable-line
+
+  try {
+    fs.mkdirSync(canaryDir, { recursive: true });
+    fs.writeFileSync(canaryFile, `GITHUB_PAT=${CANARY_SECRET}\n`);
+
+    const gitleaksBinaryPath = fs.existsSync(localBinary) ? `"${localBinary}"` : 'gitleaks';
+    const canaryCmd = `${gitleaksBinaryPath} dir "${canaryDirName}" --config gitleaks.toml`;
+
+    try {
+      execSync(canaryCmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+      checkResult(false, 'gitleaks 機能的カナリアテスト — 合成シークレットが検出されませんでした（検出ルールが無効化されている可能性）');
+    } catch (e) {
+      if (e.status === 1) {
+        checkResult(true, 'gitleaks 機能的カナリアテスト — 合成シークレットを正しく検出');
+      } else {
+        checkResult(false, `gitleaks 機能的カナリアテスト — 予期しないエラー（exit ${e.status}）`);
+      }
+    }
+  } finally {
+    fs.rmSync(canaryDir, { recursive: true, force: true });
+  }
+} else {
+  checkResult(false, 'gitleaks 機能的カナリアテスト — gitleaks が未導入のためスキップ', 'skip');
+}
+
+// 12. 実行ログの最終確認
 const logFile = path.join(process.cwd(), '.logs', 'pre-commit.log');
 if (fs.existsSync(logFile)) {
   const lines = fs.readFileSync(logFile, 'utf8').trim().split('\n').filter(Boolean);
@@ -231,7 +272,7 @@ console.log('');
 // 結果サマリー
 // ===========================
 console.log('================================');
-console.log(`結果: ${results.passed}/11 passed, ${results.failed} failed, ${results.warning} warning${results.skipped > 0 ? `, ${results.skipped} skipped` : ''}`);
+console.log(`結果: ${results.passed}/12 passed, ${results.failed} failed, ${results.warning} warning${results.skipped > 0 ? `, ${results.skipped} skipped` : ''}`);
 
 if (results.failed > 0) {
   console.log('\n❌ ヘルスチェックに問題があります。まず設定を修正してください。');
@@ -290,13 +331,15 @@ if (testRun || simpleRun) {
   if (gitleaksVersion) {
     console.log('[gitleaks テスト]');
 
+    // gitleaks 8.28+ では detect/protect が --help から非表示になった非推奨コマンドのため、
+    // 後継の git サブコマンドを使用する（--staged: ステージ済みのみ / 無指定: 全履歴）
     const gitleaksCmd = fs.existsSync(localBinary)
       ? (simpleRun
-          ? `"${localBinary}" protect --staged -v --config gitleaks.toml`
-          : `"${localBinary}" detect --source . -v --config gitleaks.toml`)
+          ? `"${localBinary}" git --staged -v --config gitleaks.toml .`
+          : `"${localBinary}" git -v --config gitleaks.toml .`)
       : (simpleRun
-          ? 'gitleaks protect --staged -v --config gitleaks.toml'
-          : 'gitleaks detect --source . -v --config gitleaks.toml');
+          ? 'gitleaks git --staged -v --config gitleaks.toml .'
+          : 'gitleaks git -v --config gitleaks.toml .');
 
     console.log(`  ${gitleaksCmd}`);
 
