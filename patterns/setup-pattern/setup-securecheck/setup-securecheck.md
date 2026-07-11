@@ -319,7 +319,7 @@ cp tmp/security-setup/templates/scripts/install-gitleaks.js scripts/
 npm run security:verify
 ```
 
-**期待する結果**: 12 項目のヘルスチェックが実行され、✅ または ⚠️ が表示されます。
+**期待する結果**: 13 項目のヘルスチェックが実行され、✅ または ⚠️ が表示されます。
 
 ---
 
@@ -403,6 +403,12 @@ cp tmp/security-setup/templates/scripts/pre-commit.js scripts/
 > ⚠️ **`simple-git-hooks` キーが既に存在する場合**:
 > 値をマージで温存せず、`pre-commit` の値が `node scripts/pre-commit.js` と完全一致するか必ず確認してください。
 > `|| true` などが付与されている場合、exit code が握りつぶされコミットがブロックされなくなります。異なっていれば上記の値に**修正**し、ステップ 3.4 で再度有効化してください。
+>
+> **例外（複数 git worktree で hooks を共有している場合）**: git worktree は hooks ディレクトリを全 worktree で共有します。`main`/`develop` 等を worktree で分けて運用しており、一部の worktree にしか `scripts/pre-commit.js` を導入していない場合、単純な `node scripts/pre-commit.js` に修正すると未導入側の worktree で毎回コミットが失敗します。この構成では代わりに次のような存在ガード式を許容してください（`|| true` によるexit code握りつぶしとは異なり、ファイルが存在すれば通常通り exit code が伝播するため検出精度は落ちません）。
+>
+> ```json
+> "pre-commit": "if [ -f scripts/pre-commit.js ]; then node scripts/pre-commit.js; fi"
+> ```
 
 ---
 
