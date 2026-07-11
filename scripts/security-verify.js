@@ -97,6 +97,20 @@ function checkResult(passed, message, type = 'normal') {
   }
 })();
 
+// git worktree では .git がディレクトリではなく gitdir ポインタファイル
+// （`gitdir: /path/to/main/.git/worktrees/<name>`）になり、決め打ちの
+// '.git/hooks/pre-commit' は実在するフックを指さない。hooks は全 worktree で
+// 共有される実体を指すため git 自身に解決させる（フォールバックは非 git 環境向け）。
+function resolveGitHookPath(hookName) {
+  const resolved = execCommand(`git rev-parse --git-path hooks/${hookName}`);
+  if (resolved) {
+    return path.isAbsolute(resolved) ? resolved : path.join(process.cwd(), resolved);
+  }
+  return path.join(process.cwd(), '.git', 'hooks', hookName);
+}
+
+const preCommitHookPath = resolveGitHookPath('pre-commit');
+
 // ===========================
 // 存在チェック
 // ===========================
@@ -112,8 +126,8 @@ const gitleaksTomlExists = fileExists('gitleaks.toml');
 checkResult(gitleaksTomlExists, 'gitleaks.toml' + (!gitleaksTomlExists ? ' — ファイルが見つかりません' : ''));
 checks.existence.push({ name: 'gitleaks.toml', exists: gitleaksTomlExists });
 
-// 3. .git/hooks/pre-commit
-const gitHookExists = fileExists('.git/hooks/pre-commit');
+// 3. .git/hooks/pre-commit（worktree では共有 hooks の実パスを解決）
+const gitHookExists = fs.existsSync(preCommitHookPath);
 checkResult(gitHookExists, '.git/hooks/pre-commit' + (!gitHookExists ? ' — ファイルが見つかりません（npx simple-git-hooks を実行してください）' : ''));
 checks.existence.push({ name: '.git/hooks/pre-commit', exists: gitHookExists });
 
@@ -192,7 +206,7 @@ if (gitleaksTomlExists) {
 
 // 8. .git/hooks/pre-commit の内容
 if (gitHookExists) {
-  const precommit = readFile('.git/hooks/pre-commit');
+  const precommit = fs.readFileSync(preCommitHookPath, 'utf8');
   const hasPreCommitJs = precommit && precommit.includes('pre-commit.js');
   const hasSuppression = precommit && /\|\|\s*true/.test(precommit);
   if (hasSuppression) {
