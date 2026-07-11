@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.0.3] - 2026-07-10
+
+### 修正
+
+- **git worktree 構成での pre-commit フック検出の誤検知を修正**
+  - `security-verify.js` の check#3（存在）・check#8（内容）が `.git/hooks/pre-commit` を決め打ちパスで参照しており、worktree では `.git` がgitdirポインタファイルになるため、フックが正しく導入・動作していても常に❌判定になっていた
+  - `git rev-parse --git-path hooks/pre-commit` で実パスを解決するよう修正（hooks は全 worktree で共有される実体を指すため、mainでもworktreeでも正しく検出できる）
+  - 同じ決め打ちパスが `docs-structure-and-securitycheck/setup-all.js` の自動インストーラーにもあったため合わせて修正（SKIP/CREATEログ表示のみに影響、実害はなし）
+
+- **`setup-all.js`（自動インストーラー）が worktree ガード式を無言で上書きする問題を修正**
+  - `simple-git-hooks.pre-commit` の値が `"node scripts/pre-commit.js"` と完全一致しないと問答無用で上書きしていたため、複数 worktree で hooks を共有し一部の worktree にしか `scripts/pre-commit.js` が無い構成で使う存在ガード式（`if [ -f scripts/pre-commit.js ]; then ... fi`）を意図的に使っているプロジェクトに対して再実行すると、ガードが剥がされ未導入側の worktree でコミットが失敗するようになっていた
+  - `security-verify.js` の check#8 と同じ基準（`pre-commit.js` を呼んでおり `|| true` 等の抑制が無ければ良し）による実質判定に変更
+
+- **`setup-securecheck.md` ステップ3.3にworktreeガード式の許容条件を明記**
+  - 「`pre-commit` の値が完全一致するか確認し、異なれば修正する」という既存の判断基準が、複数 worktree 構成での意図的なガード式を一律「不具合」として扱ってしまうケースに対応する注記を追加
+
+- **README.md に残っていた古いヘルスチェック項目数（12/12・12項目）を13に修正**
+  - v2.0.2 で check#13 を追加した際に同期が漏れていた
+
 ## [2.0.2] - 2026-07-09
 
 ### 修正
