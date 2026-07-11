@@ -97,6 +97,32 @@ function writeJson(relPath, data) {
   fs.writeFileSync(path.join(cwd, relPath), JSON.stringify(data, null, 2) + '\n');
 }
 
+// git worktree では .git がディレクトリではなく gitdir ポインタファイルになり、
+// hooks は全 worktree で共有される実体を指すため、決め打ちパスでは常に「存在しない」
+// と誤判定する。git 自身に解決させる（フォールバックは非 git 環境向け）。
+function resolveGitHookPath(hookName) {
+  let resolved;
+  try {
+    resolved = execSync(`git rev-parse --git-path hooks/${hookName}`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+  } catch (e) {
+    resolved = null;
+  }
+  if (resolved) {
+    return path.isAbsolute(resolved) ? resolved : path.join(cwd, resolved);
+  }
+  return path.join(cwd, '.git', 'hooks', hookName);
+}
+
+// simple-git-hooks.pre-commit が「実質的に正しいか」の判定。security-verify.js の
+// check#8 と基準を揃える: pre-commit.js を呼んでおり、exit code を || true 等で
+// 握りつぶしていなければ良しとする。文字列の完全一致を要求すると、複数 worktree で
+// hooks を共有し一部の worktree にしか scripts/pre-commit.js が無い構成で使われる
+// 存在ガード（`if [ -f scripts/pre-commit.js ]; then node scripts/pre-commit.js; fi`）
+// を「不正な値」として上書きしてしまい、導入済みの worktree でコミットが失敗する。
+function isEffectivelyCorrectPreCommitValue(value) {
+  return !!value && value.includes('pre-commit.js') && !/\|\|\s*true/.test(value);
+}
+
 function hasDependency(pkg, name) {
   return !!(
     pkg &&
@@ -368,7 +394,8 @@ if (noHooks) {
     record('SKIP', 'simple-git-hooks（既に devDependencies に存在）');
   }
 
-  // simple-git-hooks.pre-commit は常に一致すべき固定値。既存値が異なれば検証して修正する
+  // simple-git-hooks.pre-commit の値を検証する。完全一致ではなく実質判定
+  // （isEffectivelyCorrectPreCommitValue）で見る理由は上記コメントを参照。
   pkg = readJson('package.json');
   const expectedPreCommit = 'node scripts/pre-commit.js';
   const currentPreCommit = pkg['simple-git-hooks'] && pkg['simple-git-hooks']['pre-commit'];
@@ -376,7 +403,7 @@ if (noHooks) {
     pkg['simple-git-hooks'] = { 'pre-commit': expectedPreCommit };
     writeJson('package.json', pkg);
     record('CREATE', 'package.json simple-git-hooks.pre-commit を追加');
-  } else if (currentPreCommit !== expectedPreCommit) {
+  } else if (!isEffectivelyCorrectPreCommitValue(currentPreCommit)) {
     pkg['simple-git-hooks']['pre-commit'] = expectedPreCommit;
     writeJson('package.json', pkg);
     record(
@@ -384,7 +411,7 @@ if (noHooks) {
       `package.json simple-git-hooks.pre-commit が "${currentPreCommit}" だったため "${expectedPreCommit}" に修正しました`
     );
   } else {
-    record('SKIP', 'package.json simple-git-hooks.pre-commit（既に正しい値）');
+    record('SKIP', `package.json simple-git-hooks.pre-commit（既に有効な値: "${currentPreCommit}"）`);
   }
 
   // postinstall は自由記述だが追加は安全。既存キーは尊重する
@@ -403,7 +430,7 @@ if (noHooks) {
     record('SKIP', 'package.json scripts.postinstall（既に simple-git-hooks を含む）');
   }
 
-  const hookFileExistedBefore = fileExists(path.join('.git', 'hooks', 'pre-commit'));
+  const hookFileExistedBefore = fs.existsSync(resolveGitHookPath('pre-commit'));
   execSync('npx simple-git-hooks', { stdio: 'inherit' });
   if (hookFileExistedBefore) {
     record('SKIP', '.git/hooks/pre-commit（既存フックを npx simple-git-hooks で再同期・変化なし）');
