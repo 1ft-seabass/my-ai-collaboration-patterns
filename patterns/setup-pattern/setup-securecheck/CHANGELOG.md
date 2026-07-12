@@ -31,9 +31,20 @@
 - **v2→v3マイグレーションガイド** (`migration/MIGRATION_GUIDE_v2.1.0_to_v3.0.0.md`, `migration/migrate-to-v3.sh`)
   - `version-detect/scripts/detect-version.js` に v3検出・v2旧レイアウト検出を追加し、該当ガイドへ誘導する
 
+- **対話ウィザードの新設**
+  - `node .security-check/cli.js` を引数なし+TTYで実行すると、上下キーで操作する対話メニューが起動する（`lib/prompt.js`: 依存ゼロのselect/confirmプリミティブ、`lib/wizard.js`: メニュー本体）
+  - `verify`/`install-gitleaks`/`uninstall`を選択式で実行可能。`install-gitleaks`はバイナリDLの前にconfirm、`uninstall`はドライラン計画を自動表示してからconfirmする
+  - 既存のサブコマンド呼び出し・非TTY時の挙動（ヘルプ+exit 1）は変更なし。`pre-commit`はgit hook専用のためメニューには出さない
+
+### 修正
+
+- **`.security-check/` の中から実行した場合の誤動作を修正**
+  - 各サブコマンドは `process.cwd()` 基準でパスを組み立てるため、`cd .security-check && node cli.js` のように中から実行すると `cwd + '.security-check'` が二重にネストしたパスになり、`verify`では誤検知、`install-gitleaks`では `.security-check/.security-check/bin/` への誤導入が発生していた
+  - `cli.js` に `assertRunFromProjectRoot()` を追加し、プロジェクトルート以外から実行された場合はエラーメッセージで即座に検知するよう修正
+
 ### 背景
 
-ユーザーから「協業者に半端な検出体制で参加してもらうリスク」の相談を受け、設計を再検討。詳細は `docs/notes/2026-07-12-10-15-49-setup-securecheck-v3-restructuring-plan.md` を参照。
+ユーザーから「協業者に半端な検出体制で参加してもらうリスク」の相談を受け、設計を再検討。詳細は `docs/notes/2026-07-12-10-15-49-setup-securecheck-v3-restructuring-plan.md` を参照。ウィザード追加と実行場所ガードの修正は、本リポジトリ自身への当て込み検証中にユーザーが実地で発見・依頼したもの。詳細は `docs/notes/2026-07-12-12-34-18-setup-securecheck-v3-wizard-and-cwd-guard-fix.md` を参照。
 
 ## [2.1.0] - 2026-07-12
 

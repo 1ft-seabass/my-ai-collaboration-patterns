@@ -291,7 +291,7 @@ node .security-check/cli.js install-gitleaks
 }
 ```
 
-**注**: 既存の scripts とマージしてください（上書きではなく追加）。`security:verify` や `secret-scan:full` のような複数行は不要です。以後のサブコマンドはすべて `node .security-check/cli.js <subcommand>`（または `npm run security -- <subcommand>`）から実行します。
+**注**: 既存の scripts とマージしてください（上書きではなく追加）。`security:verify` や `secret-scan:full` のような複数行は不要です。以後のサブコマンドはすべて `node .security-check/cli.js <subcommand>`（または `npm run security -- <subcommand>`）から実行します。**必ずプロジェクトルートから実行してください**（`.security-check/`の中に`cd`してから実行するとパス解決が壊れて誤動作します。ルート外から実行した場合はエラーで検知されます）。引数なしでTTYから実行すると対話ウィザードも使えます。
 
 > **⚠️ `verify --test-run` について**:
 > `verify --test-run` は `.gitignore` を無視して全ファイルをスキャンします。
