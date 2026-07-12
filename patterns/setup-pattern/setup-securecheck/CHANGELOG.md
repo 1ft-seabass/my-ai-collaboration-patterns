@@ -1,5 +1,40 @@
 # Changelog
 
+## [3.0.0] - 2026-07-12
+
+### 変更（破壊的）
+
+- **`.security-check/` への構造集約**
+  - `scripts/pre-commit.js` / `scripts/security-verify.js` / `scripts/install-gitleaks.js` / `bin/gitleaks` / `.logs/` を、プロジェクトルート直下の `.security-check/` フォルダ1つに集約（`.husky/`・`.github/`と同様、通常は編集しない「ツール領域」として扱う）
+  - `gitleaks.toml` / `.secretlintrc.json` はユーザーが直接編集する設定ファイルのため、集約対象から除外しリポジトリルートに残した
+  - 背景: gitleaksの有無判定が `pre-commit.js` と `security-verify.js` に別々に（別基準で）実装されており、この「接点の分散」自体が「gitleaksが導入されていないのに気づかれない」状態を生む土壌になっていた。判定ロジックを `.security-check/lib/environment.js` に一本化し、両者が同じ結果を返すようにした
+
+- **`cli.js` 単一エントリポイントの新設**
+  - `package.json` の npm scripts を `security:verify` / `security:verify:simple` / `security:verify:testrun` / `security:install-gitleaks` / `secret-scan` / `secret-scan:full` の6行から `"security": "node .security-check/cli.js"` の1行に統一
+  - サブコマンド: `verify [--simple|--test-run]` / `pre-commit` / `install-gitleaks` / `uninstall [--yes]`
+
+- **gitleaks不在時のフェイルクローズ化**
+  - 従来、gitleaksバイナリが見つからない場合は警告を出すだけでコミットを続行していた（フェイルオープン）。これは「secretlintのみで守られている」半端な状態が気づかれないまま運用されるリスクがあるため、コミットをブロックする挙動（フェイルクローズ）に変更
+  - 中途半端な状態を許容するオプトイン設定は用意しない方針とした（「全部入れる」か `uninstall` で「全部外す」かの二択）
+
+- **アンインストールコマンドの新設**
+  - `node .security-check/cli.js uninstall` を新設。`.security-check/`・package.jsonの該当エントリ・git hookを除去する。デフォルトはドライラン、`--yes`で実行
+  - `gitleaks.toml` / `.secretlintrc.json` は自動削除しない（ユーザー編集対象のため）
+  - v1/v2構成のアンインストールは対象外（先にv3へ移行してから使う）
+
+- **`verify` のヘルスチェック項目数を14→15に変更**
+  - `.security-check/` ディレクトリそのものの存在チェックを追加
+  - 既存14項目のパス表記・メッセージを新構造に合わせて更新
+
+### 追加
+
+- **v2→v3マイグレーションガイド** (`migration/MIGRATION_GUIDE_v2.1.0_to_v3.0.0.md`, `migration/migrate-to-v3.sh`)
+  - `version-detect/scripts/detect-version.js` に v3検出・v2旧レイアウト検出を追加し、該当ガイドへ誘導する
+
+### 背景
+
+ユーザーから「協業者に半端な検出体制で参加してもらうリスク」の相談を受け、設計を再検討。詳細は `docs/notes/2026-07-12-10-15-49-setup-securecheck-v3-restructuring-plan.md` を参照。
+
 ## [2.1.0] - 2026-07-12
 
 ### 追加
