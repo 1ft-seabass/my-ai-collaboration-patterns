@@ -67,7 +67,7 @@
 
 | Phase | 内容 | ここで止めてもOK？ |
 |-------|------|------------------|
-| **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 13/13 なら完了 |
+| **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 14/14 なら完了 |
 | **Phase 1** | 初動スキャン（現状把握） | ✅ 問題発見したらまず対処 |
 | **Phase 2** | 手動運用（npm scripts） | ✅ ライトに運用したい場合 |
 | **Phase 3** | pre-commit 自動化（simple-git-hooks） | ✅ 自動化したい場合 |
@@ -116,7 +116,7 @@ node tmp/security-setup/templates/scripts/security-verify.js
 
 | 結果 | 対応 |
 |------|------|
-| **13/13 passed** | ✅ 完璧！Phase 1-3 はスキップして終了 |
+| **14/14 passed** | ✅ 完璧！Phase 1-3 はスキップして終了 |
 | **❌ が gitleaks 関連の項目のみ（バイナリ未導入・機能的カナリアテスト skip 等）** | ⚠️ gitleaks をインストールすれば完了（Phase 1.4 へ） |
 | **❌ が gitleaks 関連以外** | 🔧 該当項目のみ Phase 1-3 から対応ステップを実施 |
 | **複数の ❌ がある** | 🔧 Phase 1 から導入を開始 |
@@ -145,7 +145,7 @@ node tmp/security-setup/templates/scripts/patch-gitleaks-toml.js
 
 このスクリプトは `[extend] useDefault = true` の追記と `tmp/.*` のアンカー化（`^tmp/.*`）**のみ**を機械的に行い、他のカスタム内容（独自のallowlist/rules）には一切触れません。AIの読み取り判断に依存しないため、どのセッションで実行しても同じ結果になります。
 
-**13/13 の場合**: おめでとうございます！設定は完璧です。
+**14/14 の場合**: おめでとうございます！設定は完璧です。
 - `npm run security:verify:simple` - staged ファイルのみテスト（軽量）
 - `npm run security:verify:testrun` - 全ファイル + 全履歴テスト（重い）
 
@@ -319,7 +319,7 @@ cp tmp/security-setup/templates/scripts/install-gitleaks.js scripts/
 npm run security:verify
 ```
 
-**期待する結果**: 13 項目のヘルスチェックが実行され、✅ または ⚠️ が表示されます。
+**期待する結果**: 14 項目のヘルスチェックが実行され、✅ または ⚠️ が表示されます。
 
 ---
 
@@ -479,6 +479,8 @@ git commit -m "test: should be blocked by pre-commit hook"
 **期待する結果**: コミットが **失敗（ブロック）** される。出力に `=== secretlint ===` と `=== gitleaks ===` の両方のセクションが表示されることを確認してください（片方が失敗してももう片方は必ず実行されます）。
 
 > ℹ️ **このテストの実行は記録されます**: `pre-commit.js` は `.test-secret-canary` がステージされたコミットを検知すると、`.logs/pre-commit.log` に通常のコミットとは別の `type: "canary"` エントリとして記録します。`npm run security:verify` の check#13「ネガティブテスト実行痕跡」はこのエントリの有無を確認するため、**このステップを一度も実行していないと check#13 が ⚠️ になります**。「ネガティブテストをやったつもり」ではなく、実際に実行した記録が残っているかで判定される仕組みです。
+
+> ℹ️ **check#14 との違い**: check#14「毎コミット自動カナリア自己検証の実行痕跡」は、この手動テストとは別に `pre-commit.js` が**毎コミット自動で**（人間が意識せずとも）検出器の生死を確認する仕組みです。ステップ3.6の通常コミットを1回でも実行していれば自動的にログへ記録されるため、check#13と異なりこのステップの実行有無には依存しません。
 
 ### 3.6.5-b: gitleaks 単独でも検出できるか個別に確認
 
