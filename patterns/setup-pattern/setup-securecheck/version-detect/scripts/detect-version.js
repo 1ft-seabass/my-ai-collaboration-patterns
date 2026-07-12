@@ -56,6 +56,10 @@ const hasSimpleGitHooks = !!(
   )
 );
 
+const hookConfig = pkg && pkg['simple-git-hooks'] && pkg['simple-git-hooks']['pre-commit'];
+const hookPointsToCli = !!(hookConfig && /\.security-check\/cli\.js/.test(hookConfig));
+const securityCheckDirExists = fileExists('.security-check/cli.js');
+
 const preCommitHasFullScan = !!(preCommitJs && preCommitJs.includes('secretlint "**/*"'));
 const preCommitHasStagedOnly = !!(preCommitJs && preCommitJs.includes('git diff --cached'));
 
@@ -69,17 +73,17 @@ if (hasHusky || hasLintStaged || huskyDirExists) {
   if (huskyDirExists) reasons.push('.husky/ ディレクトリが存在');
   reason = reasons.join(' / ');
   nextStep = 'MIGRATION_GUIDE_v1_to_v2.0.1.md';
-} else if (hasSimpleGitHooks && preCommitHasStagedOnly) {
-  version = 'v2.0.1';
-  reason = 'simple-git-hooks あり / pre-commit.js に git diff --cached を確認';
+} else if (securityCheckDirExists && hookPointsToCli) {
+  version = 'v3.0.0';
+  reason = '.security-check/cli.js あり / simple-git-hooks が .security-check/cli.js pre-commit を指している';
   nextStep = 'none';
-} else if (hasSimpleGitHooks && preCommitHasFullScan) {
-  version = 'v2.0.0';
-  reason = 'simple-git-hooks あり / pre-commit.js に secretlint "**/*"（全件スキャン）を確認';
-  nextStep = 'MIGRATION_GUIDE_v2.0.0_to_v2.0.1.md';
+} else if (hasSimpleGitHooks && (fileExists('scripts/pre-commit.js') || preCommitHasStagedOnly || preCommitHasFullScan)) {
+  version = 'v2.x（旧 scripts/ レイアウト）';
+  reason = 'simple-git-hooks あり / scripts/pre-commit.js を直接呼ぶ旧レイアウトを検出（.security-check/ 未導入）';
+  nextStep = 'MIGRATION_GUIDE_v2.1.0_to_v3.0.0.md';
 } else if (hasSimpleGitHooks) {
   version = 'v2.x-unknown';
-  reason = 'simple-git-hooks あり / pre-commit.js の内容が想定外（カスタム変更の可能性）';
+  reason = 'simple-git-hooks あり / pre-commit の実体が想定外（カスタム変更の可能性）';
   nextStep = 'manual';
 } else {
   version = 'unknown';

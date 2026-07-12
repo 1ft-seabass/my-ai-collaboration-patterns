@@ -45,9 +45,9 @@ node tmp/securecheck-version-detect/detect-version.js
 🔍 setup-securecheck バージョン検出
 =====================================
 
-検出バージョン : v2.0.0
-判定根拠       : simple-git-hooks あり / pre-commit.js に secretlint "**/*"（全件スキャン）を確認
-次のステップ   : MIGRATION_GUIDE_v2.0.0_to_v2.0.1.md
+検出バージョン : v2.x（旧 scripts/ レイアウト）
+判定根拠       : simple-git-hooks あり / scripts/pre-commit.js を直接呼ぶ旧レイアウトを検出（.security-check/ 未導入）
+次のステップ   : MIGRATION_GUIDE_v2.1.0_to_v3.0.0.md
 
 =====================================
 ```
@@ -60,10 +60,10 @@ node tmp/securecheck-version-detect/detect-version.js
 
 | 検出バージョン | 次のステップ | 案内内容 |
 |---|---|---|
-| `v2.0.1` | `none` | ✅ 最新バージョンです。移行不要。 |
-| `v2.0.0` | `MIGRATION_GUIDE_v2.0.0_to_v2.0.1.md` | ⚠️ `scripts/pre-commit.js` の 1 ファイルだけ更新すれば完了です。移行ガイドを使って進めましょう。 |
-| `v1` | `MIGRATION_GUIDE_v1_to_v2.0.1.md` | 🔧 husky + lint-staged 構成から simple-git-hooks への移行が必要です。移行ガイドを使って進めましょう。 |
-| `v2.x-unknown` | `manual` | 🔍 simple-git-hooks は導入済みですが `pre-commit.js` が想定外の内容です。`scripts/pre-commit.js` の内容をユーザーと一緒に確認してください。 |
+| `v3.0.0` | `none` | ✅ 最新バージョンです。移行不要。 |
+| `v2.x（旧 scripts/ レイアウト）` | `MIGRATION_GUIDE_v2.1.0_to_v3.0.0.md` | 🔧 `.security-check/` への集約・フェイルクローズ化が必要です。移行ガイドを使って進めましょう。 |
+| `v1` | `MIGRATION_GUIDE_v1_to_v2.0.1.md` | 🔧 husky + lint-staged 構成から simple-git-hooks への移行が必要です。まずこちらを完了させてから、必要であれば v3 への移行ガイドに進んでください。 |
+| `v2.x-unknown` | `manual` | 🔍 simple-git-hooks は導入済みですが pre-commit の実体が想定外の内容です。内容をユーザーと一緒に確認してください。 |
 | `unknown` | `setup-securecheck.md` | 🆕 setup-securecheck が未導入の可能性があります。`setup-securecheck.md` から新規導入できます。 |
 
 移行ガイドは以下のコマンドで取得できます：
