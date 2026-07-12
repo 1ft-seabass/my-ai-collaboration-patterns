@@ -145,12 +145,10 @@ prompt.md
 core
 core.*
 
-# gitleaks binary (large binary file)
-bin/
-
 # Temporary files
 tmp/
 .tmp/
 
-# pre-commit 実行ログ（ローカル専用）
-.logs/
+# setup-securecheck: gitleaksバイナリ・実行ログ（ローカル専用、リポジトリに含めない）
+.security-check/bin/
+.security-check/logs/

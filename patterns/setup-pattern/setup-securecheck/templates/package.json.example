@@ -1,15 +1,10 @@
 {
   "scripts": {
-    "security:verify": "node scripts/security-verify.js",
-    "security:verify:simple": "node scripts/security-verify.js --simple",
-    "security:verify:testrun": "node scripts/security-verify.js --test-run",
-    "security:install-gitleaks": "node scripts/install-gitleaks.js",
-    "secret-scan": "secretlint \"**/*\"",
-    "secret-scan:full": "secretlint \"**/*\" && ./bin/gitleaks git . -v --config gitleaks.toml --redact",
+    "security": "node .security-check/cli.js",
     "postinstall": "npx simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "node scripts/pre-commit.js"
+    "pre-commit": "node .security-check/cli.js pre-commit"
   },
   "devDependencies": {
     "secretlint": "^8.0.0",
