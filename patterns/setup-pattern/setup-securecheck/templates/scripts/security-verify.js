@@ -346,13 +346,53 @@ if (fs.existsSync(logFile)) {
   checkResult(false, 'ネガティブテスト実行痕跡 — .logs/pre-commit.log が見つかりません', 'skip');
 }
 
+// 14. 毎コミット自動カナリア自己検証の実行痕跡
+// check#13 は「人間が Step 3.6.5 を手動で1回でも実行したか」を確認するのに対し、
+// こちらは pre-commit.js が毎コミット自動で（git index への一時カナリア注入で）
+// 検出器の生死を確認している仕組みが、直近のコミットで実際に機能していたかを
+// autoCanary ログフィールドの証拠で確認する（同じく事実で判定する）。
+if (fs.existsSync(logFile)) {
+  const lines = fs.readFileSync(logFile, 'utf8').trim().split('\n').filter(Boolean);
+  const entriesWithAutoCanary = lines
+    .map(line => {
+      try {
+        return JSON.parse(line);
+      } catch (e) {
+        return null;
+      }
+    })
+    .filter(entry => entry && entry.autoCanary);
+
+  if (entriesWithAutoCanary.length === 0) {
+    checkResult(false, '自動カナリア自己検証の実行痕跡 — 記録がありません（pre-commit.js が旧バージョンのままか、一度もコミットしていない可能性）', 'warning');
+  } else {
+    const last = entriesWithAutoCanary[entriesWithAutoCanary.length - 1];
+    const { gitleaks: g, secretlint: s } = last.autoCanary;
+    const brokenTools = [g === 'failed' && 'gitleaks', s === 'failed' && 'secretlint'].filter(Boolean);
+    const cleanupFailedTools = [g === 'cleanup-failed' && 'gitleaks', s === 'cleanup-failed' && 'secretlint'].filter(Boolean);
+
+    if (brokenTools.length > 0) {
+      checkResult(false, `自動カナリア自己検証の実行痕跡 — 直近コミット(${last.timestamp.slice(0, 10)})で自己検証が失敗していた形跡があります（${brokenTools.join(', ')}）`);
+    } else if (cleanupFailedTools.length > 0) {
+      checkResult(false, `自動カナリア自己検証の実行痕跡 — 直近コミット(${last.timestamp.slice(0, 10)})でカナリアの後片付けに失敗していた形跡があります（${cleanupFailedTools.join(', ')}）。index/作業ツリーにカナリアが残留していないか確認してください`);
+    } else if (g === 'ok' || s === 'ok') {
+      const skipped = [g !== 'ok' && 'gitleaks', s !== 'ok' && 'secretlint'].filter(Boolean);
+      checkResult(true, `自動カナリア自己検証の実行痕跡 — 直近コミット(${last.timestamp.slice(0, 10)})で確認${skipped.length ? `（${skipped.join(', ')} はスキップ）` : ''}`);
+    } else {
+      checkResult(false, `自動カナリア自己検証の実行痕跡 — 直近コミット(${last.timestamp.slice(0, 10)})で両検出器ともスキップされており自己検証が確認できていません`, 'warning');
+    }
+  }
+} else {
+  checkResult(false, '自動カナリア自己検証の実行痕跡 — .logs/pre-commit.log が見つかりません', 'skip');
+}
+
 console.log('');
 
 // ===========================
 // 結果サマリー
 // ===========================
 console.log('================================');
-console.log(`結果: ${results.passed}/13 passed, ${results.failed} failed, ${results.warning} warning${results.skipped > 0 ? `, ${results.skipped} skipped` : ''}`);
+console.log(`結果: ${results.passed}/14 passed, ${results.failed} failed, ${results.warning} warning${results.skipped > 0 ? `, ${results.skipped} skipped` : ''}`);
 
 if (results.failed > 0) {
   console.log('\n❌ ヘルスチェックに問題があります。まず設定を修正してください。');
