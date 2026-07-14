@@ -63,6 +63,13 @@ function chunk(arr, size) {
   return chunks;
 }
 
+// secretlint の JSON 出力（フォワードスラッシュ）と process.cwd() 由来のパス（Windowsではバックスラッシュ）
+// を比較可能にするための正規化。大文字小文字の区別もWindowsのファイルシステムに合わせて無視する。
+function normalizeForCompare(p) {
+  const resolved = path.resolve(p).replace(/\\/g, '/');
+  return process.platform === 'win32' ? resolved.toLowerCase() : resolved;
+}
+
 function removeGitleaksCanaryFromIndex() {
   try {
     execSync(`git update-index --force-remove "${AUTO_CANARY_GITLEAKS_PATH}"`, { stdio: 'pipe' });
@@ -139,7 +146,7 @@ function run() {
           const results = JSON.parse(output || '[]');
           for (const r of results) {
             if (!r.messages || r.messages.length === 0) continue;
-            if (secretlintCanaryPath && r.filePath === secretlintCanaryPath) {
+            if (secretlintCanaryPath && normalizeForCompare(r.filePath) === normalizeForCompare(secretlintCanaryPath)) {
               canaryDetected = true;
             } else {
               realFindings.push(r);

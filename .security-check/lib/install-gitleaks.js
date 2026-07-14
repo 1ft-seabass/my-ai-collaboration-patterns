@@ -99,11 +99,11 @@ function run() {
       if (response.statusCode === 302 || response.statusCode === 301) {
         https.get(response.headers.location, (redirectResponse) => {
           redirectResponse.pipe(file);
-          file.on('finish', () => { file.close(); extractAndCleanup(); });
+          file.on('finish', () => { file.close(() => extractAndCleanup()); });
         });
       } else {
         response.pipe(file);
-        file.on('finish', () => { file.close(); extractAndCleanup(); });
+        file.on('finish', () => { file.close(() => extractAndCleanup()); });
       }
     }).on('error', (err) => {
       fs.unlinkSync(downloadPath);
