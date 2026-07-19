@@ -50,14 +50,15 @@ node ./tmp/setup-all/setup-all.js --no-hooks
 | ステップ | 冪等性の担保方法 |
 |---|---|
 | `.git` / `package.json` の初期化 | 無ければ作成、あれば触らない |
-| 既存フック（husky等）検出 | `setup-securecheck/version-detect` の判定ロジックを再利用。v1検出時は自動移行せず中断し、移行ガイド取得コマンドを案内 |
+| 既存フック（husky等・旧`scripts/`レイアウト）検出 | `.security-check/lib/environment.js` の`detectLegacyV1`/`detectLegacyV2`と同じ判定ロジック。v1（husky/lint-staged）・v2（`.security-check/`移行前の旧`scripts/`レイアウト）のどちらを検出した場合も自動移行せず中断し、移行ガイド取得コマンドを案内する（`bin/gitleaks`やログの移設を伴うv2→v3移行は自動化のリスクが高いため、既存の`MIGRATION_GUIDE_v2.1.0_to_v3.0.0.md`/`migrate-to-v3.sh`に委ねる） |
 | `docs/` 配置 | ファイル単位で差分コピー（既存ファイルは触らない）。ディレクトリの存在だけでは判定しない（中断されたセットアップの再実行でも不足分を補完できるようにするため） |
 | `.secretlintrc.json` / `gitleaks.toml` 配置 | ファイルが無い時だけコピー（あれば触らない＝ユーザー領域を尊重） |
 | secretlint / simple-git-hooks インストール | 依存関係の有無を確認してからインストール |
-| gitleaks バイナリ | 存在チェックだけで済ませず `bin/gitleaks version` で動作確認。壊れていれば `install-gitleaks.js` の自己修復（再インストール）を必ず呼び出す |
-| npm scripts 追記 | 既存キーを尊重してマージ |
-| `simple-git-hooks.pre-commit` の値 | **常に `node scripts/pre-commit.js` と一致すべき固定値として検証し、異なれば修正する** |
-| `.gitignore` 追記 | 行単位で重複チェックしてから追記 |
+| `.security-check/`（`cli.js` + `lib/*.js` + `README.md`）配置 | `docs/`と同じくファイル単位の差分コピー。中断された再実行でも不足分だけ補完する |
+| gitleaks バイナリ | 存在チェックだけで済ませず `.security-check/bin/gitleaks version` で動作確認。壊れていれば `node .security-check/cli.js install-gitleaks` の自己修復（再インストール）を必ず呼び出す |
+| npm scripts 追記 | 既存キーを尊重してマージ（`scripts.security: "node .security-check/cli.js"` の1行のみ） |
+| `simple-git-hooks.pre-commit` の値 | **常に `.security-check/cli.js` を指す値として検証し、異なれば修正する**（`node .security-check/cli.js pre-commit`） |
+| `.gitignore` 追記 | 行単位で重複チェックしてから追記（`.security-check/bin/`, `.security-check/logs/`） |
 
 ### 自動化しない部分（人間の判断が必要）
 
@@ -66,13 +67,13 @@ node ./tmp/setup-all/setup-all.js --no-hooks
 | secretlint / gitleaks の初回スキャン結果の解釈 | 本物のシークレットかプレースホルダーか、判断が必要 |
 | 検出時の対応（無効化・allowlist追加・履歴削除） | 人間の意思決定そのもの |
 
-`setup-all.js` はセットアップ完了後、「`npm run secret-scan:full` を実行し、検出があれば `setup-securecheck.md` の判断表を見て対応してください」という案内だけを出して止まります。
+`setup-all.js` はセットアップ完了後、「`npm run security -- verify --test-run` を実行し、検出があれば `setup-securecheck.md` の判断表を見て対応してください」という案内だけを出して止まります。
 
 ---
 
 ## 📋 実行ログ
 
-`.logs/setup-all.log` に実行結果が **上書き** で記録されます（累積履歴ではなく直近1回のスナップショット）。
+`.security-check/logs/setup-all.log` に実行結果が **上書き** で記録されます（累積履歴ではなく直近1回のスナップショット）。`.security-check/logs/` は`.gitignore`で除外されるローカル専用ディレクトリのため、`setup-securecheck`本体の実行ログ（`pre-commit.log`）と同じ場所に置くことで誤コミットを防いでいます。
 
 ```
 [docs-structure]
@@ -83,7 +84,7 @@ node ./tmp/setup-all/setup-all.js --no-hooks
   CREATE  gitleaks.toml
 
 [simple-git-hooks]
-  FIXED   package.json simple-git-hooks.pre-commit が "node scripts/pre-commit.js || true" だったため "node scripts/pre-commit.js" に修正しました
+  FIXED   package.json simple-git-hooks.pre-commit が "node .security-check/cli.js pre-commit || true" だったため "node .security-check/cli.js pre-commit" に修正しました
 ```
 
 4カテゴリの意味：

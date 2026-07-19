@@ -24,7 +24,10 @@ const DOCS_STRUCTURE_SRC = `${REPO}/patterns/docs-structure/templates`;
 const SECURECHECK_SRC = `${REPO}/patterns/setup-pattern/setup-securecheck/templates`;
 const MIGRATION_SRC = `${REPO}/patterns/setup-pattern/setup-securecheck/migration`;
 const FETCH_DIR = path.join(cwd, 'tmp', 'setup-all-fetch');
-const LOG_FILE = path.join(cwd, '.logs', 'setup-all.log');
+// setup-securecheck v3 は実行痕跡を .security-check/logs/ に集約しているため、
+// このインストーラー自身のログもそこに合わせる（別に .logs/ を作ると、
+// v3 の .gitignore（.security-check/logs/ のみ）ではカバーされず誤ってコミットされうる）。
+const LOG_FILE = path.join(cwd, '.security-check', 'logs', 'setup-all.log');
 
 console.log('🚀 docs-structure-and-securitycheck 統合インストーラー');
 console.log('=====================================\n');
@@ -113,14 +116,13 @@ function resolveGitHookPath(hookName) {
   return path.join(cwd, '.git', 'hooks', hookName);
 }
 
-// simple-git-hooks.pre-commit が「実質的に正しいか」の判定。security-verify.js の
-// check#8 と基準を揃える: pre-commit.js を呼んでおり、exit code を || true 等で
+// simple-git-hooks.pre-commit が「実質的に正しいか」の判定。.security-check/lib/verify.js の
+// check#5 と基準を揃える: .security-check/cli.js を呼んでおり、exit code を || true 等で
 // 握りつぶしていなければ良しとする。文字列の完全一致を要求すると、複数 worktree で
-// hooks を共有し一部の worktree にしか scripts/pre-commit.js が無い構成で使われる
-// 存在ガード（`if [ -f scripts/pre-commit.js ]; then node scripts/pre-commit.js; fi`）
-// を「不正な値」として上書きしてしまい、導入済みの worktree でコミットが失敗する。
+// hooks を共有し一部の worktree にしか .security-check/ が無い構成で使われる
+// 存在ガード等を「不正な値」として上書きしてしまうおそれがあるため、実質判定にする。
 function isEffectivelyCorrectPreCommitValue(value) {
-  return !!value && value.includes('pre-commit.js') && !/\|\|\s*true/.test(value);
+  return !!value && /\.security-check\/cli\.js/.test(value) && !/\|\|\s*true/.test(value);
 }
 
 function hasDependency(pkg, name) {
@@ -214,52 +216,58 @@ if (!fileExists('package.json')) {
   record('SKIP', 'package.json（既に存在）');
 }
 
-// version-detect/scripts/detect-version.js のロジックを再利用（二重実装を避ける）
-function detectHookVersion() {
+// husky/lint-staged ベースの v1 構成の検出。
+// .security-check/lib/environment.js の detectLegacyV1() と判定ロジックを同一に保つこと。
+function detectLegacyV1() {
   const pkg = readJson('package.json');
-  const preCommitJs = readFile('scripts/pre-commit.js');
-
-  const hasHusky = !!(
-    pkg &&
-    ((pkg.devDependencies && pkg.devDependencies['husky']) ||
-      (pkg.dependencies && pkg.dependencies['husky']))
-  );
-  const hasLintStaged = !!(
-    pkg &&
-    ((pkg.devDependencies && pkg.devDependencies['lint-staged']) ||
-      (pkg.dependencies && pkg.dependencies['lint-staged']) ||
-      pkg['lint-staged'])
-  );
+  const hasHusky = !!(pkg && ((pkg.devDependencies && pkg.devDependencies['husky']) || (pkg.dependencies && pkg.dependencies['husky'])));
+  const hasLintStaged = !!(pkg && ((pkg.devDependencies && pkg.devDependencies['lint-staged']) || (pkg.dependencies && pkg.dependencies['lint-staged']) || pkg['lint-staged']));
   const huskyDirExists = fileExists('.husky');
-  const hasSimpleGitHooks = !!(
-    pkg &&
-    ((pkg.devDependencies && pkg.devDependencies['simple-git-hooks']) ||
-      (pkg.dependencies && pkg.dependencies['simple-git-hooks']) ||
-      pkg['simple-git-hooks'])
-  );
-  const preCommitHasFullScan = !!(preCommitJs && preCommitJs.includes('secretlint "**/*"'));
-  const preCommitHasStagedOnly = !!(preCommitJs && preCommitJs.includes('git diff --cached'));
 
-  if (hasHusky || hasLintStaged || huskyDirExists) return 'v1';
-  if (hasSimpleGitHooks && preCommitHasStagedOnly) return 'v2.0.1';
-  if (hasSimpleGitHooks && preCommitHasFullScan) return 'v2.0.0';
-  if (hasSimpleGitHooks) return 'v2.x-unknown';
-  return 'none';
+  const reasons = [];
+  if (hasHusky) reasons.push('husky が devDependencies に存在');
+  if (hasLintStaged) reasons.push('lint-staged が devDependencies/設定に存在');
+  if (huskyDirExists) reasons.push('.husky/ ディレクトリが存在');
+
+  return { detected: reasons.length > 0, reasons };
 }
 
-const hookVersion = detectHookVersion();
-console.log(`  検出された既存フック: ${hookVersion}`);
+// v2構成（scripts/pre-commit.js を simple-git-hooks から直接呼ぶ旧レイアウト）の検出。
+// .security-check/lib/environment.js の detectLegacyV2() と判定ロジックを同一に保つこと。
+// .security-check/ が既に存在する場合は v3 導入済み（= 冪等な再実行）とみなし、検出しない。
+function detectLegacyV2() {
+  if (fileExists('.security-check')) return { detected: false, reasons: [] };
 
-if (hookVersion === 'v1') {
+  const pkg = readJson('package.json');
+  const reasons = [];
+  if (fileExists('scripts/pre-commit.js')) reasons.push('scripts/pre-commit.js が存在（.security-check/ 移行前のレイアウト）');
+
+  const hookConfig = pkg && pkg['simple-git-hooks'] && pkg['simple-git-hooks']['pre-commit'];
+  if (hookConfig && /scripts\/pre-commit\.js/.test(hookConfig)) {
+    reasons.push(`package.json の simple-git-hooks.pre-commit が旧パスを指している（${hookConfig}）`);
+  }
+
+  return { detected: reasons.length > 0, reasons };
+}
+
+const v1 = detectLegacyV1();
+if (v1.detected) {
   abort(
-    'husky/lint-staged（v1）が検出されました。setup-all.js は v1 からの自動移行に対応していません。\n' +
-      '   以下で移行ガイドを取得してから移行を進めてください:\n' +
+    'husky/lint-staged（v1）が検出されました（' + v1.reasons.join(' / ') + '）。\n' +
+      '   setup-all.js は v1 からの自動移行に対応していません。以下で移行ガイドを取得してから移行を進めてください:\n' +
       `   npx degit ${MIGRATION_SRC} ./tmp/securecheck-migration`
   );
 }
-if (hookVersion === 'v2.x-unknown') {
-  console.log('  ⚠️  scripts/pre-commit.js の内容が想定外です（カスタム変更の可能性）。');
-  console.log('     scripts/pre-commit.js 自体は上書きしません。setup-securecheck.md を参照して手動確認してください。');
+
+const v2 = detectLegacyV2();
+if (v2.detected) {
+  abort(
+    'v2（旧 scripts/ レイアウト）が検出されました（' + v2.reasons.join(' / ') + '）。\n' +
+      '   setup-all.js は v2 → v3（.security-check/ 集約）への自動移行に対応していません（bin/gitleaksやログの移設を伴うため）。\n' +
+      '   以下で移行ガイドを取得してから移行を進めてください:\n' +
+      `   npx degit ${MIGRATION_SRC} ./tmp/securecheck-migration\n` +
+      '   参照: MIGRATION_GUIDE_v2.1.0_to_v3.0.0.md / migrate-to-v3.sh'
+  );
 }
 
 // ===========================
@@ -310,13 +318,10 @@ if (!hasDependency(pkg, 'secretlint') || !hasDependency(pkg, '@secretlint/secret
 section('npm scripts');
 pkg = readJson('package.json');
 pkg.scripts = pkg.scripts || {};
+// v3 は .security-check/cli.js を単一エントリポイントとするため、
+// security:verify 等の個別スクリプトは不要（`npm run security -- verify` 等で代替）
 const REQUIRED_SCRIPTS = {
-  'security:verify': 'node scripts/security-verify.js',
-  'security:verify:simple': 'node scripts/security-verify.js --simple',
-  'security:verify:testrun': 'node scripts/security-verify.js --test-run',
-  'security:install-gitleaks': 'node scripts/install-gitleaks.js',
-  'secret-scan': 'secretlint "**/*"',
-  'secret-scan:full': 'secretlint "**/*" && ./bin/gitleaks detect --source . -v --config gitleaks.toml',
+  security: 'node .security-check/cli.js',
 };
 let scriptsChanged = false;
 for (const [key, value] of Object.entries(REQUIRED_SCRIPTS)) {
@@ -327,19 +332,26 @@ for (const [key, value] of Object.entries(REQUIRED_SCRIPTS)) {
 }
 if (scriptsChanged) {
   writeJson('package.json', pkg);
-  record('MERGE', 'package.json scripts に security:* / secret-scan:* を追加（既存キーは尊重）');
+  record('MERGE', 'package.json scripts に security を追加（既存キーは尊重）');
 } else {
   record('SKIP', 'package.json scripts（必要なキーは既に存在）');
 }
 
 // ===========================
-// scripts/*.js 配置
+// .security-check/ 配置（cli.js + lib/*.js + README.md）
 // ===========================
-section('scripts配置');
-copyIfMissing(path.join(securecheckFetchDir, 'scripts', 'security-verify.js'), 'scripts/security-verify.js');
-copyIfMissing(path.join(securecheckFetchDir, 'scripts', 'install-gitleaks.js'), 'scripts/install-gitleaks.js');
-if (!noHooks) {
-  copyIfMissing(path.join(securecheckFetchDir, 'scripts', 'pre-commit.js'), 'scripts/pre-commit.js');
+section('.security-check 配置');
+const securityCheckExistedBefore = fileExists('.security-check');
+const securityCheckCreatedCount = copyRecursiveSkipExisting(
+  path.join(securecheckFetchDir, '.security-check'),
+  path.join(cwd, '.security-check')
+);
+if (securityCheckCreatedCount === 0) {
+  record('SKIP', '.security-check/（既に存在・不足ファイルなし）');
+} else if (!securityCheckExistedBefore) {
+  record('CREATE', `.security-check/（${securityCheckCreatedCount} ファイル作成）`);
+} else {
+  record('MERGE', `.security-check/ の不足ファイルを ${securityCheckCreatedCount} 件補完しました`);
 }
 
 // ===========================
@@ -348,7 +360,7 @@ if (!noHooks) {
 section('gitleaks バイナリ');
 const isWindows = process.platform === 'win32';
 const binaryName = isWindows ? 'gitleaks.exe' : 'gitleaks';
-const binaryRelPath = path.join('bin', binaryName);
+const binaryRelPath = path.join('.security-check', 'bin', binaryName);
 const binaryExistedBefore = fileExists(binaryRelPath);
 let binaryWasValidBefore = false;
 if (binaryExistedBefore) {
@@ -361,20 +373,20 @@ if (binaryExistedBefore) {
 }
 
 if (binaryExistedBefore && binaryWasValidBefore) {
-  record('SKIP', `bin/${binaryName}（既にインストール済み・動作確認OK）`);
+  record('SKIP', `${binaryRelPath}（既にインストール済み・動作確認OK）`);
 } else {
-  // install-gitleaks.js は「存在するが実行できない」場合に自己修復（再インストール）する。
+  // install-gitleaks は「存在するが実行できない」場合に自己修復（再インストール）する。
   // ここで存在チェックだけを見て呼び出しを省略すると、その自己修復ロジックを迂回してしまうため、
   // 壊れている可能性がある場合は必ず呼び出す。
   try {
-    execSync('node scripts/install-gitleaks.js', { stdio: 'inherit' });
+    execSync('node .security-check/cli.js install-gitleaks', { stdio: 'inherit' });
   } catch (e) {
     abort('gitleaks のインストールに失敗しました（原因は上記のログを参照）。手動インストールも可能です: https://github.com/gitleaks/gitleaks/releases');
   }
   if (!binaryExistedBefore) {
-    record('CREATE', `bin/${binaryName}（gitleaks インストール）`);
+    record('CREATE', `${binaryRelPath}（gitleaks インストール）`);
   } else {
-    record('FIXED', `bin/${binaryName} が壊れていて実行できなかったため再インストールしました`);
+    record('FIXED', `${binaryRelPath} が壊れていて実行できなかったため再インストールしました`);
   }
 }
 
@@ -397,7 +409,7 @@ if (noHooks) {
   // simple-git-hooks.pre-commit の値を検証する。完全一致ではなく実質判定
   // （isEffectivelyCorrectPreCommitValue）で見る理由は上記コメントを参照。
   pkg = readJson('package.json');
-  const expectedPreCommit = 'node scripts/pre-commit.js';
+  const expectedPreCommit = 'node .security-check/cli.js pre-commit';
   const currentPreCommit = pkg['simple-git-hooks'] && pkg['simple-git-hooks']['pre-commit'];
   if (!pkg['simple-git-hooks']) {
     pkg['simple-git-hooks'] = { 'pre-commit': expectedPreCommit };
@@ -447,15 +459,13 @@ section('.gitignore');
   const gitignorePath = path.join(cwd, '.gitignore');
   const content = fs.existsSync(gitignorePath) ? fs.readFileSync(gitignorePath, 'utf8') : '';
   const existingLines = content.split('\n').map((l) => l.trim());
-  const requiredPatterns = ['bin/', '.logs/'];
+  const requiredPatterns = ['.security-check/bin/', '.security-check/logs/'];
   const missing = requiredPatterns.filter((p) => !existingLines.includes(p));
 
   if (missing.length === 0) {
-    record('SKIP', '.gitignore（bin/, .logs/ は既に記載済み）');
+    record('SKIP', '.gitignore（.security-check/bin/, .security-check/logs/ は既に記載済み）');
   } else {
-    const toAppend = [];
-    if (missing.includes('bin/')) toAppend.push('', '# gitleaks binary (large binary file)', 'bin/');
-    if (missing.includes('.logs/')) toAppend.push('', '# pre-commit 実行ログ（ローカル専用）', '.logs/');
+    const toAppend = ['', '# setup-securecheck: gitleaksバイナリ・実行ログ（ローカル専用、リポジトリに含めない）', ...missing];
     fs.writeFileSync(gitignorePath, content.replace(/\n?$/, '\n') + toAppend.join('\n') + '\n');
     record('MERGE', `.gitignore に ${missing.join(', ')} を追加`);
   }
@@ -469,11 +479,12 @@ writeLog();
 
 console.log('\n=====================================');
 console.log('✅ セットアップ完了');
-console.log(`実行ログ: .logs/setup-all.log`);
+console.log(`実行ログ: .security-check/logs/setup-all.log`);
 console.log('\n次のステップ:');
-console.log('  1. npm run secret-scan:full を実行してください');
+console.log('  1. npm run security -- verify --test-run を実行してください');
 console.log('     検出があれば setup-securecheck.md の「検出時の対応フロー」を参照して判断してください');
 console.log('     （本物のシークレットかどうかの判断は人間が行う必要があります）');
 if (!noHooks) {
   console.log('  2. シークレットを含むダミーコミットを試し、pre-commit フックが実際にブロックすることを確認してください（ネガティブテスト）');
 }
+console.log('  対話ウィザード（TTY環境）でも同じ操作ができます: node .security-check/cli.js');
