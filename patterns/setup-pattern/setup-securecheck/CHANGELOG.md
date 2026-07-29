@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0.1] - 2026-07-29
+
+### 修正
+
+- **secretlint の出力が大きい場合にパースエラーでコミットが誤ブロックされる問題を修正**
+  - `pre-commit.js` は secretlint を `execSync` の戻り値（パイプ経由）としてJSON出力を受け取っていたが、`--format json` の出力はスキャン対象ファイルの全文（`sourceContent`）を毎回含む仕様のため、vendorライブラリの一括コミット等でファイル数・サイズが増えると出力が数MB規模に達する
+  - この環境ではNode.jsの`execSync`/`execFileSync`が子プロセスの標準出力をパイプ経由で大量に読み取ると、`maxBuffer`の設定値に関わらず出力が途中で切れる現象が確認された（根本原因は完全特定できていないが、ファイル出力経由なら発生しない）
+  - 切り詰められた不完全なJSON文字列の`JSON.parse`が例外となり、フェイルクローズでコミットがブロックされていた（漏洩ではなく誤検知）
+  - gitleaks側が既に使っている「`--report-path`でファイルに書き出し`fs.readFileSync`で読む」パターンに倣い、secretlint側も`--output`でJSONを一時ファイルに書き出す方式に変更（`.security-check/lib/pre-commit.js` / テンプレート側 同時修正）
+
 ## [3.0.0] - 2026-07-12
 
 ### 変更（破壊的）

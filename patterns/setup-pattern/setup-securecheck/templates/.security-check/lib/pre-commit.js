@@ -135,12 +135,24 @@ function run() {
 
       // --format json: カナリアと実ファイルの検出結果をファイル単位で区別するため
       // （stylish 出力のままだと「何かリークが見つかった」以上の判定ができない）
+      //
+      // --output でファイルへ書き出し、execSync の戻り値（パイプ経由）としては受け取らない。
+      // vendorライブラリ一括コミット等でJSON出力が数百KB〜MB級になるケースで、
+      // このNode.js環境ではパイプ経由の子プロセス出力captureが約210KB付近で
+      // 打ち切られることが確認されており（原因未特定）、打ち切られた不完全な
+      // JSON文字列のパースに失敗してコミットが誤ブロックされていた。
+      const secretlintReportPath = path.join(os.tmpdir(), `pre-commit-secretlint-report-${process.pid}.json`);
       for (const files of chunk(secretlintScanTargets, 100)) {
+        try {
+          execSync(`npx secretlint --format json --output "${secretlintReportPath}" ${files.map(f => `"${f}"`).join(' ')}`, { stdio: 'pipe' });
+        } catch (e) {
+          // 検出ありの場合 exit code 1 で終了するが、--output 指定時はファイルには正常に書き出される
+        }
         let output = '';
         try {
-          output = execSync(`npx secretlint --format json ${files.map(f => `"${f}"`).join(' ')}`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
-        } catch (e) {
-          output = e.stdout || '';
+          output = fs.existsSync(secretlintReportPath) ? fs.readFileSync(secretlintReportPath, 'utf8') : '';
+        } finally {
+          try { fs.rmSync(secretlintReportPath, { force: true }); } catch (e) { /* ignore */ }
         }
         try {
           const results = JSON.parse(output || '[]');
