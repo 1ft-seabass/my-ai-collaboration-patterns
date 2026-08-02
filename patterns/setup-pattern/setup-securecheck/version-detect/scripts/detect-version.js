@@ -72,7 +72,7 @@ if (hasHusky || hasLintStaged || huskyDirExists) {
   if (hasLintStaged) reasons.push('lint-staged が devDependencies/設定に存在');
   if (huskyDirExists) reasons.push('.husky/ ディレクトリが存在');
   reason = reasons.join(' / ');
-  nextStep = 'MIGRATION_GUIDE_v1_to_v2.0.1.md';
+  nextStep = 'MIGRATION_GUIDE_v1_to_v3.0.0.md';
 } else if (securityCheckDirExists && hookPointsToCli) {
   version = 'v3.0.0';
   reason = '.security-check/cli.js あり / simple-git-hooks が .security-check/cli.js pre-commit を指している';

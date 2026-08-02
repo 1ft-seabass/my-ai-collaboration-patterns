@@ -114,7 +114,7 @@ node tmp/security-setup/templates/.security-check/cli.js verify
 
 ### 0-a. husky/lint-staged（v1構成）の警告が出た場合
 
-ヘルスチェックの実行結果の**冒頭**に `⚠️ husky/lint-staged ベースの v1 構成を検出しました` という警告が出た場合、このプロジェクトはまだ v1（husky + lint-staged）のままです。**このままPhase 1に進まないでください**。先に `migration/MIGRATION_GUIDE_v1_to_v2.0.1.md` を参照し、v2への移行を完了させてから、改めてこのヘルスチェックをやり直してください。
+ヘルスチェックの実行結果の**冒頭**に `⚠️ husky/lint-staged ベースの v1 構成を検出しました` という警告が出た場合、このプロジェクトはまだ v1（husky + lint-staged）のままです。**このままPhase 1に進まないでください**。先に `migration/MIGRATION_GUIDE_v1_to_v3.0.0.md` を参照し、v3への移行を完了させてから（v2は経由しません）、改めてこのヘルスチェックをやり直してください。
 
 ### 0-b. v2（旧 scripts/ レイアウト）の警告が出た場合
 

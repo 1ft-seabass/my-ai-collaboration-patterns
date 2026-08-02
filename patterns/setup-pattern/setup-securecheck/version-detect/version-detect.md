@@ -62,7 +62,7 @@ node tmp/securecheck-version-detect/detect-version.js
 |---|---|---|
 | `v3.0.0` | `none` | ✅ 最新バージョンです。移行不要。 |
 | `v2.x（旧 scripts/ レイアウト）` | `MIGRATION_GUIDE_v2.1.0_to_v3.0.0.md` | 🔧 `.security-check/` への集約・フェイルクローズ化が必要です。移行ガイドを使って進めましょう。 |
-| `v1` | `MIGRATION_GUIDE_v1_to_v2.0.1.md` | 🔧 husky + lint-staged 構成から simple-git-hooks への移行が必要です。まずこちらを完了させてから、必要であれば v3 への移行ガイドに進んでください。 |
+| `v1` | `MIGRATION_GUIDE_v1_to_v3.0.0.md` | 🔧 husky + lint-staged 構成から `.security-check/` 集約構成（v3）への移行が必要です。v2 は経由せず直接 v3 へ移行します。 |
 | `v2.x-unknown` | `manual` | 🔍 simple-git-hooks は導入済みですが pre-commit の実体が想定外の内容です。内容をユーザーと一緒に確認してください。 |
 | `unknown` | `setup-securecheck.md` | 🆕 setup-securecheck が未導入の可能性があります。`setup-securecheck.md` から新規導入できます。 |
 

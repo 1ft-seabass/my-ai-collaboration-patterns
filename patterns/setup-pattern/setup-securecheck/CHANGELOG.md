@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.0.2] - 2026-08-02
+
+### 修正
+
+- **`"type": "module"` プロジェクトで `.security-check/cli.js` が `require is not defined` で即死する問題を修正**
+  - `.security-check/cli.js` はCommonJS（`require`使用）だが、host側の`package.json`に`"type": "module"`があると、Node.jsはディレクトリ配下の`.js`をESMとして解釈しようとしていた
+  - `.security-check/package.json`（`{"type": "commonjs"}`のみ）を新設し、ディレクトリ単位でモジュール形式を明示。`.security-check/`は新規導入（`cp -r`）・v2→v3移行（`migrate-to-v3.sh`）のどちらでも自動的に含まれる
+  - 移行に限らず新規導入でも起きるバグのため、テンプレート（`templates/.security-check/package.json`）とこのリポジトリの実動コピー（`.security-check/package.json`）の両方に追加
+
+- **v1→v2.0.1 移行ガイドが実行不能になっていた問題を修正（v1→v3.0.0 直行ガイドに置き換え）**
+  - v3.0.0のリポジトリ構造集約時に`templates/scripts/`配下のv2向けファイル（`pre-commit.js`等）が削除されており、`MIGRATION_GUIDE_v1_to_v2.0.1.md` Step 4のコピー手順が必ず失敗する状態になっていた
+  - `MIGRATION_GUIDE_v1_to_v2.0.1.md`・`migrate-to-v2.sh`を削除し、v2を経由せず直接v3.0.0へ移行する`MIGRATION_GUIDE_v1_to_v3.0.0.md`・`migrate-to-v3-from-v1.sh`を新設
+  - `version-detect/scripts/detect-version.js`・`version-detect.md`・`README.md`・`setup-securecheck.md`・`verify.js`（テンプレート／実動両方）の案内先を新ガイドに更新
+
+- **v1→v3移行時、`"prepare": "husky"` が package.json に残ったままだと将来の `npm install` が壊れる問題に対応**
+  - 新ガイドのStep 2で、npm操作（uninstall/install）を実行する前に`"prepare": "husky"`等のhusky関連scriptsを削除する手順を追加
+  - 検証: `"prepare": "husky"`を残したままhuskyをアンインストールした状態で`npm install`を実行すると`sh: 1: husky: not found`で失敗することを確認。先に`prepare`を削除しておけば発生しないことも確認
+
 ## [3.0.1] - 2026-07-29
 
 ### 修正

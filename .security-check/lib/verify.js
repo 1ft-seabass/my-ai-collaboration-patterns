@@ -80,7 +80,7 @@ function run(args) {
   if (v1.detected) {
     console.log('⚠️  husky/lint-staged ベースの v1 構成を検出しました（' + v1.reasons.join(' / ') + '）');
     console.log('    このまま進めると、既存の v1 設定の上に新しい構成が重なり混在状態になる可能性があります。');
-    console.log('    先に migration/MIGRATION_GUIDE_v1_to_v2.0.1.md を参照してください。');
+    console.log('    先に migration/MIGRATION_GUIDE_v1_to_v3.0.0.md を参照してください。');
     console.log('');
   }
 

@@ -49,7 +49,7 @@ secretlint + gitleaks によるシークレットスキャンの**ウィザー�
 > ```
 >
 > バージョン検出を経由せず直接ガイドを使いたい場合:
-> - v1（husky + lint-staged）→ v2: `migration/MIGRATION_GUIDE_v1_to_v2.0.1.md`
+> - v1（husky + lint-staged）→ v3（`.security-check/` 集約、v2は経由しない）: `migration/MIGRATION_GUIDE_v1_to_v3.0.0.md`
 > - v2.x（`scripts/` 直下レイアウト）→ v3（`.security-check/` 集約）: `migration/MIGRATION_GUIDE_v2.1.0_to_v3.0.0.md`
 
 ---
