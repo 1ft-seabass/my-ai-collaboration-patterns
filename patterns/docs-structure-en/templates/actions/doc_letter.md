@@ -61,7 +61,7 @@ Project operation rules
 - Dev notes → docs/notes/ (naming: yyyy-mm-dd-hh-mm-ss-{title}.md, read README/TEMPLATE when creating) Note: Create notes only within the session-end handoff flow
 - Handoffs → docs/letters/ (this file, read README/TEMPLATE when creating) Note: Create handoffs only when the user explicitly requests it
 - Commits: If this repo is public, omit Claude traces (signature, emoji); if private, Claude traces are OK
-- Avoid unnecessary commits. If a commit is unavoidable, always inform the user and get approval first.
+- Avoid unnecessary commits and keep working. When a commit is needed, ask about it separately from continuing the work — e.g. "OK to proceed with the work?" vs. "OK to commit now?" — and get explicit approval before committing (commit timing is usually decided explicitly by the human).
 
 Project start / restart / stop / status commands
 

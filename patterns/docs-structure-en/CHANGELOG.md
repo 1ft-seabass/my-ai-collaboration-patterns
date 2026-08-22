@@ -4,6 +4,15 @@ Change history for the docs-structure-en pattern.
 
 ---
 
+## [1.2.3] - 2026-08-22
+
+### Fixed
+- `templates/actions/00_session_end.md`, `templates/actions/doc_letter.md`: Clarified the operating rules in the handoff message to ask separately about continuing work vs. committing ("OK to proceed with the work?" vs. "OK to commit now?")
+  - A single "yes" could otherwise be misread as approving either one
+  - Made explicit that commit timing is usually decided by the human
+
+---
+
 ## [1.2.2] - 2026-04-18
 
 ### Fixed
