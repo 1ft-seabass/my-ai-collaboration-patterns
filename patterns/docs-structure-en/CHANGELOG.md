@@ -4,6 +4,18 @@ Change history for the docs-structure-en pattern.
 
 ---
 
+## [1.2.5] - 2026-09-22
+
+### Removed
+- `templates/actions/check_my_security_prepare_level.md` — rarely used, and its diagnostic logic (husky pre-commit-based, Level 0/1/2 model) had gone stale and duplicated what setup-securecheck now does natively in v3 (its own version detection and canary self-verification), never having followed the v2.0.0 simple-git-hooks migration or the v3 fail-closed redesign
+  - Removed references from `templates/actions/help.md`, `templates/actions/README.md`
+  - Removed references from `patterns/setup-pattern/docs-structure-for-branch/for_branch_init.md`'s rewrite-target list and completion notice
+
+### Fixed
+- `patterns/setup-pattern/README.md`: Removed a dead link to `patterns/actions-pattern/`, which was removed in v1.2.0
+
+---
+
 ## [1.2.4] - 2026-09-22
 
 ### Added

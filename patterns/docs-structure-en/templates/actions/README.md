@@ -30,10 +30,6 @@ AI reads the instruction file and executes the defined task.
 - `doc_letter.md` - Create handoff only
 - `doc_note_and_commit.md` - Create note + commit (lightweight session end)
 
-### Security / setup
-
-- `check_my_security_prepare_level.md` - Security readiness diagnosis
-
 ### Development quality (experimental)
 
 - `dev_review.md` - Code review (diagnosis)

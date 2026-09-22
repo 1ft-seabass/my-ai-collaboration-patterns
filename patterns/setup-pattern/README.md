@@ -185,8 +185,7 @@ cp -r my-ai-collaboration-patterns/patterns/setup-pattern/setup-securecheck ./se
 
 ## 🔗 関連パターン
 
-- [actions-pattern](../actions-pattern/) - AI への指示テンプレート
-- [docs-structure](../docs-structure/) - ドキュメント構造の説明
+- [docs-structure](../docs-structure/) - ドキュメント構造の説明（actions によるAIへの指示テンプレートを含む）
 - [docs-structure-for-branch](./docs-structure-for-branch/) - ブランチ専用ドキュメント構造初期化
 
 ## ⚡ 効果

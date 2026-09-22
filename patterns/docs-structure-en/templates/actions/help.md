@@ -76,22 +76,11 @@ Test creation (guardrail)
 
 ---
 
-## 🔒 Security / setup
-
-**`@actions/check_my_security_prepare_level.md`**
-Security readiness diagnosis
-- Diagnose docs-structure + secretlint/gitleaks installation status
-- Determine Level 0/1/2 and visualize risk
-- Present improvement suggestions
-
----
-
 ## 💡 Usage guide
 
 | Situation | Action to use |
 |-----------|--------------|
 | At session start (rules not shared yet) | `@actions/start_init_rule.md` |
-| At project start | `@actions/check_my_security_prepare_level.md` |
 | At session end | `@actions/00_session_end.md` |
 | Before pushing | `@actions/01_git_push.md` |
 | Mid-session commit | `@actions/git_commit.md` |

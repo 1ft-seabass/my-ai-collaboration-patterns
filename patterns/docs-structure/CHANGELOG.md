@@ -4,6 +4,18 @@ docs-structure パターンの変更履歴。
 
 ---
 
+## [1.2.5] - 2026-09-22
+
+### 廃止
+- `templates/actions/check_my_security_prepare_level.md` を廃止（利用頻度が低く、setup-securecheck 側が v3 で独自のバージョン検出・自己検証（カナリア）を持つようになったため、診断ロジックが重複・陳腐化していた。husky pre-commit 前提のまま v2.0.0 の simple-git-hooks 移行や v3 のフェイルクローズ設計に追従できていなかった）
+  - `templates/actions/help.md`, `templates/actions/README.md` から参照を削除
+  - `patterns/setup-pattern/docs-structure-for-branch/for_branch_init.md` の書き換え対象ファイル一覧・完了通知からも参照を削除
+
+### 修正
+- `patterns/setup-pattern/README.md`: v1.2.0 で廃止済みの `patterns/actions-pattern/` へのデッドリンクを削除
+
+---
+
 ## [1.2.4] - 2026-09-22
 
 ### 追加

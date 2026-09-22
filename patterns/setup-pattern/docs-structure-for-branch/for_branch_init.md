@@ -126,7 +126,6 @@
      'docs/actions/doc_note.md',
      'docs/actions/doc_letter.md',
      'docs/actions/doc_note_and_commit.md',
-     'docs/actions/check_my_security_prepare_level.md',
    ];
    const re = /docs\/(?:branches\/.+?\/)?(?=notes\/|letters\/|tasks\/)/g;
    const target = 'docs/branches/' + branch + '/';
@@ -181,7 +180,6 @@
    - docs/actions/doc_note.md
    - docs/actions/doc_letter.md
    - docs/actions/doc_note_and_commit.md
-   - docs/actions/check_my_security_prepare_level.md（存在する場合）
 
    以降はそのまま @docs/actions/ を使ってください。
    ノート・申し送りは docs/branches/{branch-name}/ 以下に作成されます。

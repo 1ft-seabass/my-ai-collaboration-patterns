@@ -75,22 +75,11 @@
 
 ---
 
-## 🔒 セキュリティ・セットアップ系
-
-**`@actions/check_my_security_prepare_level.md`**
-セキュリティ準備レベル診断
-- docs-structure + secretlint/gitleaks の導入状況を診断
-- Level 0/1/2 を判定してリスクを可視化
-- 改善提案を提示
-
----
-
 ## 💡 使い分けガイド
 
 | 状況 | 使うアクション |
 |------|---------------|
 | セッション開始時（ルール未共有） | `@actions/start_init_rule.md` |
-| プロジェクト開始時 | `@actions/check_my_security_prepare_level.md` |
 | セッション終了 | `@actions/00_session_end.md` |
 | プッシュ前チェック | `@actions/01_git_push.md` |
 | 作業中のコミット | `@actions/git_commit.md` |
