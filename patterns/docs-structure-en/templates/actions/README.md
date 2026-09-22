@@ -19,6 +19,10 @@ AI reads the instruction file and executes the defined task.
 - `00_session_end.md` - Full session end (create note → commit → create handoff)
 - `01_git_push.md` - Strict push check (secrets scan)
 
+### Session start
+
+- `start_init_rule.md` - Session operating rule init (prevents mistakes from unshared rules)
+
 ### Individual task actions
 
 - `git_commit.md` - Commit only (no push)

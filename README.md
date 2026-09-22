@@ -23,7 +23,7 @@ AIが理解しやすいドキュメント管理と actions による作業自動
 - プロジェクト開始時のドキュメント構造構築
 - 申し送り・ノートの体系的管理
 - AIセッション間の文脈引き継ぎ
-- ブランチ作業（`@actions/for_branch_init.md` で初期化）
+- ブランチ作業（[docs-structure-for-branch](./patterns/setup-pattern/docs-structure-for-branch/) で初期化）
 
 **主な機能**:
 - 4フォルダ構成（notes/letters/tasks/actions）

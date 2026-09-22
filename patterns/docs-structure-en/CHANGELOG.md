@@ -4,6 +4,17 @@ Change history for the docs-structure-en pattern.
 
 ---
 
+## [1.2.4] - 2026-09-22
+
+### Added
+- `templates/actions/start_init_rule.md`: New action to confirm/share operating rules at session start, addressing mistakes that happen when work starts before rules are shared (if `00_session_end.md` closes a session, this opens one)
+
+### Fixed
+- `templates/actions/00_session_end.md`, `templates/actions/doc_letter.md`: Fixed a bug where the note-creation caveat in the handoff message incorrectly read "create notes only within the session-end handoff flow"; unified it with the handoff caveat to read "create only when the user explicitly requests it"
+- `templates/actions/doc_letter.md`: Unified the commit-rule wording with `00_session_end.md` (it previously read "omit Claude traces if public, keep them if private"; now reads "follow the existing commit log (git log)")
+
+---
+
 ## [1.2.3] - 2026-08-22
 
 ### Fixed

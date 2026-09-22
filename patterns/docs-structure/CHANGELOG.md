@@ -4,6 +4,18 @@ docs-structure パターンの変更履歴。
 
 ---
 
+## [1.2.4] - 2026-09-22
+
+### 追加
+- `templates/actions/start_init_rule.md`: セッション開始時に運用ルールを確認・共有するアクションを追加。ノールールのまま作業が始まって事故る問題への対処（`00_session_end.md` が終了時の締めくくりなら、これは開始時の入口）
+
+### 修正
+- `templates/actions/00_session_end.md`, `templates/actions/doc_letter.md`, `examples/01_example-letter.md`: 引き継ぎメッセージ内の運用ルールで、ノート作成の注意書きが「セッション終了時の申し送りフロー内でのみ実行すること」という誤った文言になっていたバグを修正し、申し送りと同じ「ユーザーが明示的に指示したときのみ実行すること」に統一
+- `templates/actions/doc_letter.md`, `examples/01_example-letter.md`: コミットルールの文言が `00_session_end.md` と食い違っていた（公開/非公開でAI痕跡の有無を分ける旧文言）のを「従来のコミットログ（git log）を参考に統一する」文言に統一
+- `templates/actions/help.md`, `templates/actions/README.md`: v1.2.1 で `for_branch_init.md` を `patterns/setup-pattern/docs-structure-for-branch/` へ移動済みにもかかわらず、actions の一つとして掲載され続けていた記載を削除
+
+---
+
 ## [1.2.3] - 2026-08-22
 
 ### 修正

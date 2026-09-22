@@ -18,6 +18,16 @@ Strict push check
 
 ---
 
+## 🎬 Session start
+
+**`@actions/start_init_rule.md`**
+Session operating rule init
+- Prevents mistakes from starting work before rules are shared
+- Confirm/share operating rules at the start of a new session
+- If `00_session_end.md` closes a session, this opens one
+
+---
+
 ## 🔧 Individual task actions
 
 **`@actions/git_commit.md`**
@@ -80,6 +90,7 @@ Security readiness diagnosis
 
 | Situation | Action to use |
 |-----------|--------------|
+| At session start (rules not shared yet) | `@actions/start_init_rule.md` |
 | At project start | `@actions/check_my_security_prepare_level.md` |
 | At session end | `@actions/00_session_end.md` |
 | Before pushing | `@actions/01_git_push.md` |

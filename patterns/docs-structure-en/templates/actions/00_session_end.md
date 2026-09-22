@@ -107,7 +107,7 @@ docs/letters/yyyy-mm-dd-hh-mm-ss-title.md is the handoff file. Please read it. C
 
 Project operation rules
 
-- Dev notes → docs/notes/ (naming: yyyy-mm-dd-hh-mm-ss-{title}.md, read README/TEMPLATE when creating) Note: Create notes only within the session-end handoff flow
+- Dev notes → docs/notes/ (naming: yyyy-mm-dd-hh-mm-ss-{title}.md, read README/TEMPLATE when creating) Note: Create notes only when the user explicitly requests it
 - Handoffs → docs/letters/ (this file, read README/TEMPLATE when creating) Note: Create handoffs only when the user explicitly requests it
 - Commits: Follow the existing commit log (git log) — match AI signature presence, prefix (feat:/fix:/docs:), and language
 - Avoid unnecessary commits and keep working. When a commit is needed, ask about it separately from continuing the work — e.g. "OK to proceed with the work?" vs. "OK to commit now?" — and get explicit approval before committing (commit timing is usually decided explicitly by the human).

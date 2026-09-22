@@ -18,6 +18,16 @@
 
 ---
 
+## 🎬 セッション開始用
+
+**`@actions/start_init_rule.md`**
+セッション運用ルール初期化
+- ノールールのまま作業を始めて事故るのを防ぐ
+- 新しいセッションの冒頭で運用ルールを確認・共有
+- `00_session_end.md` が「終了」なら、これは「開始」
+
+---
+
 ## 🔧 個別タスク用アクション
 
 **`@actions/git_commit.md`**
@@ -65,16 +75,6 @@
 
 ---
 
-## 🌿 ブランチ作業用
-
-**`@actions/for_branch_init.md`**
-ブランチ専用ドキュメント構造の初期化
-- `docs/{branch-name}/notes,letters,tasks/` を作成
-- 4つの action ファイルのパスをブランチ専用に書き換え
-- 以降はそのまま `@docs/actions/` を使える
-
----
-
 ## 🔒 セキュリティ・セットアップ系
 
 **`@actions/check_my_security_prepare_level.md`**
@@ -89,7 +89,7 @@
 
 | 状況 | 使うアクション |
 |------|---------------|
-| ブランチ作業開始時 | `@actions/for_branch_init.md` |
+| セッション開始時（ルール未共有） | `@actions/start_init_rule.md` |
 | プロジェクト開始時 | `@actions/check_my_security_prepare_level.md` |
 | セッション終了 | `@actions/00_session_end.md` |
 | プッシュ前チェック | `@actions/01_git_push.md` |
