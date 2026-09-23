@@ -18,7 +18,7 @@ tags: [kit, build-kit, setup-local, docs-structure, setup-securecheck, fable]
 
 ---
 
-**セッション参加者**: 田中正吾、Claude
+**セッション参加者**: ユーザー、Claude
 **位置づけ**: 地道に磨いてきた setup-securecheck / docs-structure を俯瞰し、「AI 開発がすぐはじめられるフォルダ一式 (kit)」へ引き上げる構想。観測 → 構想 → 責務の遷移 → 疎結合の順で整理し、末尾に決定事項と完成形の一枚絵を置く。
 
 ---
@@ -31,12 +31,12 @@ tags: [kit, build-kit, setup-local, docs-structure, setup-securecheck, fable]
 |---|---|---|
 | docs-structure | 1.2.3 (2026-08-22) | 経緯システム。`templates/` → `docs/` に配置 |
 | setup-securecheck | 3.0.2 (2026-08-02) | セキュリティチェック。`templates/` → ルートに配置 |
-| ibm-bob-codeengine-sample-02 | 適用例 (Windows / PowerShell / Bob) | 2026-09-21 に両方導入 |
-| tokaiec-port-forward-tool-web | 適用例 (Linux コンテナ / Claude) | 2026-09-09 に両方導入 |
+| 案件A | 適用例 (Windows / PowerShell / Bob) | 2026-09-21 に両方導入 |
+| 案件B | 適用例 (Linux コンテナ / Claude) | 2026-09-09 に両方導入 |
 
 ### 1.2 最大の事実: 成果物はテンプレートと byte 単位で完全一致
 
-| 対象 | ibm-bob (Win) | tokaiec (Linux) |
+| 対象 | 案件A (Win) | 案件B (Linux) |
 |---|---|---|
 | `docs/` 配下 20 ファイル | 完全一致 | 完全一致 |
 | `.security-check/` 一式 | 完全一致 | 完全一致 |
@@ -68,7 +68,7 @@ tags: [kit, build-kit, setup-local, docs-structure, setup-securecheck, fable]
 
 ### 1.5 「経緯システム → セキュリティチェック」の順序の理由
 
-- docs-structure は package.json 不要、securecheck は package.json 必須 (tokaiec では `npm init -y` が挟まった)
+- docs-structure は package.json 不要、securecheck は package.json 必須 (案件B では `npm init -y` が挟まった)
 - securecheck の背景説明は「`docs/notes` に経緯を残す運用では本物が紛れやすい」と docs-structure の存在を前提に書かれている
 - docs-structure 側には `check_my_security_prepare_level.md` と `01_git_push.md` (機密スキャン) が入っている
 
@@ -78,12 +78,12 @@ tags: [kit, build-kit, setup-local, docs-structure, setup-securecheck, fable]
 
 | # | 内容 | 影響 |
 |---|---|---|
-| a | Phase 0.1 の `node tmp/security-setup/templates/.security-check/cli.js verify` は v3 の cwd ガードで必ず落ちる (tokaiec ノートで実証済み) | ウィザードの入口が壊れている |
+| a | Phase 0.1 の `node tmp/security-setup/templates/.security-check/cli.js verify` は v3 の cwd ガードで必ず落ちる (案件Bのノートで実証済み) | ウィザードの入口が壊れている |
 | b | `check_my_security_prepare_level.md` が v1 世代のまま (husky / `./bin/gitleaks` / `secret-scan` / Phase 4)。docs-structure 1.2.3 と securecheck 3.0.2 の同期漏れ | 「まとめたい」痛みの実体の一つ |
 | c | `docs/README.md` (templates/README.md) の actions 名が旧名、存在しない `SETUP.md` を参照 | docs-structure 内部の同期漏れ |
-| d | ibm-bob の `.gitignore` が非 UTF-8 (PowerShell の追記で Shift_JIS 化)。tokaiec は UTF-8 | 「OS 非依存」の唯一の破れ。コピーではなく追記操作が OS 依存を持ち込んだ |
-| e | ibm-bob のネガティブテスト「ブロックされなかった」の Bob の診断 (自動カナリアと同値だからスルー) はコードと矛盾。pre-commit.js はパス (`.canary-probe`) で判定しており値では判定しない。真因候補は Windows 側 (PowerShell 5.1 の `>` が UTF-16LE を吐く、または手順書末尾の `# gitleaks:allow secretlint-disable-line` がファイルに混入)。未確定 | Windows 経路の検証が 1 段甘い可能性 |
-| f | tokaiec の README は 1 行のみ。clone 後の再開手順がリポジトリ内に無い | 再開の再現性が README 次第 |
+| d | 案件A の `.gitignore` が非 UTF-8 (PowerShell の追記で Shift_JIS 化)。案件B は UTF-8 | 「OS 非依存」の唯一の破れ。コピーではなく追記操作が OS 依存を持ち込んだ |
+| e | 案件A のネガティブテスト「ブロックされなかった」の Bob の診断 (自動カナリアと同値だからスルー) はコードと矛盾。pre-commit.js はパス (`.canary-probe`) で判定しており値では判定しない。真因候補は Windows 側 (PowerShell 5.1 の `>` が UTF-16LE を吐く、または手順書末尾の `# gitleaks:allow secretlint-disable-line` がファイルに混入)。未確定 | Windows 経路の検証が 1 段甘い可能性 |
+| f | 案件B の README は 1 行のみ。clone 後の再開手順がリポジトリ内に無い | 再開の再現性が README 次第 |
 | g | `package.json.example` の secretlint `^8` vs 実際 `^12`/`^13` | 軽微 |
 
 ### 1.7 仮説への観測からの反応
@@ -102,7 +102,7 @@ AI ウィザードを軽くするのではなく、**ウィザードから決定
 |---|---|---|---|---|
 | **焼き込み** | リポジトリに残る。全プロジェクトで同一 | 過去 (immutable) | A ファイル配置、B/C/D (新規なら) | フォルダ一式のコピー |
 | **かぶせ** | マシンごと・clone ごと。gitignore 領域 | 現在 (ローカル) | E gitleaks DL・hook 有効化、F 痕跡づくり | 1 コマンド (決定論) |
-| **判断** | 中身を読んで決める | セッション | B マージ (既存のみ)、G 初回スキャン解釈 | AI + 田中さん |
+| **判断** | 中身を読んで決める | セッション | B マージ (既存のみ)、G 初回スキャン解釈 | AI + ユーザー |
 
 letters/notes の「時制で分ける」整理と同じ構造。焼き込みは repo に、かぶせは .gitignore 配下に、判断は会話に、と置き場所が性質で決まる。
 
@@ -222,7 +222,7 @@ node .security-check/cli.js setup-local
 | 3.5.5-c フェイルクローズ | `mv` で退避・復元 | パターン側テストへ | 手順書から消える |
 | クリーンアップ | `rm -rf tmp/security-setup/` | **手順ごと削除** | `tmp/` は gitignore 済みなので残しても無害。消す手順そのものが不要 |
 
-**`scan` サブコマンドについて**: 今の `verify --test-run` は 15 項目が通らないとスキャンに進まない (tokaiec が Phase 2 でハマった点) ので、導入途中では使えない。「ヘルスチェックに関係なく、今あるものでスキャンだけする」入口として `scan --staged` / `scan --all` を新設する。判断層 (G) への材料出しを Node に寄せるもので、判断そのものは AI + 人のまま。主戦場は既存案件 (履歴に何が眠っているかを見る)。新規は履歴が空なので出番はほぼない。
+**`scan` サブコマンドについて**: 今の `verify --test-run` は 15 項目が通らないとスキャンに進まない (案件B が Phase 2 でハマった点) ので、導入途中では使えない。「ヘルスチェックに関係なく、今あるものでスキャンだけする」入口として `scan --staged` / `scan --all` を新設する。判断層 (G) への材料出しを Node に寄せるもので、判断そのものは AI + 人のまま。主戦場は既存案件 (履歴に何が眠っているかを見る)。新規は履歴が空なので出番はほぼない。
 
 ---
 
@@ -242,7 +242,7 @@ node .security-check/cli.js setup-local
 | 初回スキャンの呼び出し | 人が secretlint / gitleaks を OS 別に叩く | **`scan --all` (Node)** | 同左 (既存のみ) |
 | 「安全」の定義 (15 項目) | cli `verify` | cli `verify` | 同左 |
 | Level 0/1/2 判定 | docs-structure の action が**散文で独自判定 (v1 世代)** | (1' で) **cli の結果を読み替えるだけ** | 同左 |
-| clone 後の再開手順 | 案件 README 次第 (tokaiec は無い) | securecheck が **`README.example`** を持つ | kit README に**最初から載る** |
+| clone 後の再開手順 | 案件 README 次第 (案件B は無い) | securecheck が **`README.example`** を持つ | kit README に**最初から載る** |
 | 初回スキャンの解釈 | AI + 人 | AI + 人 | 既存のみ AI + 人 (新規は履歴が無いので不要) |
 | 導入ノート | AI | AI | AI |
 | 新規 / 既存の分岐 | **1 本の wizard で両方** | 1 本 | **kit (新規) と wizard (既存) に分離** |
@@ -357,12 +357,12 @@ kit を作ることで初めて手厚くできる。今の手順書は新規と�
 | Phase 0 ヘルスチェック (入口が cwd ガードで壊れている) | ① `install.js` でコピー先行 → `verify`。Phase 0 の順序反転で観測 a が消える |
 | Phase 1 テンプレ配置・npm・初回スキャン | ② `package.json` / `.gitignore` のマージ (AI の判断。gitignore は `patch-gitignore.js` で UTF-8 追記) → `npm install` |
 | Phase 2 npm scripts | ③ `setup-local` (決定論) |
-| Phase 3 hooks・ネガティブテスト・最終確認 | ④ `scan --all` で履歴を含む初回スキャン → 結果の解釈 (AI + 田中さんの判断)。定期監査は従来通り `verify --test-run` |
+| Phase 3 hooks・ネガティブテスト・最終確認 | ④ `scan --all` で履歴を含む初回スキャン → 結果の解釈 (AI + ユーザーの判断)。定期監査は従来通り `verify --test-run` |
 
 「手厚く」の中身は、手順を増やすことではなく判断が要る分岐を丁寧にすること:
 
 - husky/lint-staged 検知 (既にある) に加えて、`"type":"module"`・monorepo (`package.json` がルートに無い)・worktree・`.gitignore` の文字コード
-- 既存 `docs/` があるが `notes/ letters/ actions/` が揃っていない場合は、**検知して状況を報告し、田中さんの判断を待つ** (勝手にマージ・移設しない。docs-structure の update ワンショットの「無ければ停止」と同じ線)
+- 既存 `docs/` があるが `notes/ letters/ actions/` が揃っていない場合は、**検知して状況を報告し、ユーザーの判断を待つ** (勝手にマージ・移設しない。docs-structure の update ワンショットの「無ければ停止」と同じ線)
 - 履歴に本物が見つかった時の対応フロー (BFG・トークン無効化)。既存案件で一番判断が重く、AI と人間が一緒にいる価値が最大の場所
 
 ### ワンショット指示の Before / After
@@ -386,7 +386,7 @@ AI に渡す一文は「kit を入れた。`docs/notes` に導入ノートを 1 
 | # | 論点 | 決定 | 根拠 |
 |---|---|---|---|
 | 1 | かぶせコマンドの名前 | **`setup-local`** | 「焼き込み = repo」「かぶせ = local」の対比。`bootstrap` は CSS の Bootstrap と混同、`resume` は新規初回に合わず、`init` は git/npm と紛れる |
-| 2 | 具体化の順序 | **`setup-local` → `build-kit.js`** | 段 1 → 段 2 の依存そのもの。既存案件 (tokaiec / ibm-bob) が今すぐ恩恵を受ける |
+| 2 | 具体化の順序 | **`setup-local` → `build-kit.js`** | 段 1 → 段 2 の依存そのもの。既存案件 (案件B / 案件A) が今すぐ恩恵を受ける |
 | 3 | フェイルクローズ確認 (`--full`) | **作らない。手順書から消し、パターン repo の Node テストへ** | コードの性質でありマシンごとに変わらない。案件ごとの退避・復元は事故の芽 |
 | 4 | 観測 e (Windows 真因) | **追わない。OS で揺れる処理は全部 Node に** | setup-local で経路ごと消える。棚卸しは 4.1 |
 | 5 | `scan` サブコマンド | **段 1 に含める** | 手順書から OS 別の書き分けが完全に消える。主戦場は既存案件 |
@@ -440,9 +440,9 @@ AI に渡す一文は「kit を入れた。`docs/notes` に導入ノートを 1 
 ## 関連リンク
 
 - [my-ai-collaboration-patterns](https://github.com/1ft-seabass/my-ai-collaboration-patterns)
-- 原資 (セッションフォルダ内): `setup-securecheck.zip` / `docs-structure.zip` / `ibm-bob-codeengine-sample-02-main.zip` / `tokaiec-port-forward-tool-web-main.zip`
+- 原資 (セッションフォルダ内): `setup-securecheck.zip` / `docs-structure.zip` / `案件A-main.zip` / `案件B-main.zip`
 
 ---
 
 **最終更新**: 2026-09-22
-**作成者**: Fable + 田中正吾（原資） / Claude Code（移植）
+**作成者**: Fable + ユーザー（原資） / Claude Code（移植）
