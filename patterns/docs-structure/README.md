@@ -238,14 +238,11 @@ docs/
 
 ## 🔗 関連パターン
 
-- [server-management](../server-management/) - サーバー管理スクリプト（このドキュメント構造で管理可能）
-- [prompt-engineering](../prompt-engineering/) - プロンプト設計（Coming Soon）
 - [docs-structure-for-branch](../setup-pattern/docs-structure-for-branch/) - ブランチ専用ドキュメント構造の初期化（feature ブランチ作業時）
 
 ## 📚 詳細ドキュメント
 
 詳細な使い方やカスタマイズ方法は以下を参照：
-- [GUIDE.md](./GUIDE.md) - AI向け補足ガイド（degit後に読む）
 - [examples/](./examples/) - 具体的な使用例
 
 ## 🛠️ カスタマイズ

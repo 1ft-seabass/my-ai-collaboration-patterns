@@ -4,6 +4,22 @@ docs-structure パターンの変更履歴。
 
 ---
 
+## [1.2.6] - 2026-09-23
+
+### 廃止
+- `GUIDE.md` を廃止（ja/en）。`templates/`に含まれずdegitで配布されないため実質誰にも読まれておらず、内容が陳腐化（存在しないディレクトリ構造・actionファイル名を記載）していた。導入時に実際に使われる一次動線（パターンルート`README.md`冒頭のワンショット指示）には一切関与していなかったため、廃止しても実害なし
+- `SETUP.md`（リポジトリルート）を廃止。docs-structureパターンとは無関係（このモノレポ自身の古い構造説明）で、どこからも参照されていなかった
+
+### 修正
+- `templates/README.md`（ja/en、配布先`docs/README.md`）: 存在しないaction名（`git_commit_and_push.md`, `current_create_knowledge.md`, `simple_start_from_latest_letter.md`）の記載を、実在するファイル名（`01_git_push.md`, `doc_letter.md`, `start_init_rule.md`）またはREADME.mdへの参照に修正
+- `templates/README.md`（ja/en）: 陳腐化した「必要に応じて追加できるフォルダ」節（`ai-collaboration/`, `architecture/`, `development/`, `spec/`）を削除。同ファイル内で「READMEの手動一覧は更新漏れのリスクがある」と自ら述べている方針と矛盾していたため
+- `templates/README.md`（ja/en）、`docs/README.md`: 廃止した`SETUP.md`へのデッドリンクを削除
+- `patterns/docs-structure/README.md`（ja/en）: 「関連パターン」節の`server-management`/`prompt-engineering`（実在しないディレクトリ）へのデッドリンクを削除
+- `templates/actions/README.md`（ja/en）、`docs/actions/README.md`: 廃止した`GUIDE.md`への参照を削除
+- ルート`README.md`: 廃止した`GUIDE.md`への言及3箇所を修正（パターン紹介・特徴・コントリビューションガイド）
+
+---
+
 ## [1.2.5] - 2026-09-22
 
 ### 廃止

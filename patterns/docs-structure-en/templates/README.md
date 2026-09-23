@@ -31,17 +31,6 @@ Stores records of technical trial & error and problem-solving.
 - **Naming**: `yyyy-mm-dd-hh-mm-ss-{title}.md`
 - **Template**: [TEMPLATE.md](./notes/TEMPLATE.md)
 
-## 📁 Folders you can add as needed
-
-Add these once the project matures and letters/notes have accumulated:
-
-- `ai-collaboration/` - AI collaboration guide
-- `architecture/` - Architecture design / ADR
-- `development/` - Development guide / best practices
-- `spec/` - Specifications
-
-**Important**: Unused folders confuse both AI and humans. Add them only when needed.
-
 ## 🔍 Searching documents
 
 **No need to maintain lists in README.** AI can search with Grep/Glob, so manual lists risk going stale.
@@ -64,7 +53,7 @@ See each directory's TEMPLATE.md for detailed search methods.
 
 ### At session start (using actions)
 ```
-@actions/simple_start_from_latest_letter.md
+@actions/start_init_rule.md
 ```
 
 ### At session start (manual)
@@ -97,4 +86,3 @@ See each directory's TEMPLATE.md for detailed search methods.
 ## 🔗 Related links
 
 - [Top README](../README.md) - Repository overview
-- [SETUP.md](../SETUP.md) - Setup instructions

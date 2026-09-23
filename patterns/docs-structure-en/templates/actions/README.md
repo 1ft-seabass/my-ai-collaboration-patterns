@@ -70,5 +70,4 @@ Using the actions pattern:
 ## Detailed documentation
 
 - [README.md](../../README.md) - Pattern overview
-- [GUIDE.md](../../GUIDE.md) - Setup guide
 - [examples/](../../examples/) - Concrete usage examples

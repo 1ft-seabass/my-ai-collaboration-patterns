@@ -10,7 +10,7 @@
 繰り返し実行するタスクの指示書を格納しています。
 
 - `@actions/ファイル名.md` で呼び出すことで、AIが自動的にタスクを実行
-- 提供アクション: git_commit_and_push, current_create_knowledge, simple_start_from_latest_letter
+- 利用可能なアクション: [actions/README.md](./actions/README.md) を参照
 
 ### [letters/](./letters/) - 申し送り
 セッション間の引き継ぎ、作業状況の記録を時系列で格納しています。
@@ -30,17 +30,6 @@
 
 - **命名規則**: `yyyy-mm-dd-hh-mm-ss-{title}.md`
 - **テンプレート**: [TEMPLATE.md](./notes/TEMPLATE.md)
-
-## 📁 必要に応じて追加できるフォルダ
-
-プロジェクトが成熟し、letters や notes がたまってきたら、以下のようなフォルダを追加できます：
-
-- `ai-collaboration/` - AI協働開発ガイド
-- `architecture/` - アーキテクチャ設計・ADR
-- `development/` - 開発ガイド・ベストプラクティス
-- `spec/` - 仕様書
-
-**重要**: 使っていないフォルダがあると、AIも人間も混乱します。必要になったタイミングで追加してください。
 
 ## 🔍 ドキュメント検索について
 
@@ -64,7 +53,7 @@ grep -r "失敗した理由" docs/notes/
 
 ### セッション開始時（actionsを使用）
 ```
-@actions/simple_start_from_latest_letter.md
+@actions/start_init_rule.md
 ```
 
 ### セッション開始時（手動）
@@ -74,7 +63,7 @@ grep -r "失敗した理由" docs/notes/
 
 ### 申し送り作成（actionsを使用）
 ```
-@actions/current_create_knowledge.md
+@actions/doc_letter.md
 ```
 
 ### 申し送り作成（手動）
@@ -84,7 +73,7 @@ grep -r "失敗した理由" docs/notes/
 
 ### コミット&プッシュ（actionsを使用）
 ```
-@actions/git_commit_and_push.md
+@actions/01_git_push.md
 ```
 
 ## 📝 ドキュメント管理の原則
@@ -97,4 +86,3 @@ grep -r "失敗した理由" docs/notes/
 ## 🔗 関連リンク
 
 - [トップREADME](../README.md) - リポジトリ概要
-- [SETUP.md](../SETUP.md) - セットアップ指示書

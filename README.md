@@ -88,7 +88,7 @@ cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
 
 ### 詳細ガイド
 
-各パターンの詳細は、パターンディレクトリ内の `README.md` と `GUIDE.md` を参照してください。
+各パターンの詳細は、パターンディレクトリ内の `README.md` を参照してください。
 
 - [docs-structure パターン](./patterns/docs-structure/README.md)
 - [setup-pattern セットアップガイド](./patterns/setup-pattern/README.md)
@@ -96,7 +96,7 @@ cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
 ## 🎯 特徴
 
 - **すぐ使える**: GitHub URL 指定だけで取得
-- **ワンショット指示**: GUIDE.md でAIが即座に構造を構築
+- **ワンショット指示**: README.md でAIが即座に構造を構築
 - **実証済み**: このリポジトリ自身で使用（ドッグフーディング）
 - **AI最適化**: AIアシスタントが理解しやすい構造
 - **具体例付き**: examples/ に実際の使用例を収録
@@ -114,7 +114,7 @@ cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
 
 ### パターン追加の流れ
 1. `patterns/your-pattern/` を作成
-2. README.md, GUIDE.md, templates/, examples/ を配置
+2. README.md, templates/, examples/ を配置
 3. プルリクエストを作成
 
 参考例:

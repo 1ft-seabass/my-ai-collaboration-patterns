@@ -236,14 +236,11 @@ By placing README.md in every directory:
 
 ## 🔗 Related patterns
 
-- [server-management](../server-management/) - Server management scripts (manageable with this document structure)
-- [prompt-engineering](../prompt-engineering/) - Prompt design (Coming Soon)
 - [docs-structure-for-branch](../setup-pattern/docs-structure-for-branch/) - Initialize branch-specific document structure (for feature branch work)
 
 ## 📚 Detailed documentation
 
 For detailed usage and customization:
-- [GUIDE.md](./GUIDE.md) - Supplementary guide for AI (read after degit)
 - [examples/](./examples/) - Concrete usage examples
 
 ## 🛠️ Customization

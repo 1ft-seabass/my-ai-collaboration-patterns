@@ -4,6 +4,22 @@ Change history for the docs-structure-en pattern.
 
 ---
 
+## [1.2.6] - 2026-09-23
+
+### Removed
+- `GUIDE.md` (ja/en). Never shipped via degit (not under `templates/`), so it went essentially unread and drifted stale (documented directory structures and action filenames that no longer exist). It played no role in the actual one-shot install flow (the instruction block at the top of the pattern-root `README.md`), so removing it has no functional impact
+- `SETUP.md` (repository root). Unrelated to the docs-structure pattern (it described this monorepo's own old structure) and referenced from nowhere
+
+### Fixed
+- `templates/README.md` (ja/en, shipped as `docs/README.md`): replaced references to nonexistent actions (`git_commit_and_push.md`, `current_create_knowledge.md`, `simple_start_from_latest_letter.md`) with the actual current filenames (`01_git_push.md`, `doc_letter.md`, `start_init_rule.md`) or a pointer to `actions/README.md`
+- `templates/README.md` (ja/en): removed the stale "folders you can add as needed" section (`ai-collaboration/`, `architecture/`, `development/`, `spec/`), which contradicted the file's own stated principle that manually maintained lists in README go stale
+- `templates/README.md` (ja/en), `docs/README.md`: removed the dead link to the now-removed `SETUP.md`
+- `patterns/docs-structure/README.md` (ja/en): removed dead links to `server-management`/`prompt-engineering` (directories that don't exist) in the "Related patterns" section
+- `templates/actions/README.md` (ja/en), `docs/actions/README.md`: removed references to the now-removed `GUIDE.md`
+- Root `README.md`: fixed 3 references to the now-removed `GUIDE.md` (pattern intro, features list, contribution guide)
+
+---
+
 ## [1.2.5] - 2026-09-22
 
 ### Removed
