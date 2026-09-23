@@ -1,5 +1,27 @@
 # docs-structure-en pattern
 
+## 🆕 Setting up a new project
+
+### 1. Node.js-based AI one-shot prompt (recommended)
+
+> **🤖 One-shot prompt for AI (copy & paste)**
+>
+> ```
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-en
+> I want to set up this structure. Run the following in order.
+>
+> npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-en ./tmp/docs-structure-install --force
+> node ./tmp/docs-structure-install/install.js
+> rm -rf ./tmp/docs-structure-install
+>
+> Check install.js's output (the absolute source/destination paths and the
+> created/skipped file counts) and tell me whether docs/ ended up where expected.
+> ```
+
+Safe even if `docs/` already exists (existing files are never overwritten; only missing files are added).
+
+### 2. Prompt-only AI one-shot prompt
+
 > **🤖 One-shot prompt for AI (copy & paste)**
 >
 > ```
@@ -24,9 +46,20 @@
 > At the start, use the templates as-is without project-specific customization.
 > ```
 
+**Note**: If `docs/` already has files, use "1. Node.js-based" above instead — this prompt does not account for existing files.
+
+### 3. Manual steps
+
+```bash
+git clone https://github.com/1ft-seabass/my-ai-collaboration-patterns.git
+cp -r my-ai-collaboration-patterns/patterns/docs-structure-en/templates/* ./docs/
+```
+
 ## 🔄 Updating an existing docs-structure to the latest version
 
-If you already have docs-structure installed and want to update templates/ to the latest:
+If you already have docs-structure installed and want to update templates/ to the latest.
+
+### 1. Prompt-only AI one-shot prompt
 
 > **🤖 One-shot prompt for AI (copy & paste)**
 >
@@ -75,6 +108,17 @@ If you already have docs-structure installed and want to update templates/ to th
 > - Reviewing the diff lets you understand what changes before applying
 > ```
 
+### 2. Manual steps
+
+```bash
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-en/templates /tmp/latest-docs-structure --force
+diff -r docs/ /tmp/latest-docs-structure/ --exclude=notes --exclude=letters --exclude=tasks
+# Review the diff and manually overwrite only the files you want to update
+rm -rf /tmp/latest-docs-structure
+```
+
+Actual documents under `notes/`, `letters/`, `tasks/` (other than README.md/TEMPLATE.md) are excluded from the comparison. Review the diff and copy only the files you need.
+
 **After updating:**
 - Read `docs/README.md` to confirm the latest structure
 - Run `@actions/help.md` to quickly check the latest usage
@@ -99,31 +143,6 @@ Provides a document structure that allows AI assistants to efficiently search an
 - **Layered knowledge management**: Handoffs, dev notes, and ADRs clearly separated
 - **Templates included**: Ready-to-use templates for handoffs and notes
 - **AI-optimized**: Shallow 3-4 level hierarchy, unified naming convention
-
-## 🚀 Usage
-
-### Get with degit (recommended)
-
-**Important**: Specify the `templates` directory. The document structure used in your project is under `templates`, not the pattern root.
-
-```bash
-npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure-en/templates ./docs
-```
-
-### Git Clone
-
-```bash
-git clone https://github.com/1ft-seabass/my-ai-collaboration-patterns.git
-cp -r my-ai-collaboration-patterns/patterns/docs-structure-en/templates/* ./docs/
-```
-
-### Have AI read it
-
-After placing in your project, tell the AI assistant at session start:
-
-```
-"Read docs/README.md and check the latest handoff."
-```
 
 ## 📂 Created structure
 

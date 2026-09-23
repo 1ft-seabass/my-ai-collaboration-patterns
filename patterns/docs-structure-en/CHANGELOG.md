@@ -4,6 +4,15 @@ Change history for the docs-structure-en pattern.
 
 ---
 
+## [1.3.0] - 2026-09-23
+
+### Added
+- `install.js`: a deterministic Node.js installer for safely merging into an existing project. Placed alongside `templates/`, resolving its copy source via `__dirname` so it doesn't depend on `process.cwd()`. Never overwrites existing files (skip-existing), so the same logic naturally covers both a fresh install and resuming an interrupted one. Depends on neither package.json nor git. Prints the resolved absolute destination path before writing anything to guard against wrong-directory accidents, and points to the "Updating an existing docs-structure to the latest version" judgment-tier flow when nothing was created but the destination already existed
+
+### Changed
+- `README.md` (ja/en): restructured the top one-shot instructions into "Setting up a new project" (3 tiers: Node.js-based / prompt-only / manual) and "Updating an existing project" (2 tiers: prompt-only / manual)
+- `README.md` (ja/en): removed the "🚀 Usage" section, which duplicated the new top block and the "🎯 Usage examples" section
+
 ## [1.2.6] - 2026-09-23
 
 ### Removed

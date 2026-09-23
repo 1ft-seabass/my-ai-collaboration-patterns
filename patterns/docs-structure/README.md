@@ -1,5 +1,27 @@
 # docs-structure パターン
 
+## 🆕 新規プロジェクトへの導入
+
+### 1. Node.js前提でのAIワンショット指示書（推奨）
+
+> **🤖 AIへのワンショット指示（コピペ用）**
+>
+> ```
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure
+> この仕組みを導入したいです。以下を順に実行してください。
+>
+> npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure ./tmp/docs-structure-install --force
+> node ./tmp/docs-structure-install/install.js
+> rm -rf ./tmp/docs-structure-install
+>
+> install.js の出力（コピー元・配置先の絶対パス、作成/スキップ件数）を確認し、
+> 想定通りの場所に docs/ が作られたか教えてください。
+> ```
+
+既存に `docs/` があっても安全です（既存ファイルは上書きせず、不足分だけ補います）。
+
+### 2. プロンプトのみで動くAIワンショット指示書
+
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
 > ```
@@ -25,9 +47,20 @@
 > 初期段階では一般化されたテンプレートのまま使用することを推奨します。
 > ```
 
-## 🔄 既存の docs-structure を最新版に更新する場合
+**注意**: `docs/` に既存ファイルがある場合はこの手順ではなく、上の「1. Node.js前提」を使ってください（この手順は既存ファイルを考慮しません）。
 
-既に docs-structure パターンを導入済みで、templates/ を最新版に更新したい場合:
+### 3. 手動で行う場合の手順
+
+```bash
+git clone https://github.com/1ft-seabass/my-ai-collaboration-patterns.git
+cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
+```
+
+## 🔄 既存プロジェクトの docs-structure を最新版に更新する場合
+
+既に docs-structure パターンを導入済みで、templates/ を最新版に更新したい場合。
+
+### 1. プロンプトのみで動くAIワンショット指示書
 
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
@@ -77,6 +110,17 @@
 > - **差分を確認することで、何が変わるかを理解した上で更新できます**
 > ```
 
+### 2. 手動で行う場合の手順
+
+```bash
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure/templates /tmp/latest-docs-structure --force
+diff -r docs/ /tmp/latest-docs-structure/ --exclude=notes --exclude=letters --exclude=tasks
+# 差分を確認し、更新したいファイルだけ手動で上書きコピーする
+rm -rf /tmp/latest-docs-structure
+```
+
+`notes/`, `letters/`, `tasks/` 配下の実際のドキュメント（README.md/TEMPLATE.md以外）は比較対象から除外しています。差分を見て、必要なファイルだけ個別にコピーしてください。
+
 **更新後の確認:**
 - `docs/README.md` を読んで、最新の構成を確認
 - `docs/actions/help.md` で最新の使い方をクイックチェック
@@ -101,31 +145,6 @@ AI協働開発において、AIアシスタントが効率的に情報を探索�
 - **階層的な知見管理**: 申し送り・開発ノート・ADRを明確に分離
 - **テンプレート付き**: すぐに使える申し送り・ノートのテンプレート
 - **AI最適化**: 3-4層の浅い階層、統一された命名規則
-
-## 🚀 使い方
-
-### degit で取得（推奨）
-
-**重要**: `templates` ディレクトリを指定してください。パターン直下ではなく、`templates` 以下がプロジェクトで使用するドキュメント構造です。
-
-```bash
-npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/docs-structure/templates ./docs
-```
-
-### Git Clone
-
-```bash
-git clone https://github.com/1ft-seabass/my-ai-collaboration-patterns.git
-cp -r my-ai-collaboration-patterns/patterns/docs-structure/templates/* ./docs/
-```
-
-### AIに読ませる
-
-プロジェクトに配置後、セッション開始時にAIアシスタントに以下を指示：
-
-```
-「docs/README.md を読んで、最新の申し送りを確認してください」
-```
 
 ## 📂 作成される構造
 
