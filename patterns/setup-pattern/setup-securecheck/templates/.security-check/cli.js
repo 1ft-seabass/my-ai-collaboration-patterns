@@ -31,6 +31,7 @@ const SUBCOMMANDS = {
   'verify': (args) => require('./lib/verify').run(args),
   'scan': (args) => require('./lib/scan').run(args),
   'install-gitleaks': () => require('./lib/install-gitleaks').run(),
+  'setup-local': () => require('./lib/setup-local').run(),
   'uninstall': (args) => require('./lib/uninstall').run(args),
 };
 
@@ -45,6 +46,7 @@ function printHelp() {
   console.log('  scan [--all]                   ヘルスチェックの合否に関係なくスキャンだけ実行（無指定はstagedのみ、--allは全ファイル+全履歴）');
   console.log('  pre-commit                     git pre-commit フックの実体（通常は直接叩かず simple-git-hooks 経由で呼ばれる）');
   console.log('  install-gitleaks               gitleaksバイナリを .security-check/bin/ に導入');
+  console.log('  setup-local                    フック配線・.gitignore更新・動作確認までをまとめて実行');
   console.log('  uninstall [--yes]              このパターンの導入物を除去（--yes無しはドライラン）');
 }
 
