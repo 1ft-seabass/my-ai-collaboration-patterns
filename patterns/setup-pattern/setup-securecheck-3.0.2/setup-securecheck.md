@@ -1,0 +1,740 @@
+# シークレットスキャン導入ガイド（ウィザード形式）
+
+**このドキュメントは AI が読み、人間にウィザード形式で案内するための手順書です。**
+
+---
+
+## 🤖 AI への重要な指示
+
+### ウィザード開始時に必ず実行すること
+
+**ステップ1: 全体の流れを提示**
+
+以下のチェックボックスリストをそのまま表示してください:
+
+```
+これから以下の流れでセキュリティチェックを導入します：
+
+□ Phase 0: ヘルスチェック（既存設定の確認）
+□ Phase 1: 初動スキャン（secretlint + gitleaks で現状把握）
+□ Phase 2: 手動運用（npm scripts の追加）
+□ Phase 3: pre-commit 自動化（simple-git-hooks）
+
+**重要なルール**:
+- AI: コマンドを実行する（1コマンドずつ）
+- AI: 実行結果を報告する
+- AI: 次のステップを提案する
+- ユーザー: 重要な判断時のみ確認する
+
+進めてよろしいですか？「はい」と返信していただければ Phase 0 から開始します。
+```
+
+**ステップ2: ユーザーの返信を待つ**
+
+ユーザーが「はい」「進めて」等と返信するまで、Phase 0 を開始しないでください。
+
+**ステップ3: コマンド実行と結果報告のルール**
+
+各 Phase で AI がコマンドを実行し、結果を報告して次の対応を提案します：
+
+- ✅ 良い例:
+  1. AIがコマンドを実行
+  2. 「実行結果: ○○でした」と報告
+  3. 「次は△△を行います」と次のステップを提案
+  4. ユーザーの確認を待つ（重要な判断が必要な場合）
+
+- ❌ 悪い例: ユーザーの返信を待たずに複数コマンドを連続実行
+- ❌ 悪い例: 結果を報告せずに次のコマンドを実行
+
+**重要**:
+- 各ステップは1コマンド単位で実行
+- 必ず結果を報告してから次へ進む
+- 重要な判断（検出時の対応等）はユーザーに確認
+
+---
+
+## 📋 前提条件
+
+このウィザードは以下を前提としています：
+
+- **Node.js プロジェクト**（package.json が存在する）
+- **git リポジトリ**（.git が存在する）
+- **`!` コマンド実行が可能な環境**（Claude Code, Cursor 等）または手動実行
+
+---
+
+## 🎯 導入の全体像
+
+| Phase | 内容 | ここで止めてもOK？ |
+|-------|------|------------------|
+| **Phase 0** | ヘルスチェック（既存設定の確認） | ✅ 15/15 なら完了 |
+| **Phase 1** | 初動スキャン（現状把握） | ✅ 問題発見したらまず対処 |
+| **Phase 2** | 手動運用（npm scripts） | ✅ ライトに運用したい場合 |
+| **Phase 3** | pre-commit 自動化（simple-git-hooks） | ✅ 自動化したい場合 |
+
+---
+
+## 📚 背景とツール構成
+
+### なぜセキュリティチェックが必要か
+
+- AI がドキュメントを書く際、動作確認時の認証情報が混入するリスクがある
+- `docs/notes` に経緯を残す運用では、curl例やAPI設定メモに本物が紛れやすい
+- プライベートリポジトリでも「見えにくい」だけで「安全」ではない
+
+### ツール構成
+
+| ツール | 役割 | 得意領域 |
+|--------|------|----------|
+| **secretlint** | メイン検出エンジン | クラウドサービス特化、Node.js親和、精密検出 |
+| **gitleaks** | メイン検出エンジン | 高速、entropy検出、git履歴スキャン |
+| **simple-git-hooks** | git hooks 管理 | package.json だけで完結、軽量 |
+
+**二重チェック体制**: secretlint と gitleaks の両方を使うことで、より確実にシークレットを検出します。片方だけが動いている状態は「半端に守られている」状態であり、そのことに気づかれないまま運用されることの方が、両方とも無い状態より危険だと考えています（詳細は Phase 3 のフェイルクローズの説明を参照）。
+
+### v3構成について
+
+このパターンが導入する一式（cli.js・検証ロジック・gitleaksバイナリ・実行ログ）は、プロジェクトルート直下の **`.security-check/`** フォルダ1つに集約されています（`.husky/` や `.github/` と同様の「ツール領域」として扱ってください）。`package.json` 側は `"security": "node .security-check/cli.js"` の1行のみで、実際のサブコマンド（`verify` / `pre-commit` / `install-gitleaks` / `uninstall`）は `.security-check/cli.js` 経由で呼び出します。`gitleaks.toml` / `.secretlintrc.json` はユーザーが直接編集する設定ファイルのため、これまで通りリポジトリルートに置きます。
+
+---
+
+# Phase 0: ヘルスチェック（既存設定の確認）
+
+**目的**: 既にセキュリティチェックが導入されているか確認する
+
+---
+
+## ステップ 0.1: ヘルスチェックを実行
+
+以下のコマンドを実行してください：
+
+```bash
+node tmp/security-setup/templates/.security-check/cli.js verify
+```
+
+### 0-a. husky/lint-staged（v1構成）の警告が出た場合
+
+ヘルスチェックの実行結果の**冒頭**に `⚠️ husky/lint-staged ベースの v1 構成を検出しました` という警告が出た場合、このプロジェクトはまだ v1（husky + lint-staged）のままです。**このままPhase 1に進まないでください**。先に `migration/MIGRATION_GUIDE_v1_to_v3.0.0.md` を参照し、v3への移行を完了させてから（v2は経由しません）、改めてこのヘルスチェックをやり直してください。
+
+### 0-b. v2（旧 scripts/ レイアウト）の警告が出た場合
+
+`⚠️ v2（旧 scripts/ レイアウト）構成を検出しました` という警告が出た場合、`scripts/pre-commit.js` を直接呼ぶ旧レイアウトのままで `.security-check/` への移行が完了していません。**このままPhase 1に進まないでください**。先に `migration/MIGRATION_GUIDE_v2.1.0_to_v3.0.0.md` を参照し、v3への移行を完了させてから、改めてこのヘルスチェックをやり直してください。
+
+### 結果の判断基準
+
+| 結果 | 対応 |
+|------|------|
+| **15/15 passed** | ✅ 完璧！Phase 1-3 はスキップして終了 |
+| **❌ が gitleaks 関連の項目のみ（バイナリ未導入・機能的カナリアテスト skip 等）** | ⚠️ gitleaks をインストールすれば完了（Phase 1.4 へ） |
+| **❌ が gitleaks 関連以外** | 🔧 該当項目のみ Phase 1-3 から対応ステップを実施 |
+| **複数の ❌ がある** | 🔧 Phase 1 から導入を開始 |
+| **全て ❌** | 🆕 未導入。Phase 1 から導入を開始 |
+
+**重要**: passed の数だけで判断せず、**どの項目が ❌ か**を必ず確認してください。特に以下は個別の原因を持つため、まとめて「gitleaks 未導入」で済ませないでください:
+- 「.git/hooks/pre-commit の内容」チェックが `|| true` 等の握りつぶしで ❌ の場合、gitleaks とは無関係な原因です（ステップ 3.3 を参照）
+- 「gitleaks.toml に検出ルール」チェックや「gitleaks 機能的カナリアテスト」が ❌ の場合、gitleaks は導入済みでも検出ルールが機能していません（`gitleaks.toml` に `[extend]` または `[[rules]]` があるか確認）。**このケースが既存導入プロジェクトで起きた場合は、下記「既存導入プロジェクトで検出ルール0件バグに該当する場合」を必ず確認してから対応してください**（`gitleaks.toml` を単純に上書きコピーすると、導入後にユーザーが追加した独自のallowlist/rulesを握りつぶす可能性があります）
+
+### 既存導入プロジェクトで検出ルール0件バグに該当する場合
+
+`gitleaks.toml` が既に存在するのに検出ルールが機能していない場合、ステップ1.1の `cp` でそのまま上書きする前に、**カスタマイズの有無**を必ず確認してください。
+
+```bash
+diff gitleaks.toml tmp/security-setup/templates/gitleaks.toml
+```
+
+| diff結果 | 対応 |
+|---|---|
+| **差分なし（未カスタマイズ）** | そのままステップ1.1の `cp` で上書きしてよい |
+| **差分あり（独自のallowlist/rules追加等）** | 上書きせず、以下の決定論的パッチスクリプトを実行する |
+
+```bash
+node tmp/security-setup/templates/scripts/patch-gitleaks-toml.js
+```
+
+このスクリプトは `[extend] useDefault = true` の追記と `tmp/.*` のアンカー化（`^tmp/.*`）**のみ**を機械的に行い、他のカスタム内容（独自のallowlist/rules）には一切触れません。AIの読み取り判断に依存しないため、どのセッションで実行しても同じ結果になります。
+
+**15/15 の場合**: おめでとうございます！設定は完璧です。
+- `node .security-check/cli.js verify --simple` - staged ファイルのみテスト（軽量）
+- `node .security-check/cli.js verify --test-run` - 全ファイル + 全履歴テスト（重い）
+
+**それ以外の場合**: ❌ の項目を確認し、Phase 1 から順に（または該当項目のみ）対応していきましょう。
+
+---
+
+## Phase 0 完了
+
+既存設定の確認が完了しました。結果に応じて次のステップに進みます。
+
+---
+
+# Phase 1: 初動スキャン（現状把握）
+
+**目的**: いきなり自動化せず、まず何が検出されるか確認する
+
+---
+
+## ステップ 1.1: テンプレートファイルを配置
+
+以下のコマンドを実行してください：
+
+```bash
+cp tmp/security-setup/templates/.secretlintrc.json .
+cp tmp/security-setup/templates/gitleaks.toml .
+cp -r tmp/security-setup/templates/.security-check .
+```
+
+これで以下が配置されます：
+- `.secretlintrc.json` - secretlint 設定
+- `gitleaks.toml` - gitleaks 設定
+- `.security-check/` - cli.js・検証ロジック一式（`.security-check/README.md` に中身の説明があります）
+
+---
+
+## ステップ 1.2: secretlint をインストール
+
+以下のコマンドを実行してください：
+
+```bash
+npm install -D secretlint @secretlint/secretlint-rule-preset-recommend
+```
+
+---
+
+## ステップ 1.3: secretlint で初回スキャン
+
+以下のコマンドを実行してください：
+
+```bash
+npx secretlint "**/*"
+```
+
+### 結果の判断基準
+
+| 状況 | 対応 |
+|------|------|
+| **本物のシークレット** | ⚠️ **即座に無効化（トークン再発行）** → ファイル修正 |
+| **プレースホルダー**（YOUR_API_KEY等） | `.secretlintrc.json` の `ignores` に追加 |
+| **サンプル/ダミー値** | 値を明確なダミーに変更、または allowlist 追加 |
+| **false positive** | `.secretlintrc.json` の `ignores` に追加 |
+
+**重要**: ファイル修正より**先にトークン側を無効化**する。ファイルを直しても git 履歴に残っている。
+
+**検出があった場合**: 内容を確認して、必要に応じて対処してから次に進みます。
+
+---
+
+## ステップ 1.4: gitleaks のインストール（必須）
+
+以下のコマンドを実行してください：
+
+```bash
+node .security-check/cli.js install-gitleaks
+```
+
+このコマンドは OS を自動判定して gitleaks バイナリを `.security-check/bin/` にダウンロードします。
+
+**Windows/macOS/Linux すべて対応**しています。
+
+**重要**: gitleaks は secretlint と並ぶメイン検出エンジンです。必ずインストールしてください（Phase 3 では、これが未導入だと pre-commit がフェイルクローズでコミットをブロックする設計になっています）。
+
+---
+
+## ステップ 1.5: gitleaks で初回スキャン
+
+以下のコマンドを実行してください：
+
+```bash
+./.security-check/bin/gitleaks git . -v --config gitleaks.toml --redact
+```
+
+**Windows の場合**:
+```bash
+.\.security-check\bin\gitleaks.exe git . -v --config gitleaks.toml --redact
+```
+
+**gitleaks の動作について**:
+- **git 履歴全体をスキャン**します（現在のファイルだけでなく、過去のコミットも含む）
+- ファイルを削除しても、過去のコミットに残っていれば検出されます
+- リポジトリ**ルート直下**の `tmp/` ディレクトリは最初から除外されています（`gitleaks.toml` の allowlist に `^tmp/.*` として含まれています。`src/mytmp/` のような無関係なディレクトリは除外されません）
+- `detect`/`protect` は gitleaks 8.28 以降 `--help` から非表示になった非推奨コマンドです。後継の `git` サブコマンド（`--staged` でステージ済みのみ、無指定で全履歴）を使用しています
+- `--redact` は必須です。付けないと検出時に実際のシークレット値がそのまま標準出力に出ます。この出力をAIとの会話やdocs/notesに貼り付けると、そのまま新たな漏洩経路になります
+
+**検出があった場合**: secretlint と同様に内容を確認して対処します。
+
+---
+
+## Phase 1 完了
+
+ここまでで現状把握が完了しました。
+
+**Phase 1 で止める場合**: 手動でスキャンを走らせる運用も可能です。
+
+**Phase 2 に進む場合**: 続けて npm scripts を追加します。
+
+---
+
+# Phase 2: 手動運用（npm scripts）
+
+**目的**: npm scripts で手動スキャンを簡単に実行できるようにする
+
+---
+
+## ステップ 2.1: package.json に scripts を追加
+
+`tmp/security-setup/templates/package.json.example` の内容を確認し、以下の scripts を既存の `package.json` に追加してください：
+
+```json
+{
+  "scripts": {
+    "security": "node .security-check/cli.js"
+  }
+}
+```
+
+**注**: 既存の scripts とマージしてください（上書きではなく追加）。`security:verify` や `secret-scan:full` のような複数行は不要です。以後のサブコマンドはすべて `node .security-check/cli.js <subcommand>`（または `npm run security -- <subcommand>`）から実行します。**必ずプロジェクトルートから実行してください**（`.security-check/`の中に`cd`してから実行するとパス解決が壊れて誤動作します。ルート外から実行した場合はエラーで検知されます）。引数なしでTTYから実行すると対話ウィザードも使えます。
+
+> **⚠️ `verify --test-run` について**:
+> `verify --test-run` は `.gitignore` を無視して全ファイルをスキャンします。
+> ログファイルや一時ファイルで誤検知が出ることがありますが、これは **全体監査用** の意図的な仕様です。
+> pre-commit フック（`pre-commit` サブコマンド）は staged ファイルのみをスキャンするため、`.gitignore` 済みファイルには反応しません。
+> 「毎回エラーが出る」場合は、誤爆ファイルを `.secretlintrc.json` の `ignores` に追加してください。
+
+---
+
+## ステップ 2.2: ヘルスチェックを実行
+
+以下のコマンドを実行してください：
+
+```bash
+node .security-check/cli.js verify
+```
+
+**期待する結果**: 15 項目のヘルスチェックが実行され、✅ または ⚠️ が表示されます。
+
+---
+
+## ステップ 2.3: テストラン（実際のスキャン）
+
+**シンプルテスト**（staged ファイルのみ、軽量）:
+
+```bash
+node .security-check/cli.js verify --simple
+```
+
+**フルテスト**（全ファイル + 全履歴、重い）:
+
+```bash
+node .security-check/cli.js verify --test-run
+```
+
+---
+
+## Phase 2 完了
+
+ここまでで以下が可能になりました：
+
+- `node .security-check/cli.js verify` - 設定のヘルスチェック
+- `node .security-check/cli.js verify --simple` - ヘルスチェック + staged ファイルスキャン（軽量）
+- `node .security-check/cli.js verify --test-run` - ヘルスチェック + 全ファイル + 全履歴スキャン（重い。旧 `secret-scan:full` 相当）
+
+**Phase 2 で止める場合**: コミット前に手動で `node .security-check/cli.js verify --simple` を走らせる運用です。
+
+**Phase 3 に進む場合**: pre-commit フックで自動化します。
+
+---
+
+# Phase 3: pre-commit 自動化（simple-git-hooks）
+
+**目的**: コミット時に自動でスキャンが走るようにする
+
+simple-git-hooks を使うと package.json だけで hooks を管理できます。`.husky/` ディレクトリは不要です。
+
+---
+
+## ステップ 3.1: simple-git-hooks をインストール
+
+以下のコマンドを実行してください：
+
+```bash
+npm install -D simple-git-hooks
+```
+
+---
+
+## ステップ 3.2: package.json に simple-git-hooks 設定を追加
+
+既存の `package.json` に以下を追加してください：
+
+```json
+{
+  "simple-git-hooks": {
+    "pre-commit": "node .security-check/cli.js pre-commit"
+  },
+  "scripts": {
+    "postinstall": "npx simple-git-hooks"
+  }
+}
+```
+
+**注**: 既存の scripts とマージしてください（上書きではなく追加）。
+
+> ⚠️ **`simple-git-hooks` キーが既に存在する場合**:
+> 値をマージで温存せず、`pre-commit` の値が `node .security-check/cli.js pre-commit` と完全一致するか必ず確認してください。
+> `|| true` などが付与されている場合、exit code が握りつぶされコミットがブロックされなくなります。異なっていれば上記の値に**修正**し、ステップ 3.3 で再度有効化してください。
+>
+> **例外（複数 git worktree で hooks を共有している場合）**: git worktree は hooks ディレクトリを全 worktree で共有します。`main`/`develop` 等を worktree で分けて運用しており、一部の worktree にしか `.security-check/` を導入していない場合、単純な `node .security-check/cli.js pre-commit` に修正すると未導入側の worktree で毎回コミットが失敗します。この構成では代わりに次のような存在ガード式を許容してください（`|| true` によるexit code握りつぶしとは異なり、ファイルが存在すれば通常通り exit code が伝播するため検出精度は落ちません）。
+>
+> ```json
+> "pre-commit": "if [ -f .security-check/cli.js ]; then node .security-check/cli.js pre-commit; fi"
+> ```
+
+---
+
+## ステップ 3.3: フックを有効化
+
+以下のコマンドを実行してください：
+
+```bash
+npx simple-git-hooks
+```
+
+`simple-git-hooks` の設定を変更した場合は、このコマンドを再実行する必要があります。
+
+---
+
+## ステップ 3.4: .gitignore を更新
+
+`tmp/security-setup/templates/gitignore.example` の内容を確認し、以下を既存の `.gitignore` に追加してください：
+
+```gitignore
+# setup-securecheck: gitleaksバイナリ・実行ログ（ローカル専用、リポジトリに含めない）
+.security-check/bin/
+.security-check/logs/
+```
+
+---
+
+## ステップ 3.5: 動作確認
+
+以下のコマンドを実行してください：
+
+```bash
+git add .
+git commit -m "test: pre-commit hook"
+```
+
+**期待する結果**:
+- secretlint が実行される
+- gitleaks が実行される
+- `.security-check/logs/pre-commit.log` にログが記録される
+- 問題なければコミット成功
+- 検出があればコミット失敗
+
+**テストコミットなので、コミットを取り消してもOKです**：
+
+```bash
+git reset HEAD~1
+```
+
+---
+
+## ステップ 3.5.5: ネガティブテスト（フックが実際にブロックするか確認）
+
+陽性確認（コミット成功）だけでは不十分です。**シークレットを含むファイルが実際にブロックされるか**を確認してください。
+
+> ⚠️ **カナリア値の注意**: `xxxxxx` を含む値（例: `ghp_xxxxxxxx...`）は `gitleaks.toml` の allowlist regexes に一致し、gitleaks からは意図的に無視されます（プレースホルダー扱いのため）。この値だけでテストすると、secretlint 側の検出だけでコミットがブロックされ、**gitleaks が実際に機能しているかを検証できないまま「問題なし」と誤認します**。secretlint と gitleaks は必ず個別に確認してください。
+
+### 3.5.5-a: pre-commit フック全体でブロックされるか確認
+
+```bash
+echo 'TEST_TOKEN=ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8' > .test-secret-canary  # gitleaks:allow secretlint-disable-line
+git add .test-secret-canary
+git commit -m "test: should be blocked by pre-commit hook"
+```
+
+**期待する結果**: コミットが **失敗（ブロック）** される。出力に `=== secretlint ===` と `=== gitleaks ===` の両方のセクションが表示されることを確認してください（片方が失敗してももう片方は必ず実行されます）。
+
+> ℹ️ **このテストの実行は記録されます**: `pre-commit` サブコマンドは `.test-secret-canary` がステージされたコミットを検知すると、`.security-check/logs/pre-commit.log` に通常のコミットとは別の `type: "canary"` エントリとして記録します。`verify` の check#14「ネガティブテスト実行痕跡」はこのエントリの有無を確認するため、**このステップを一度も実行していないと check#14 が ⚠️ になります**。「ネガティブテストをやったつもり」ではなく、実際に実行した記録が残っているかで判定される仕組みです。
+
+> ℹ️ **check#15 との違い**: check#15「毎コミット自動カナリア自己検証の実行痕跡」は、この手動テストとは別に pre-commit が**毎コミット自動で**（人間が意識せずとも）検出器の生死を確認する仕組みです。ステップ3.5の通常コミットを1回でも実行していれば自動的にログへ記録されるため、check#14と異なりこのステップの実行有無には依存しません。
+
+### 3.5.5-b: gitleaks 単独でも検出できるか個別に確認
+
+pre-commit フック全体がブロックしても、それが secretlint だけの検出によるものか、gitleaks も実際に機能しているかは別途確認が必要です（ステップ 3.5.5-a のカナリアをステージしたまま実行してください）：
+
+```bash
+./.security-check/bin/gitleaks git --staged --config gitleaks.toml --redact .
+echo "exit code: $?"
+```
+
+**期待する結果**: `exit code: 1`
+
+> ⚠️ **もしコミットが成功してしまった場合、または gitleaks 単独チェックが `exit code: 0` になる場合**:
+> - コミットが成功してしまう場合: `simple-git-hooks` の設定に `|| true` 等の exit code 抑制がないか確認してください（`verify` の check #9 で検出されます）
+> - gitleaks 単独チェックが `exit code: 0` になる場合: `gitleaks.toml` に検出ルール（`[extend]` または `[[rules]]`）が無い可能性があります（`verify` の check #8・#12 で検出されます）
+
+**テストファイルをクリーンアップ**:
+
+```bash
+git restore --staged .test-secret-canary
+rm .test-secret-canary
+```
+
+### 3.5.5-c: フェイルクローズの確認（gitleaks不在時に本当にブロックされるか）
+
+v3 では、gitleaksバイナリが見つからない状態は「secretlintのみで守られている」半端な状態とみなし、警告に留めずコミットをブロックします（フェイルクローズ）。使い捨て環境（worktree等）で、実際にブロックされるか確認してください。
+
+```bash
+mv .security-check/bin/gitleaks .security-check/bin/gitleaks.bak
+node .security-check/cli.js pre-commit
+# 期待: "❌ gitleaks が見つかりません — フェイルクローズ方針によりコミットをブロックします" と exit code 1
+mv .security-check/bin/gitleaks.bak .security-check/bin/gitleaks
+```
+
+> ⚠️ **確認結果をAIに報告する際の注意**: `exit code` や `=== secretlint ===`/`=== gitleaks ===` のセクション表示、`❌ Pre-commit checks failed (...)` の要約行だけを報告してください。ターミナルの生出力をそのまま貼り付けたり、docs/notes に書き写したりしないこと（`--redact` を付けていても、テスト用カナリア以外の値が混入するリスクを避けるため）。
+
+---
+
+## ステップ 3.6: 最終確認
+
+以下のコマンドを実行してください：
+
+```bash
+node .security-check/cli.js verify --test-run
+```
+
+**全て ✅ なら Phase 3 完了です！**
+
+---
+
+## Phase 3 完了
+
+セキュリティチェックが pre-commit フックで自動実行されるようになりました。
+
+- コミットのたびに secretlint（staged のみ）+ gitleaks（staged のみ）が自動実行されます
+- gitleaksが見つからない場合はフェイルクローズでコミットがブロックされます
+- 実行結果は `.security-check/logs/pre-commit.log` に記録されます（最新50件）
+- `npm install` 後に `postinstall` で全員の hooks が自動で有効化されます
+- このパターンを丸ごと取り除きたくなった場合は `node .security-check/cli.js uninstall`（ドライラン）/ `--yes`（実行）が使えます
+
+---
+
+# 検出時の対応フロー
+
+シークレットが検出された場合の対応手順：
+
+## 1. トークンを無効化（最優先）
+
+**ファイル修正より先に、トークン側を無効化してください。**
+
+- API キーの再発行
+- トークンの削除
+- パスワードの変更
+
+**理由**: git 履歴に残っているため、ファイルを直しても過去のコミットから取得可能。
+
+---
+
+## 2. ファイルを修正
+
+以下のいずれかの方法で対処：
+
+### パターンA: allowlist に追加（プレースホルダーの場合）
+
+`.secretlintrc.json` に `ignores` を追加：
+
+```json
+{
+  "rules": [
+    {
+      "id": "@secretlint/secretlint-rule-preset-recommend"
+    }
+  ],
+  "ignores": [
+    "docs/examples/**",
+    "**/*.example.*"
+  ]
+}
+```
+
+**注**: 個別値ではなくファイルパターンで ignore することを推奨します（理由: 個別値の ignore は負債化しやすい）。
+
+`gitleaks.toml` に `allowlist` を追加：
+
+```toml
+[allowlist]
+paths = [
+    '''docs/examples/.*'''
+]
+
+regexes = [
+    '''YOUR_TOKEN_HERE''',
+    '''EXAMPLE_API_KEY'''
+]
+```
+
+---
+
+### パターンB: 値を明確なダミーに変更
+
+```bash
+# Before
+API_KEY=sk-1234567890abcdef  # gitleaks:allow secretlint-disable-line
+
+# After
+API_KEY=sk-DUMMY_KEY_REPLACE_WITH_YOUR_ACTUAL_KEY
+```
+
+---
+
+## 3. git 履歴から削除（必要な場合）
+
+**本物のシークレットがコミット済みの場合**、履歴から削除する必要があります。
+
+### 方法A: BFG Repo-Cleaner（推奨）
+
+```bash
+# BFG のインストール（https://rtyley.github.io/bfg-repo-cleaner/）
+brew install bfg  # macOS
+# または jar を直接ダウンロード
+
+# シークレットを含むファイルを削除
+bfg --delete-files secrets.txt
+
+# または特定の文字列を置換
+bfg --replace-text passwords.txt
+
+# git 履歴を書き換え
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
+```
+
+### 方法B: git filter-branch
+
+```bash
+git filter-branch --force --index-filter \
+  "git rm --cached --ignore-unmatch path/to/secrets.txt" \
+  --prune-empty --tag-name-filter cat -- --all
+
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
+```
+
+**警告**: 履歴書き換えは**強制プッシュが必要**になります。チーム開発の場合は注意してください。
+
+---
+
+## 4. リモートに強制プッシュ（履歴書き換えした場合）
+
+```bash
+git push origin --force --all
+git push origin --force --tags
+```
+
+**チームメンバーに通知**: 全員が re-clone または reset が必要です。
+
+---
+
+# よくある検出パターンと対処
+
+| 検出内容 | 判断 | 対処 |
+|---------|------|------|
+| `aws_access_key_id = AKIAIOSFODNN7EXAMPLE` | サンプル | allowlist 追加 |
+| `password: "test1234"` | ダミー（明らかに弱い） | そのままでOK or 明確なダミーに変更 |
+| `token: "ghp_xxxxxxxxxxxxxxxxxxxx"` | 本物の GitHub PAT | ⚠️ **即座に無効化** |
+| `YOUR_API_KEY_HERE` | プレースホルダー | allowlist 追加 |
+| `mongodb://localhost:27017` | ローカル接続 | allowlist 追加 or そのまま |
+| `SECRET=xxxxxxxx` | 不明 | 確認が必要 |
+
+---
+
+# トラブルシューティング
+
+## gitleaks がインストールできない
+
+**症状**: `install-gitleaks` サブコマンドでエラー
+
+**対処**:
+1. プラットフォームが対応しているか確認（Windows x64, macOS x64/arm64, Linux x64/arm64）
+2. ネットワーク接続を確認
+3. 手動でインストール: https://github.com/gitleaks/gitleaks/releases（配置先は `.security-check/bin/gitleaks`）
+
+---
+
+## pre-commit が動かない
+
+**症状**: コミットしても secretlint が実行されない
+
+**対処**:
+1. `npx simple-git-hooks` を再実行する
+2. `.git/hooks/pre-commit` が存在するか確認
+3. `node .security-check/cli.js verify` でヘルスチェック
+
+---
+
+## simple-git-hooks の設定を変更したのに反映されない
+
+**症状**: package.json の simple-git-hooks 設定を変えたが hooks が古いまま
+
+**対処**:
+```bash
+npx simple-git-hooks
+```
+
+simple-git-hooks は package.json の設定を変えても自動では反映されません。変更後は毎回このコマンドが必要です。
+
+---
+
+## secretlint の false positive が多い
+
+**症状**: 明らかに問題ないのに検出される
+
+**対処**:
+1. `.secretlintrc.json` の `ignores` にファイルパターンを追加（個別値ではなくパターン推奨）
+2. 特定のディレクトリを除外（`docs/examples/**` 等）
+
+---
+
+## このパターンを取り除きたい
+
+```bash
+node .security-check/cli.js uninstall
+```
+
+まずドライランで削除計画が表示されます。内容を確認し、問題なければ `--yes` を付けて再実行してください:
+
+```bash
+node .security-check/cli.js uninstall --yes
+```
+
+`gitleaks.toml` / `.secretlintrc.json` はユーザー編集対象のため自動削除されません。不要であれば手動で削除してください。
+
+---
+
+# セキュリティチェック完了！
+
+導入が完了しました。以下のコマンドでいつでも確認できます：
+
+```bash
+# ヘルスチェック
+node .security-check/cli.js verify
+
+# ヘルスチェック + 実際のスキャン（旧 secret-scan:full 相当）
+node .security-check/cli.js verify --test-run
+```
+
+**重要**: 定期的に `node .security-check/cli.js verify --test-run` を実行して、設定が正しく動作しているか確認してください。
+
+---
+
+## クリーンアップ（任意）
+
+ウィザード導入に使用した `tmp/security-setup/` ディレクトリは、導入完了後は不要です。
+
+以下のコマンドで削除できます：
+
+```bash
+rm -rf tmp/security-setup/
+```
+
+**注**: 削除しても問題ありません。再度ヘルスチェックが必要な場合は、`npx degit` で再取得できます。
