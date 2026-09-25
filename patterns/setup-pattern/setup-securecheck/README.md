@@ -1,12 +1,36 @@
 # setup-securecheck - セキュリティチェック導入ガイド
 
-secretlint + gitleaks によるシークレットスキャンの**ウィザード形式**導入ガイド
+secretlint + gitleaks によるシークレットスキャンの導入パターン。確定的な Node.js スクリプトと、判断が必要な箇所（検出結果の解釈・package.json のマージ）でのAI案内を組み合わせています。
 
 **二重チェック体制**: secretlint と gitleaks を両方使うことで、より確実にシークレットを検出します。
 
 ---
 
 ## 🚀 新規プロジェクト / 既存プロジェクト 共通
+
+### 1. Node.js前提でのAIワンショット指示書（推奨）
+
+> **🤖 AIへのワンショット指示（コピペ用）**
+>
+> ```
+> https://github.com/1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/setup-securecheck
+> このパターンを使ってセキュリティチェック（secretlint + gitleaks）を導入したいです。
+>
+> npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/setup-securecheck ./tmp/security-setup
+>
+> tmp/security-setup/quickstart.md を読んで、案内してください。
+> ```
+
+既存にこのパターンが導入済みでも安全です（`install.js`は既存ファイルを上書きせず、不足分だけ補います）。旧バージョン（v1/v2）からの移行は下記の「旧バージョンからの移行」を使ってください。
+
+**このフローの特徴**（詳細は`quickstart.md`参照）:
+- ファイル配置・npm依存導入・gitleaksダウンロード・フック配線・動作確認（ネガティブテスト・フェイルクローズ確認・verify）は全て`install.js`/`scan`/`setup-local`というコードが実行
+- AIが判断するのは2箇所だけ: `scan`結果の解釈（本物の漏洩かプレースホルダーか）と、`package.json`のマージ内容確認。この2箇所は生の`npm install`等がコード化されたのと違い、今回コード化されておらず、以前と同じ強さの判断＋確認の往復が必要（`quickstart.md`にチェックボックス・ゴーサイン待ちを明記）
+- 判断ポイント以外は、AIがコマンドを提示→人間が実行して結果を報告、という往復が最小限で済む
+
+### 2. 詳しい手順を1つずつ確認したい場合（Phase 0-3ウィザード）
+
+Node.js が使えない環境、あるいは各ステップの意味を人間が理解しながら1つずつ進めたい場合は、こちらの詳細手順を使ってください。中身（`.security-check/`一式）は上記フローが内部で使っているものと同じで、`install.js`/`scan`/`setup-local`が自動化している各ステップも、元をたどればこの手順書のPhase 0-3に対応しています。
 
 > **🤖 AIへのワンショット指示（コピペ用）**
 >
@@ -83,7 +107,9 @@ secretlint + gitleaks によるシークレットスキャンの**ウィザー�
 ```
 tmp/security-setup/                   # 一時ディレクトリ（導入完了後に削除）
 ├── README.md                         # このファイル（導入ガイド）
-├── setup-securecheck.md              # ウィザード手順書（AI が読むメイン文書）
+├── quickstart.md                     # Node.js前提のAI向け手順書（推奨導線）
+├── setup-securecheck.md              # 詳細な参考手順（Phase 0-3ウィザード）
+├── install.js                        # Node.js版インストーラー（ファイル配置＋npm/gitleaksインストール）
 └── templates/
     ├── .secretlintrc.json            # secretlint 設定テンプレート
     ├── gitleaks.toml                 # gitleaks 設定テンプレート
@@ -96,7 +122,11 @@ tmp/security-setup/                   # 一時ディレクトリ（導入完了�
             ├── environment.js        # gitleaks有無判定・v1/v2旧構成検知（pre-commit/verify共有）
             ├── pre-commit.js         # pre-commitフック本体（フェイルクローズ + 自動カナリア自己検証）
             ├── verify.js             # ヘルスチェック + テストラン
+            ├── scan.js               # ヘルスチェックの合否に関係なくスキャンだけ実行
+            ├── setup-local.js        # フック配線・.gitignore更新・動作確認までをまとめて実行
             ├── install-gitleaks.js   # gitleaks インストーラー（OS 自動判定）
+            ├── wizard.js             # 引数なし起動時の対話ウィザード
+            ├── prompt.js             # 対話ウィザードの入力ヘルパー
             └── uninstall.js          # アンインストール
 ```
 
@@ -108,16 +138,20 @@ tmp/security-setup/                   # 一時ディレクトリ（導入完了�
 
 | ファイル | 役割 | AI の扱い |
 |---------|------|----------|
-| **setup-securecheck.md** | ウィザード手順書 | AI が読んで人間に案内 |
+| **quickstart.md** | Node.js前提の手順書（チェックボックス・判断ポイント明記） | AI が読んで人間に案内（推奨） |
+| **install.js** | 既存/新規プロジェクトへの安全マージ用インストーラー | **コピーして実行**（AI は変更しない） |
+| **setup-securecheck.md** | 詳細な参考手順（Phase 0-3ウィザード） | Node.jsが使えない場合、AI が読んで人間に案内 |
 | **templates/.secretlintrc.json** | secretlint 設定 | **コピーのみ**（AI は生成しない） |
 | **templates/gitleaks.toml** | gitleaks 設定 | **コピーのみ**（AI は生成しない） |
 | **templates/.security-check/** | 確定的なツール一式 | **コピーして実行**（AI は変更しない） |
-| **package.json.example** | scripts 追記サンプル | AI が既存 package.json に統合 |
-| **gitignore.example** | .gitignore 追記サンプル | AI が既存 .gitignore に統合 |
+| **package.json.example** | scripts 追記サンプル | AI が既存 package.json に統合（判断層） |
+| **gitignore.example** | .gitignore 追記サンプル | `setup-local`が自動で追記（内容は本ファイルと同一） |
 
 ---
 
 ## 🎯 導入の流れ（Phase 0-3）
+
+`install.js`はPhase 0-1相当、`scan`はPhase 1.3/1.5相当、`setup-local`はPhase 3.1・3.3-3.6相当を自動化しています（詳細は各Phaseの説明を参照）。
 
 | Phase | 内容 | ここで止めてもOK？ |
 |-------|------|------------------|
@@ -137,7 +171,9 @@ tmp/security-setup/                   # 一時ディレクトリ（導入完了�
 | `node .security-check/cli.js verify` | ヘルスチェック（設定確認のみ） |
 | `node .security-check/cli.js verify --simple` | ヘルスチェック + staged ファイルスキャン（軽量・pre-commit相当） |
 | `node .security-check/cli.js verify --test-run` | ヘルスチェック + 全ファイル + 全履歴スキャン（重い。旧 `secret-scan:full` 相当） |
+| `node .security-check/cli.js scan [--all]` | ヘルスチェックの合否に関係なくスキャンだけ実行（無指定はstagedのみ、`--all`は全ファイル+全履歴） |
 | `node .security-check/cli.js install-gitleaks` | gitleaks バイナリのインストール（OS 自動判定） |
+| `node .security-check/cli.js setup-local` | フック配線・`.gitignore`更新・ネガティブテスト・フェイルクローズ確認・最終verifyまでをまとめて実行 |
 | `node .security-check/cli.js pre-commit` | pre-commitフック本体（通常は simple-git-hooks 経由で自動的に呼ばれる） |
 | `node .security-check/cli.js uninstall [--yes]` | このパターンの導入物を除去（`--yes` 無しはドライラン） |
 | `node .security-check/cli.js`（引数なし、TTY） | 対話ウィザードを起動（上下キーでサブコマンドを選択） |
@@ -228,7 +264,7 @@ gitleaksバイナリが見つからない状態は「secretlintのみで守ら�
 
 ### ワンショット型の一貫性
 - my-ai-collaboration-patterns の他パターンと同じ思想
-- `npx degit` で一式取得 → AI に手順書を読ませる
+- `npx degit` で一式取得 → `install.js`（推奨）または手順書をAIが実行・案内
 - 人間が責任を持ってコマンドを実行
 
 ---
@@ -237,6 +273,7 @@ gitleaksバイナリが見つからない状態は「secretlintのみで守ら�
 
 - [docs-structure](../../docs-structure/) - ドキュメント構造パターン
 - [actions-pattern](../../actions-pattern/) - AI への指示テンプレート
+- [setup-securecheck-3.0.2](../setup-securecheck-3.0.2/) - v3.1.0（Node.js製インストーラー導入）より前の状態を凍結したスナップショット。今後更新されません（詳細は同ディレクトリの`SNAPSHOT_NOTE.md`参照）
 
 ---
 

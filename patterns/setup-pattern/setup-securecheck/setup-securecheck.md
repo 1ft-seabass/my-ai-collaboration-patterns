@@ -436,6 +436,11 @@ git commit -m "test: pre-commit hook"
 git reset HEAD~1
 ```
 
+> ⚠️ **このコミットがプロジェクト最初のコミットだった場合**: `HEAD~1` が存在しないため `git reset HEAD~1` は `fatal: ambiguous argument 'HEAD~1'` で失敗します。その場合は代わりに以下を使ってください（コミット前の状態に戻ります）：
+> ```bash
+> git update-ref -d HEAD
+> ```
+
 ---
 
 ## ステップ 3.5.5: ネガティブテスト（フックが実際にブロックするか確認）
@@ -476,9 +481,11 @@ echo "exit code: $?"
 **テストファイルをクリーンアップ**:
 
 ```bash
-git restore --staged .test-secret-canary
+git rm --cached .test-secret-canary
 rm .test-secret-canary
 ```
+
+> ℹ️ `git restore --staged` ではなく `git rm --cached` を使ってください。`git restore --staged` はHEADの解決を必要とするため、プロジェクト最初のコミット前（`git reset HEAD~1`をまだ一度も実行していない新規プロジェクト等）だと `fatal: could not resolve HEAD` で失敗します。`git rm --cached` はHEAD不要で常に動きます。
 
 ### 3.5.5-c: フェイルクローズの確認（gitleaks不在時に本当にブロックされるか）
 

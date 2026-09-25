@@ -1,5 +1,37 @@
 # Changelog
 
+## [3.1.0] - 2026-09-24
+
+### 追加
+
+- **`install.js`（既存/新規プロジェクトへの安全マージ用インストーラー）を新設**
+  - `templates/`と同じ階層に配置。`.secretlintrc.json`/`gitleaks.toml`/`.security-check/`を差分コピー（既存ファイルは上書きしない）し、`package.json`が無ければ`npm init -y`、`secretlint`未導入なら`npm install -D`で追加、配置済みの`install-gitleaks.js`を呼び出してgitleaksバイナリまで導入する
+  - docs-structure側の同名インストーラーと同じ設計（`copyRecursiveSkipExisting`による新規導入・中断からの再開の統一）
+
+- **`scan`サブコマンドを新設**
+  - ヘルスチェック（`verify`）の合否に関係なく、今あるファイル・設定でスキャンだけを実行する入口。`verify --test-run`/`--simple`は15項目のヘルスチェックが1つでも失敗すると実スキャンに到達しないため、hook配線前のPhase1段階でも使える
+  - `--all`（全ファイル+全履歴）／無指定（stagedのみ）の2モード。手順書で唯一OS別に書き分けていたgitleaks初回スキャンの手順を、`findGitleaksBinary()`経由の呼び出しに統一して解消した
+
+- **`setup-local`サブコマンドを新設**
+  - 手順書Phase3のうち3.1（simple-git-hooksインストール）・3.3〜3.6（フック有効化・`.gitignore`更新・ネガティブテスト・フェイルクローズ確認・最終verify）を1コマンドに集約
+  - `package.json`の`simple-git-hooks.pre-commit`設定（3.2、判断層）は変更せず、設定済みであることを事前チェックしてから進める
+  - フェイルクローズ確認（gitleaksバイナリ不在時に本当にブロックされるかの確認）は手順から削除せず、`fs.renameSync`＋`try/finally`でNode化して残した
+  - ネガティブテストは実際に`git commit`を試みることで、`npx simple-git-hooks`で配線したフック自体が発火するかまで実地で確認する
+
+- **`quickstart.md`を新設し、README.mdのワンショット指示を再構成**
+  - `install.js`/`scan`/`setup-local`を使う新しい推奨導線を「1. Node.js前提でのAIワンショット指示書」として追加。詳細（チェックボックス・ゴーサイン待ち・判断ポイントの明示）は`quickstart.md`に分離し、README側は短い一文で`quickstart.md`を読ませる形にした（`setup-securecheck.md`と同じ構成）
+  - 従来のPhase 0-3ウィザード（`setup-securecheck.md`）は「2. 詳しい手順を1つずつ確認したい場合」として維持。判断ポイント（`scan`結果の解釈・`package.json`のマージ）はコード化しておらず、従来通りAIとの往復が必要であることをREADME上に明記した
+
+- **`setup-securecheck-3.0.2`を新設（凍結スナップショット）**
+  - v3.1.0（`install.js`/`scan`/`setup-local`導入）より前の状態（v3.0.2リリース時点、コミット`527f556`）を`patterns/setup-pattern/setup-securecheck-3.0.2/`としてそのまま複製。既知のバグを含め今後更新しない前提で、`SNAPSHOT_NOTE.md`にその旨を明記した
+
+### 修正
+
+- 上記の実装検証を通じて、手順書3.5.5-bの`git restore --staged`が、初回コミット前（新規プロジェクト、HEAD未解決）のリポジトリで`fatal: could not resolve HEAD`により失敗する問題を発見し、`setup-local`の実装では`git rm --cached --ignore-unmatch`に置き換えて対応した
+- 同じ根本原因（新規プロジェクトでのHEAD未解決）による、手順書3.5の`git reset HEAD~1`が最初のコミットに対しては`fatal: ambiguous argument 'HEAD~1'`で失敗する問題も発見。`setup-securecheck.md`本体を修正し、3.5には`git update-ref -d HEAD`の代替手順を注記として追加、3.5.5-bのクリーンアップコマンドは`git rm --cached`に置き換えた（両方ともコード追加ではなく手順書の記述修正）
+
+既存のサブコマンド（`verify`/`pre-commit`/`install-gitleaks`/`uninstall`）・`.security-check/`のディレクトリ構造・`cli.js`という単一エントリポイントはいずれも変更していない。追加のみのマイナーバージョンアップのため、既存導入済みプロジェクトは明示的に再取得しない限り今まで通り動作する（移行ガイド不要）。
+
 ## [3.0.2] - 2026-08-02
 
 ### 修正
