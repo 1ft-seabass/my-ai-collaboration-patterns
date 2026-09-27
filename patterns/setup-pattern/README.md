@@ -21,24 +21,6 @@ AI 協働開発において、技術導入を段階的に進めるためのワ�
 
 ## 🎯 利用可能なセットアップガイド
 
-### [docs-structure-and-securitycheck](./docs-structure-and-securitycheck/) - 統合インストーラー
-
-`docs-structure` + `setup-securecheck` をまとめて導入する統合インストーラー。機械的な配線部分を `setup-all.js` で自動化し、人間の判断が必要な部分（検出結果の解釈）だけ従来のチェック層に委ねる
-
-**対象プロジェクト**:
-- `docs-structure` と `setup-securecheck` を両方とも導入したい
-- 個別にウィザードを2回叩く手間・トークン消費を省略したい
-
-**ワンショット取得・実行**:
-```bash
-npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/docs-structure-and-securitycheck ./tmp/setup-all
-node ./tmp/setup-all/setup-all.js
-```
-
-**注**: `README.md` + `setup-all.js` のみの構成で、下記「構成の原則」とは意図的に異なります。理由は [パターン内 README](./docs-structure-and-securitycheck/README.md) 冒頭を参照してください。
-
----
-
 ### [docs-structure-for-branch](./docs-structure-for-branch/) - ブランチ専用ドキュメント構造初期化
 
 docs-structure 導入済みのプロジェクトで feature ブランチのドキュメント構造を初期化
@@ -85,9 +67,6 @@ npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/setup-
 ```
 patterns/setup-pattern/
 ├── README.md                           # このファイル（setup-pattern 全体の説明）
-├── docs-structure-and-securitycheck/   # 統合インストーラー（構成の原則の例外、詳細は内部README参照）
-│   ├── README.md                       # ワンショット指示 + 自動化する部分・しない部分
-│   └── setup-all.js                    # 統合インストーラー本体
 ├── docs-structure-for-branch/          # ブランチ専用ドキュメント構造初期化
 │   ├── README.md                       # ワンショット指示 + シェルスクリプト例
 │   └── for_branch_init.md              # 手順書（AI が読むメイン文書）

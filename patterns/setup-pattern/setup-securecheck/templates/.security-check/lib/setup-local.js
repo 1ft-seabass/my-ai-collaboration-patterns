@@ -47,8 +47,7 @@ function hasDependency(pkg, name) {
   );
 }
 
-// setup-all.js（docs-structure-and-securitycheck側）の同名関数・verify.js check#5と判定基準を揃える。
-// requireでの共有はできない（別パターン／別実行文脈）ため実装をコピーしている。
+// verify.js check#5と判定基準を揃える。requireでの共有はできない（別実行文脈）ため実装をコピーしている。
 function isEffectivelyCorrectPreCommitValue(value) {
   return !!value && /\.security-check\/cli\.js/.test(value) && !/\|\|\s*true/.test(value);
 }
