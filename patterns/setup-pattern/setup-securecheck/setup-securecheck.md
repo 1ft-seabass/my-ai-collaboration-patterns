@@ -404,12 +404,18 @@ npx simple-git-hooks
 
 ## ステップ 3.4: .gitignore を更新
 
-`tmp/security-setup/templates/gitignore.example` の内容を確認し、以下を既存の `.gitignore` に追加してください：
+`tmp/security-setup/templates/gitignore.example` の内容を確認し、以下を既存の `.gitignore` に追加してください（既に一部が追加済みの場合は、不足している行だけ追加してください）：
 
 ```gitignore
 # setup-securecheck: gitleaksバイナリ・実行ログ（ローカル専用、リポジトリに含めない）
 .security-check/bin/
 .security-check/logs/
+
+# Node.js（install.jsがpackage.json新規作成時にnpm installも行うため）
+node_modules/
+
+# パターン導入時の一時取得ディレクトリ（README/quickstart.mdのdegitコマンドで使用）
+tmp/
 ```
 
 ---

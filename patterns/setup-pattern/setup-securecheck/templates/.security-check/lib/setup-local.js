@@ -20,10 +20,25 @@ const CANARY_SECRET = 'ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8'; // gitleaks:al
 
 // templates/gitignore.example と同じ内容。setup-local.js はプロジェクトへ配置された後は
 // 元のパターンリポジトリ側 templates/ を参照できないため、内容をここに直接持つ。
-const GITIGNORE_BLOCK =
-  '# setup-securecheck: gitleaksバイナリ・実行ログ（ローカル専用、リポジトリに含めない）\n' +
-  '.security-check/bin/\n' +
-  '.security-check/logs/\n';
+// セクションごとに分けているのは、以前のバージョンで既に一部だけ追記済みのプロジェクトで
+// setup-local を再実行したとき、不足分だけを個別に補えるようにするため。
+const GITIGNORE_SECTIONS = [
+  {
+    marker: '.security-check/bin/',
+    block:
+      '# setup-securecheck: gitleaksバイナリ・実行ログ（ローカル専用、リポジトリに含めない）\n' +
+      '.security-check/bin/\n' +
+      '.security-check/logs/\n',
+  },
+  {
+    marker: 'node_modules/',
+    block: '# Node.js（install.jsがpackage.json新規作成時にnpm installも行うため）\nnode_modules/\n',
+  },
+  {
+    marker: 'tmp/',
+    block: '# パターン導入時の一時取得ディレクトリ（README/quickstart.mdのdegitコマンドで使用）\ntmp/\n',
+  },
+];
 
 function hasDependency(pkg, name) {
   return !!(
@@ -93,14 +108,18 @@ function enableHooks() {
 
 function updateGitignore() {
   step('4. .gitignore 更新');
-  const current = fs.existsSync(GITIGNORE_PATH) ? fs.readFileSync(GITIGNORE_PATH, 'utf8') : '';
-  if (current.includes('.security-check/bin/') && current.includes('.security-check/logs/')) {
+  let current = fs.existsSync(GITIGNORE_PATH) ? fs.readFileSync(GITIGNORE_PATH, 'utf8') : '';
+  const missing = GITIGNORE_SECTIONS.filter((section) => !current.includes(section.marker));
+  if (missing.length === 0) {
     console.log('  SKIP   .gitignore（既に追記済み）');
     return true;
   }
-  const separator = current.length === 0 ? '' : current.endsWith('\n') ? '\n' : '\n\n';
-  fs.writeFileSync(GITIGNORE_PATH, current + separator + GITIGNORE_BLOCK);
-  console.log('  CREATE .gitignore に追記しました');
+  for (const section of missing) {
+    const separator = current.length === 0 ? '' : current.endsWith('\n') ? '\n' : '\n\n';
+    current += separator + section.block;
+  }
+  fs.writeFileSync(GITIGNORE_PATH, current);
+  console.log(`  CREATE .gitignore に追記しました（${missing.map((section) => section.marker).join(', ')}）`);
   return true;
 }
 
