@@ -33,6 +33,17 @@ function execCommand(command) {
   }
 }
 
+// ISO タイムスタンプ（UTC）をそのまま10文字切り出すと、JSTなど正のUTCオフセットの
+// タイムゾーンでは午前中の実行が「前日」に見えてしまう。表示用途なので実行環境の
+// ローカルタイムゾーンでの日付に変換する。
+function toLocalDateStr(isoTimestamp) {
+  const d = new Date(isoTimestamp);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // git worktree では .git がディレクトリではなく gitdir ポインタファイル
 // （`gitdir: /path/to/main/.git/worktrees/<name>`）になり、決め打ちの
 // '.git/hooks/pre-commit' は実在するフックを指さない。hooks は全 worktree で
@@ -243,7 +254,7 @@ function run(args) {
         const last = JSON.parse(lines[lines.length - 1]);
         const date = new Date(last.timestamp);
         const daysDiff = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
-        const dateStr = last.timestamp.slice(0, 10);
+        const dateStr = toLocalDateStr(last.timestamp);
         if (daysDiff === 0) {
           checkResult(true, `実行ログ — 最終実行: ${dateStr} 本日 (${last.result})`);
         } else if (daysDiff <= 7) {
@@ -278,7 +289,7 @@ function run(args) {
     if (passedCanary) {
       checkResult(false, `ネガティブテスト実行痕跡 — カナリアがブロックされずコミットされた形跡があります（${passedCanary.timestamp}）。pre-commit フックが機能していない可能性`);
     } else if (blockedCanary) {
-      checkResult(true, `ネガティブテスト実行痕跡 — ${blockedCanary.timestamp.slice(0, 10)} にカナリアがブロックされたことを確認`);
+      checkResult(true, `ネガティブテスト実行痕跡 — ${toLocalDateStr(blockedCanary.timestamp)} にカナリアがブロックされたことを確認`);
     } else {
       checkResult(false, 'ネガティブテスト実行痕跡 — Step 3.6.5のネガティブテストが実行された形跡がありません', 'warning');
     }
@@ -306,14 +317,14 @@ function run(args) {
       const cleanupFailedTools = [g === 'cleanup-failed' && 'gitleaks', s === 'cleanup-failed' && 'secretlint'].filter(Boolean);
 
       if (brokenTools.length > 0) {
-        checkResult(false, `自動カナリア自己検証の実行痕跡 — 直近コミット(${last.timestamp.slice(0, 10)})で自己検証が失敗していた形跡があります（${brokenTools.join(', ')}）`);
+        checkResult(false, `自動カナリア自己検証の実行痕跡 — 直近コミット(${toLocalDateStr(last.timestamp)})で自己検証が失敗していた形跡があります（${brokenTools.join(', ')}）`);
       } else if (cleanupFailedTools.length > 0) {
-        checkResult(false, `自動カナリア自己検証の実行痕跡 — 直近コミット(${last.timestamp.slice(0, 10)})でカナリアの後片付けに失敗していた形跡があります（${cleanupFailedTools.join(', ')}）。index/作業ツリーにカナリアが残留していないか確認してください`);
+        checkResult(false, `自動カナリア自己検証の実行痕跡 — 直近コミット(${toLocalDateStr(last.timestamp)})でカナリアの後片付けに失敗していた形跡があります（${cleanupFailedTools.join(', ')}）。index/作業ツリーにカナリアが残留していないか確認してください`);
       } else if (g === 'ok' || s === 'ok') {
         const skipped = [g !== 'ok' && 'gitleaks', s !== 'ok' && 'secretlint'].filter(Boolean);
-        checkResult(true, `自動カナリア自己検証の実行痕跡 — 直近コミット(${last.timestamp.slice(0, 10)})で確認${skipped.length ? `（${skipped.join(', ')} はスキップ）` : ''}`);
+        checkResult(true, `自動カナリア自己検証の実行痕跡 — 直近コミット(${toLocalDateStr(last.timestamp)})で確認${skipped.length ? `（${skipped.join(', ')} はスキップ）` : ''}`);
       } else {
-        checkResult(false, `自動カナリア自己検証の実行痕跡 — 直近コミット(${last.timestamp.slice(0, 10)})で両検出器ともスキップされており自己検証が確認できていません`, 'warning');
+        checkResult(false, `自動カナリア自己検証の実行痕跡 — 直近コミット(${toLocalDateStr(last.timestamp)})で両検出器ともスキップされており自己検証が確認できていません`, 'warning');
       }
     }
   } else {
