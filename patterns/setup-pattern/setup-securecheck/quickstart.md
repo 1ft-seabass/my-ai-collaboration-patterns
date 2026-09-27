@@ -19,6 +19,7 @@
 □ scan --all で検出結果を確認 → 【判断】本物の漏洩かプレースホルダーかを判断
 □ package.json に scripts/simple-git-hooks 設定をマージ → 【判断】既存設定との整合を確認
 □ setup-local でフック配線・ネガティブテスト・最終確認まで実行
+□ 最終確認（npm経由でverify）→ 人間にバトンを戻す（ご自身での実行＋ノート＋コミットのお願い）
 
 重要なルール：
 - 1手順ずつ実行し、結果を報告してから次へ進む
@@ -75,6 +76,33 @@ node .security-check/cli.js setup-local
 ```bash
 rm -rf tmp/security-setup
 ```
+
+### 6. 最終確認（判断）と締め
+
+```bash
+npm run security -- verify --test-run
+```
+
+`setup-local`内部では`node .security-check/cli.js verify --test-run`を直接呼んでいるため、
+`package.json`に追加した`security`スクリプト経由での動作はまだ確認していません。
+ここで念のため、npm経由でも同じ結果（`15/15 passed`）になるか確認してください。
+
+**（判断）** 結果が変わらなければそのまま締めへ進んでください。もし失敗する場合は、
+`package.json`の`scripts.security`エントリが正しくマージされているか確認し、ユーザーに報告してください。
+
+問題なければ、以下をそのままユーザーに伝えて締めくくってください（要約・言い換えはせず、この通り伝える）：
+
+> 導入が完了しました。
+>
+> 最後に、ご自身でも一度このコマンドを実行してみてください：
+>
+> ```
+> npm run security -- verify --test-run
+> ```
+>
+> （AIが設定してAIが確認する、で終わらせないための最終確認です。）
+>
+> 問題なければ、今回の導入の経緯をノート化してコミットすることをおすすめします。
 
 ---
 
