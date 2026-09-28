@@ -26,18 +26,18 @@ AI 協働開発において、技術導入を段階的に進めるためのワ�
 docs-structure 導入済みのプロジェクトで feature ブランチのドキュメント構造を初期化
 
 **対象プロジェクト**:
-- docs-structure を導入済みのプロジェクト
 - feature ブランチで作業を開始するとき
 - ブランチ固有のノート・申し送りを main と分けて管理したいとき
+- `docs-structure` が未導入でも自動で導入してからブランチ初期化まで行う（前提不要）
 
-**ワンショット取得**:
+**ワンショット取得・実行**:
 ```bash
-npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/docs-structure-for-branch /tmp/docs-structure-for-branch
-cp /tmp/docs-structure-for-branch/for_branch_init.md ./for_branch_init.md
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/docs-structure-for-branch ./tmp/docs-structure-for-branch --force
+node ./tmp/docs-structure-for-branch/install.js
+rm -rf ./tmp/docs-structure-for-branch
 ```
 
-**前提**:
-- [docs-structure](../docs-structure/) が導入済みであること
+判断ポイントが無いため`install.js`が1回で完結させます。詳細は[パターン内README](./docs-structure-for-branch/README.md)を参照。
 
 ---
 
@@ -68,8 +68,9 @@ npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/setup-
 patterns/setup-pattern/
 ├── README.md                           # このファイル（setup-pattern 全体の説明）
 ├── docs-structure-for-branch/          # ブランチ専用ドキュメント構造初期化
-│   ├── README.md                       # ワンショット指示 + シェルスクリプト例
-│   └── for_branch_init.md              # 手順書（AI が読むメイン文書）
+│   ├── README.md                       # ワンショット指示
+│   ├── install.js                      # 確定的インストーラー本体（判断ポイント無し）
+│   └── for_branch_init.md              # 手順書（1ステップずつ確認したい場合用）
 └── setup-securecheck/                  # セキュリティチェック導入ガイド
     ├── README.md                       # ワンショット指示
     ├── setup-securecheck.md            # 手順書
@@ -106,8 +107,9 @@ setup_xxxx/
 
 ```bash
 # ブランチ専用ドキュメント構造初期化
-npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/docs-structure-for-branch /tmp/docs-structure-for-branch
-cp /tmp/docs-structure-for-branch/for_branch_init.md ./for_branch_init.md
+npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/docs-structure-for-branch ./tmp/docs-structure-for-branch --force
+node ./tmp/docs-structure-for-branch/install.js
+rm -rf ./tmp/docs-structure-for-branch
 
 # セキュリティチェック（secretlint + gitleaks）
 npx degit 1ft-seabass/my-ai-collaboration-patterns/patterns/setup-pattern/setup-securecheck ./setup-securecheck
